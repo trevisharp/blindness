@@ -21,6 +21,7 @@ public class MyComponentA : Stateness
         "Textos",
         "Salvos"
     };
+    MyComponentB compB = null;
 
     public void Run()
     {
@@ -59,7 +60,7 @@ public class MyComponentA : Stateness
         if (texts.Count == 0)
             Console.WriteLine("\tLista vazia!");
         
-        new MyComponentB(n, texts).Run();
+        compB.Run();
     }
 }
 
@@ -67,8 +68,7 @@ public class MyComponentB : Stateness
 {
     int n = default;
     List<string> texts = default;
-    public MyComponentB(int n, List<string> texts)
-        : base(texts) { }
+    public MyComponentB(int n, List<string> texts) { }
 
     public void Run()
     {
