@@ -15,15 +15,46 @@ while (true)
 
 public class MyComponentA : Stateness
 {
-    int n = 0;
-    List<string> texts = new();
+    //─│┌┐└┘├┤
+    int n = 6;
+    List<string> texts = new() {
+        "Textos",
+        "Salvos"
+    };
 
     public void Run()
     {
-        Console.WriteLine($"Máximo de caractéres: {n}");
-        Console.WriteLine("Textos salvos:");
+        Console.Write("┌");
+        for (int i = 0; i < n + 2; i++)
+            Console.Write("─");
+        Console.WriteLine("┐");
+
+        int j = 0;
         foreach (var text in texts)
-            Console.WriteLine($"\t-{text}");
+        {
+            j++;
+            
+            Console.Write("│");
+            Console.Write(" ");
+            Console.Write(text);
+            for (int i = text.Length; i < n + 1; i++)
+                Console.Write(" ");
+            Console.WriteLine("│");
+
+            if (j == texts.Count)
+            {
+                Console.Write("└");
+                for (int i = 0; i < n + 2; i++)
+                    Console.Write("─");
+                Console.WriteLine("┘");
+                continue;
+            }
+
+            Console.Write("├");
+            for (int i = 0; i < n + 2; i++)
+                Console.Write("─");
+            Console.WriteLine("┤");
+        }
         
         if (texts.Count == 0)
             Console.WriteLine("\tLista vazia!");
