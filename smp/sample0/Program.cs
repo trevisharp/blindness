@@ -13,15 +13,17 @@ while (true)
     Console.ReadKey(true);
 }
 
-public class MyComponentA : Stateness
+public class MyComponentA : Stateness<MyComponentA>
 {
-    //─│┌┐└┘├┤
     int n = 6;
     List<string> texts = new() {
         "Textos",
         "Salvos"
     };
-    MyComponentB compB = null;
+    MyComponentB compB = MyComponentB.Get(
+        n => n,
+        texts => texts
+    );
 
     public void Run()
     {
@@ -64,11 +66,10 @@ public class MyComponentA : Stateness
     }
 }
 
-public class MyComponentB : Stateness
+public class MyComponentB : Stateness<MyComponentB>
 {
-    int n = default;
-    List<string> texts = default;
-    public MyComponentB(int n, List<string> texts) { }
+    int n;
+    List<string> texts;
 
     public void Run()
     {
