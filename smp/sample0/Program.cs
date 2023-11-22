@@ -13,7 +13,7 @@ while (true)
     Console.ReadKey(true);
 }
 
-public class MyComponentA : Stateness<MyComponentA>
+public partial class MyComponentA : Stateness<MyComponentA>
 {
     int n = 6;
     List<string> texts = new() {
@@ -66,8 +66,9 @@ public class MyComponentA : Stateness<MyComponentA>
     }
 }
 
-public class MyComponentB : Stateness<MyComponentB>
+public partial class MyComponentB : Stateness<MyComponentB>
 {
+    public MyComponentB(int n, List<string> texts) { }
     int n;
     List<string> texts;
 
@@ -78,6 +79,12 @@ public class MyComponentB : Stateness<MyComponentB>
         
         if (texts is null)
             return;
+        
+        if (text == "!clear")
+        {
+            texts = new();
+            return;
+        }
         
         texts.Add(text);
 

@@ -2,6 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
+    <TransformOnBuild>true</TransformOnBuild>
   </PropertyGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+
+    <PropertyGroup>
+      <Comando>echo Sem Comando Definido</Comando>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(OS) == 'Windows_NT'">
+      <Comando>dir</Comando>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(OS) == 'Unix'">
+      <Comando>ls</Comando>
+    </PropertyGroup>
+
+    <Exec Command="$(Comando)" />
+  </Target>
 
 </Project>
