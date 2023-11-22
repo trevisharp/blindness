@@ -6,13 +6,18 @@ namespace Blindness;
 
 public abstract class Stateness
 {
-    private List<State> states = new();
-    private List<Stateness> children = new();
 
-    public Stateness(params object[] deps)
+}
+
+public abstract class Stateness<T> : Stateness
+    where T : Stateness<T>
+{
+    public static T Get(params Func<dynamic, dynamic>[] deps)
     {
-
+        throw new NotImplementedException();
     }
+
+    private List<State> states = new();
 
     // TODOs
     // -Identify recived fields has a parent state
