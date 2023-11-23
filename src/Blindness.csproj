@@ -2,7 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <PackageOutputScripts>true</PackageOutputScripts>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Blindness</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Leonardo Trevisan Silio</Authors>
   </PropertyGroup>
 
   <ItemGroup>
