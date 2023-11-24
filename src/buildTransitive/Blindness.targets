@@ -1,9 +1,13 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <MeuGeradorDeCodigoExecutable Include="$(MSBuildThisFileDirectory)tools\CodeGenerator.exe" />
-  </ItemGroup>
+    <ItemGroup>
+        <MeuGeradorDeCodigoExecutable Include="$(MSBuildThisFileDirectory)tools\CodeGenerator.exe" />
+    </ItemGroup>
 
-  <Target Name="EstenderClasses" BeforeTargets="Build">
-    <Exec Command="@(MeuGeradorDeCodigoExecutable)" />
-  </Target>
+    <Target Name="EstenderClasses" BeforeTargets="Build">
+        <Exec Command="@(MeuGeradorDeCodigoExecutable)" />
+    </Target>  
+
+    <Target Name="EstenderClasses" AfterTargets="Build">
+        <Message Text="Geração Blindess finalizada" />
+    </Target>
 </Project>
