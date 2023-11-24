@@ -1,3 +1,3 @@
 ﻿using System.IO;
 
-File.WriteAllText("example.txt", "data.");
+File.WriteAllText("example.txt", "data");
