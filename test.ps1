@@ -1,3 +1,5 @@
+clear
+
 cd gen
 dotnet build -c Release
 cd ..
