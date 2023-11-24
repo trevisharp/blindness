@@ -68,9 +68,8 @@ public partial class MyComponentA : Stateness<MyComponentA>
 
 public partial class MyComponentB : Stateness<MyComponentB>
 {
-    public MyComponentB(int n, List<string> texts) { }
-    int n;
-    List<string> texts;
+    protected virtual int n { get; set; }
+    protected virtual List<string> texts { get; set; }
 
     public void Run()
     {
