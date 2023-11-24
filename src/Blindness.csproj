@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="tools\*.*" PackagePath="tools" Pack="true" />
-    <None Include="build\*.*" PackagePath="build" Pack="true" />
+    <None Include="buildTransitive\*.*" PackagePath="buildTransitive" Pack="true" />
+    <None Include="buildTransitive\**\*.*" PackagePath="buildTransitive" Pack="true" />
   </ItemGroup>
 
 </Project>
