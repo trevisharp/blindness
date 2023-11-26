@@ -14,9 +14,7 @@ public abstract class Stateness<T> : Stateness
     where T : Stateness<T>
 {
     public static T Get(params Func<dynamic, dynamic>[] deps)
-    {
-        throw new NotImplementedException();
-    }
+        => DependencySystem.Current.GetConcrete<T>(deps);
 
     private List<State> states = new();
 
