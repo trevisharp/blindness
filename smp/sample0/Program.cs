@@ -13,17 +13,22 @@ while (true)
     Console.ReadKey(true);
 }
 
-public partial class MyComponentA : Stateness<MyComponentA>
+public class MyComponentA : Node<MyComponentA>
 {
+    protected virtual MyComponentB compB { get; set; }
     int n = 6;
     List<string> texts = new() {
         "Textos",
         "Salvos"
     };
-    MyComponentB compB = MyComponentB.Get(
-        n => n,
-        texts => texts
-    );
+
+    public override void Load()
+    {
+        compB.Bind(
+            n => n,
+            texts => texts
+        );
+    }
 
     public void Run()
     {
@@ -66,7 +71,7 @@ public partial class MyComponentA : Stateness<MyComponentA>
     }
 }
 
-public partial class MyComponentB : Stateness<MyComponentB>
+public class MyComponentB : Node<MyComponentB>
 {
     protected virtual int n { get; set; }
     protected virtual List<string> texts { get; set; }

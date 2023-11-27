@@ -6,14 +6,23 @@ namespace Blindness;
 
 public abstract class Node
 {
+    public void Bind(Func<dynamic, dynamic> binding)
+    {
+        throw new NotImplementedException();
+    }
+    public void Bind(params Func<dynamic, dynamic>[] binding)
+    {
+        throw new NotImplementedException();
+    }
 
+    public virtual void Load() { }
 }
 
 public abstract class Node<T> : Node
     where T : Node<T>
 {
-    public static T Get(params Func<dynamic, dynamic>[] deps)
-        => DependencySystem.Current.GetConcrete<T>(deps);
+    public static T Get()
+        => DependencySystem.Current.GetConcrete<T>();
 
     private List<Binding> bindings = new();
 

@@ -15,9 +15,7 @@ public class DependencySystem
     
     private Dictionary<Type, Type> typeMap = new();
 
-
-
-    public T GetConcrete<T>(Func<dynamic, dynamic>[] deps)
+    public T GetConcrete<T>()
         where T : Node<T>
     {
         var inputType = typeof(T);
