@@ -1,22 +1,21 @@
 using System;
 using System.Reflection;
-using System.Linq.Expressions;
 using System.Collections.Generic;
 
 namespace Blindness;
 
-public abstract class Stateness
+public abstract class Node
 {
 
 }
 
-public abstract class Stateness<T> : Stateness
-    where T : Stateness<T>
+public abstract class Node<T> : Node
+    where T : Node<T>
 {
     public static T Get(params Func<dynamic, dynamic>[] deps)
         => DependencySystem.Current.GetConcrete<T>(deps);
 
-    private List<State> states = new();
+    private List<Binding> bindings = new();
 
     // TODOs
     // -Identify recived fields has a parent state
@@ -27,7 +26,7 @@ public abstract class Stateness<T> : Stateness
 
         foreach (var prop in type.GetRuntimeProperties())
         {
-            this.states.Add(new() {
+            this.bindings.Add(new() {
                 Parent = this,
                 Name = prop.Name,
                 IsProperty = true, 
@@ -37,7 +36,7 @@ public abstract class Stateness<T> : Stateness
 
         foreach (var field in type.GetRuntimeFields())
         {
-            this.states.Add(new() {
+            this.bindings.Add(new() {
                 Parent = this,
                 Name = field.Name,
                 IsProperty = false, 

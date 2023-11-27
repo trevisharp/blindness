@@ -18,7 +18,7 @@ public class DependencySystem
 
 
     public T GetConcrete<T>(Func<dynamic, dynamic>[] deps)
-        where T : Stateness<T>
+        where T : Node<T>
     {
         var inputType = typeof(T);
         
