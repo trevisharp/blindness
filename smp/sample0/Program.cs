@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Blindness;
 
-var component = new MyComponentA();
+var component = MyComponentA.Get();
 
 while (true)
 {
