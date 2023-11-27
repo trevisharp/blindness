@@ -1,5 +1,7 @@
 clear
 
+dotnet nuget delete Blindness 0.0.1 -s C:\Users\sii5ct\.nuget\packages --non-interactive
+
 cd gen
 dotnet build -c Release
 cd ..
@@ -15,11 +17,12 @@ cd ..
 
 cd smp
 cd sample0
+dotnet remove package Blindess
 dotnet add package -s ..\..\src\output Blindness
 dotnet run
 cd ..
 cd ..
 
 cd src
-rm output
+rm output -r
 cd ..

@@ -1,3 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
-File.WriteAllText("example.txt", "data");
+Console.WriteLine("Running Code Generator...");
+File.WriteAllText("example.txt", "oi");

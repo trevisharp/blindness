@@ -3,11 +3,11 @@
         <MeuGeradorDeCodigoExecutable Include="$(MSBuildThisFileDirectory)tools\CodeGenerator.exe" />
     </ItemGroup>
 
-    <Target Name="EstenderClasses" BeforeTargets="Build">
+    <Target Name="GenerateCode" BeforeTargets="Build">
         <Exec Command="@(MeuGeradorDeCodigoExecutable)" />
     </Target>  
 
-    <Target Name="EstenderClasses" AfterTargets="Build">
-        <Message Text="Geração Blindess finalizada" />
+    <Target Name="ShowMessage" AfterTargets="Build">
+        <Message Text="Blindness internal code generated." />
     </Target>
 </Project>
