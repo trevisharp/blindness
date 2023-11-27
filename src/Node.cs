@@ -6,10 +6,16 @@ namespace Blindness;
 
 public abstract class Node
 {
-    public void Bind(Func<dynamic, dynamic> binding)
+    public void Bind(string targetName, string fieldName)
     {
         throw new NotImplementedException();
     }
+
+    public void BindValue(string targetName, object value)
+    {
+        throw new NotImplementedException();
+    }
+
     public void Bind(params Func<dynamic, dynamic>[] binding)
     {
         throw new NotImplementedException();

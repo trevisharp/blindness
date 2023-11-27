@@ -4,6 +4,13 @@ using System.Collections.Generic;
 using Blindness;
 
 var component = MyComponentA.Get();
+component.Bind(
+    size => 6,
+    texts => new List<string> {
+        "Textos",
+        "Salvos"
+    }
+);
 
 while (true)
 {
@@ -16,24 +23,21 @@ while (true)
 public class MyComponentA : Node<MyComponentA>
 {
     protected virtual MyComponentB compB { get; set; }
-    int n = 6;
-    List<string> texts = new() {
-        "Textos",
-        "Salvos"
-    };
+    protected virtual int size { get; set; }
+    protected virtual List<string> texts { get; set; }
 
     public override void Load()
     {
         compB.Bind(
-            n => n,
-            texts => texts
+            n => size,
+            list => texts
         );
     }
 
     public void Run()
     {
         Console.Write("┌");
-        for (int i = 0; i < n + 2; i++)
+        for (int i = 0; i < size + 2; i++)
             Console.Write("─");
         Console.WriteLine("┐");
 
@@ -45,21 +49,21 @@ public class MyComponentA : Node<MyComponentA>
             Console.Write("│");
             Console.Write(" ");
             Console.Write(text);
-            for (int i = text.Length; i < n + 1; i++)
+            for (int i = text.Length; i < size + 1; i++)
                 Console.Write(" ");
             Console.WriteLine("│");
 
             if (j == texts.Count)
             {
                 Console.Write("└");
-                for (int i = 0; i < n + 2; i++)
+                for (int i = 0; i < size + 2; i++)
                     Console.Write("─");
                 Console.WriteLine("┘");
                 continue;
             }
 
             Console.Write("├");
-            for (int i = 0; i < n + 2; i++)
+            for (int i = 0; i < size + 2; i++)
                 Console.Write("─");
             Console.WriteLine("┤");
         }
@@ -74,23 +78,23 @@ public class MyComponentA : Node<MyComponentA>
 public class MyComponentB : Node<MyComponentB>
 {
     protected virtual int n { get; set; }
-    protected virtual List<string> texts { get; set; }
+    protected virtual List<string> list { get; set; }
 
     public void Run()
     {
         Console.Write("Item a adicionar: ");
         var text = Console.ReadLine();
         
-        if (texts is null)
+        if (list is null)
             return;
         
         if (text == "!clear")
         {
-            texts = new();
+            list = new();
             return;
         }
         
-        texts.Add(text);
+        list.Add(text);
 
         if (text.Length > n)
             n = text.Length;

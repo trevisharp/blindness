@@ -3,7 +3,7 @@
         <MeuGeradorDeCodigoExecutable Include="$(MSBuildThisFileDirectory)tools\CodeGenerator.exe" />
     </ItemGroup>
 
-    <Target Name="GenerateCode" BeforeTargets="Build">
+    <Target Name="GenerateCode" BeforeTargets="CoreCompile">
         <Exec Command="@(MeuGeradorDeCodigoExecutable)" />
     </Target>
 </Project>
