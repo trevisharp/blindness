@@ -23,13 +23,27 @@ public class DependencySystem
         try
         {
             var inputType = typeof(T);
-            var concreteType = findConcrete(inputType);
+            var obj = GetConcrete(inputType);
+            return obj as T;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
 
+    public Node GetConcrete(Type type)
+    {
+        try
+        {
+            var concreteType = findConcrete(type);
             var obj = Activator.CreateInstance(concreteType);
-            var node = obj as T;
+
+            var node = obj as Node;
             if (node is null)
                 return null;
             
+            node.LoadMembers();
             node.Load();
             return node;
         }

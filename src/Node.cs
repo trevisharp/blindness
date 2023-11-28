@@ -11,12 +11,57 @@ public abstract class Node
 {
     public void Bind(params Expression<Func<object, object>>[] bindings)
     {
-        foreach (var binding in bindings)
+        try
         {
-            var info = getBindingInformation(binding);
-            
-            // TODO
+            foreach (var binding in bindings)
+            {
+                var info = getBindingInformation(binding);
+                
+                // TODO
+            }
         }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    internal void LoadMembers()
+    {
+        var type = this.GetType();
+        foreach (var prop in type.GetRuntimeProperties())
+            loadProperty(prop);
+    }
+    protected internal virtual void Load() { }
+
+    private void loadProperty(PropertyInfo prop)
+    {
+        try
+        {
+            var get = prop.GetMethod;
+            var set = prop.SetMethod;
+            if (!get.IsVirtual || !set.IsVirtual)
+                return;
+            
+            if (prop.PropertyType.IsSubclassOf(typeof(Node)))
+            {
+                initSubNode(prop);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new PropertyInitializationException(
+                prop.Name, ex
+            );
+        }
+    }
+
+    private void initSubNode(PropertyInfo prop)
+    {
+        var type = prop.PropertyType;
+        var node = DependencySystem
+            .Current.GetConcrete(type);
+        prop.SetValue(this, node);
     }
 
     private (MemberInfo member, object obj) getBindingInformation(
@@ -56,7 +101,6 @@ public abstract class Node
         throw new InvalidBindingFormatException();
     }
 
-    public virtual void Load() { }
 }
 
 public abstract class Node<T> : Node
