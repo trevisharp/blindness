@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 namespace Blindness;
 
+using Exceptions;
+
 public class DependencySystem
 {
     private DependencySystem() { }
@@ -18,12 +20,35 @@ public class DependencySystem
     public T GetConcrete<T>()
         where T : Node<T>
     {
-        var inputType = typeof(T);
-        
-        if (typeMap.ContainsKey(inputType))
-            return null;
+        try
+        {
+            var inputType = typeof(T);
+            var concreteType = findConcrete(inputType);
 
-        var assembly = Assembly.GetEntryAssembly();
+            var obj = Activator.CreateInstance(concreteType);
+            var node = obj as T;
+            if (node is null)
+                return null;
+            
+            node.Load();
+            return node;
+        }
+        catch (MissingConcreteTypeException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            throw new ActivatorException(ex);
+        }
+    }
+
+    private Type findConcrete(Type inputType)
+    {
+        if (typeMap.ContainsKey(inputType))
+            return typeMap[inputType];
+
+        var assembly = inputType.Assembly;
         var types = assembly.GetTypes();
 
         foreach (var type in types)
@@ -31,9 +56,13 @@ public class DependencySystem
             if (!type.IsSubclassOf(inputType))
                 continue;
             
+            if (type.GetCustomAttribute<ConcreteAttribute>() is null)
+                continue;
             
+            this.typeMap.Add(inputType, type);
+            return type;
         }
 
-        throw new NotImplementedException();
+        throw new MissingConcreteTypeException(inputType);
     }
 }
