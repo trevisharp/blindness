@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using Blindness;
 
 var component = MyComponentA.Get();
-component.Bind(
-    size => 6,
-    texts => new List<string> {
-        "Textos",
-        "Salvos"
-    }
-);
+component |= size => 6;
+component |= texts => new List<string> {
+    "Textos",
+    "Salvos"
+};
 
 while (true)
 {
@@ -26,12 +24,10 @@ public class MyComponentA : Node<MyComponentA>
     protected virtual int size { get; set; }
     protected virtual List<string> texts { get; set; }
 
-    public override void Load()
+    protected override void Load()
     {
-        compB.Bind(
-            n => size,
-            list => texts
-        );
+        compB |= n => size;
+        compB |= list => texts;
     }
 
     public void Run()

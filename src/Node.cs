@@ -25,6 +25,7 @@ public abstract class Node
             throw ex;
         }
     }
+
     internal void LoadMembers()
     {
         var type = this.GetType();
@@ -59,6 +60,10 @@ public abstract class Node
     private void initSubNode(PropertyInfo prop)
     {
         var type = prop.PropertyType;
+
+        if (type == prop.DeclaringType)
+            throw new DependenceOverflowException(type);
+
         var node = DependencySystem
             .Current.GetConcrete(type);
         prop.SetValue(this, node);
@@ -95,12 +100,12 @@ public abstract class Node
                 return memberExp.Member;
             
             case ExpressionType.ListInit:
+            case ExpressionType.Constant:
                 return null;
         }
         
         throw new InvalidBindingFormatException();
     }
-
 }
 
 public abstract class Node<T> : Node
@@ -109,31 +114,10 @@ public abstract class Node<T> : Node
     public static T Get()
         => DependencySystem.Current.GetConcrete<T>();
 
-    // TODOs
-    // -Identify recived fields has a parent state
-    // -Try remove unused states
-    private void loadStates()
+    public static T operator |(
+        Node<T> node, Expression<Func<object, object>> binding)
     {
-        // var type = this.GetType();
-
-        // foreach (var prop in type.GetRuntimeProperties())
-        // {
-        //     this.bindings.Add(new() {
-        //         Parent = this,
-        //         Name = prop.Name,
-        //         IsProperty = true, 
-        //         Type = prop.PropertyType
-        //     });
-        // }
-
-        // foreach (var field in type.GetRuntimeFields())
-        // {
-        //     this.bindings.Add(new() {
-        //         Parent = this,
-        //         Name = field.Name,
-        //         IsProperty = false, 
-        //         Type = field.FieldType
-        //     });
-        // }
+        node.Bind(binding);
+        return node as T;
     }
 }
