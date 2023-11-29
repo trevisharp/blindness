@@ -9,7 +9,7 @@ using Exceptions;
 
 public abstract class Node
 {
-    public void Bind(params Expression<Func<object, object>>[] bindings)
+    protected void Bind(params Expression<Func<object, object>>[] bindings)
     {
         try
         {
@@ -69,7 +69,7 @@ public abstract class Node
         prop.SetValue(this, node);
     }
 
-    private (MemberInfo member, object obj) getBindingInformation(
+    private (string field, MemberInfo member, object obj) getBindingInformation(
         Expression<Func<object, object>> binding
     )
     {
@@ -80,10 +80,10 @@ public abstract class Node
         var body = binding.Body;
         var member = fieldObjectSearch(body);
         if (member != null)
-            return (member, null);
+            return (reciver, member, null);
         
         var func = binding.Compile();
-        return (null, func(null));
+        return (reciver, null, func(null));
     }
 
     private MemberInfo fieldObjectSearch(Expression body)

@@ -3,19 +3,33 @@ using System.Collections.Generic;
 
 using Blindness;
 
-var component = MyComponentA.Get();
-component |= size => 6;
-component |= texts => new List<string> {
-    "Textos",
-    "Salvos"
-};
+var app = Root.New<MyApp>();
 
 while (true)
 {
     Console.Clear();
-    component.Run();
+    app.Run();
     Console.WriteLine("Aperte qualquer botão pra proceder...");
     Console.ReadKey(true);
+}
+
+public class MyApp : Root
+{
+    protected virtual MyComponentA compA { get; set; }
+
+    protected override void Load()
+    {
+        compA |= size => 6;
+        compA |= texts => new List<string> {
+            "Textos",
+            "Salvos"
+        };
+    }
+
+    public void Run()
+    {
+        compA.Run();
+    }
 }
 
 public class MyComponentA : Node<MyComponentA>
