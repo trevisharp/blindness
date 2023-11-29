@@ -18,8 +18,8 @@ public abstract class Node
 
     internal void Bind(params Expression<Func<object, object>>[] bindings)
     {
-        // try
-        // {
+        try
+        {
             foreach (var binding in bindings)
             {
                 var info = getBindingInformation(binding);
@@ -51,11 +51,11 @@ public abstract class Node
                 );
                 baseSetBind(index, (int)parentDataIndex);
             }
-        // }
-        // catch (Exception ex)
-        // {
-        //     throw ex;
-        // }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 
     internal void LoadMembers()
