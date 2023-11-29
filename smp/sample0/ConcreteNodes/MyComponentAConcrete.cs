@@ -16,4 +16,10 @@ public class MyComponentAConcrete : MyComponentA
         get => base.texts;
         set => base.texts = value;
     }
+
+    protected override MyComponentB compB
+    { 
+        get => base.compB; 
+        set => base.compB = value;
+    }
 }

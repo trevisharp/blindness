@@ -16,6 +16,7 @@ while (true)
 public class MyApp : Root
 {
     protected virtual MyComponentA compA { get; set; }
+    protected virtual MyComponentB compB { get; set; }
 
     protected override void Load()
     {
@@ -24,6 +25,7 @@ public class MyApp : Root
             "Textos",
             "Salvos"
         };
+        compA |= compB => compB;
     }
 
     public void Run()
@@ -81,7 +83,9 @@ public class MyComponentA : Node<MyComponentA>
         if (texts.Count == 0)
             Console.WriteLine("\tLista vazia!");
         
-        compB.Run();
+        compB?.Run();
+        if (size == 10)
+            compB = null;
     }
 }
 
