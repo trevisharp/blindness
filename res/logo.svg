@@ -1,5 +1,6 @@
-<svg width="400" height="160" xmlns="http://www.w3.org/2000/svg">
-    
+<svg width="400" height="160" xmlns="http://www.w3.org/2000/svg"
+    style="background-color: white;">
+
     <line x1="5" y1="5" x2="395" y2="5" stroke="black" stroke-width="2" />
     <line x1="395" y1="5" x2="395" y2="155" stroke="black" stroke-width="2" />
     <line x1="395" y1="155" x2="5" y2="155" stroke="black" stroke-width="2" />
