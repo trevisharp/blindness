@@ -5,33 +5,32 @@ using Blindness;
 
 var app = Root.New<MyApp>();
 
-while (true)
-{
-    // Console.Clear();
-    app.Run();
-    Console.WriteLine("Aperte qualquer botão pra proceder...");
-    Console.ReadKey(true);
-}
+app.Run();
 
 public class MyApp : Root
 {
     protected virtual MyComponentA compA { get; set; }
     protected virtual MyComponentB compB { get; set; }
 
-    protected override void Load()
+    protected override void OnLoad()
     {
+        System.Console.WriteLine("[MyApp]Binding Start:");
         compA |= size => 6;
         compA |= texts => new List<string> {
             "Textos",
             "Salvos"
         };
         compA |= _compB => compB;
+        System.Console.WriteLine("[MyApp]Binding End:");
     }
 
-    public void Run()
+    protected void OnProcess()
     {
-        compA?.Run();
-        compB?.Run();
+        // Console.Clear();
+        compA?.Process();
+        compB?.Process();
+        Console.WriteLine("Aperte qualquer botão pra proceder...");
+        Console.ReadKey(true);
     }
 }
 
@@ -41,13 +40,15 @@ public class MyComponentA : Node<MyComponentA>
     protected virtual int size { get; set; }
     protected virtual List<string> texts { get; set; }
 
-    protected override void Load()
+    protected override void OnLoad()
     {
+        System.Console.WriteLine("[MyComponentA]Binding Start:");
         compB |= n => size;
         compB |= list => texts;
+        System.Console.WriteLine("[MyComponentA]Binding End:");
     }
 
-    public void Run()
+    protected override void OnProcess()
     {
         Console.Write("┌");
         for (int i = 0; i < size + 2; i++)
@@ -94,7 +95,7 @@ public class MyComponentB : Node<MyComponentB>
     protected virtual int n { get; set; }
     protected virtual List<string> list { get; set; }
 
-    public void Run()
+    public void OnProcess()
     {
         Console.Write("Item a adicionar: ");
         var text = Console.ReadLine();

@@ -14,6 +14,7 @@ public abstract class Node
     MethodInfo setBindInfo = null;
     MethodInfo getBindInfo = null;
     MethodInfo getBindIndexInfo = null;
+    bool firstOperate = true;
 
     internal void Bind(params Expression<Func<object, object>>[] bindings)
     {
@@ -22,6 +23,7 @@ public abstract class Node
             foreach (var binding in bindings)
             {
                 var info = getBindingInformation(binding);
+                System.Console.WriteLine(info);
                 var index = baseGetBindIndex(
                     info.field.Replace("_", "")
                 );
@@ -63,7 +65,17 @@ public abstract class Node
         foreach (var prop in type.GetRuntimeProperties())
             loadProperty(prop);
     }
-    protected internal virtual void Load() { }
+    protected internal virtual void OnLoad() { }
+    protected internal virtual void OnProcess() { }
+    public void Process()
+    {
+        if (firstOperate)
+        {
+            OnLoad();
+            firstOperate = false;
+        }
+        OnProcess();
+    }
 
     internal void baseSetBind(int index, int code)
     {
