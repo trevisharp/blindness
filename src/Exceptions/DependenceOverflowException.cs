@@ -9,6 +9,6 @@ public class DependenceOverflowException : Exception
         => this.type = type;
     public override string Message => 
         $"""
-            A cycle-dependece of nodes are detected in type {type}
+        A cycle-dependece of nodes are detected in type {type}
         """;
 }

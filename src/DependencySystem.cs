@@ -34,8 +34,8 @@ public class DependencySystem
 
     public Node GetConcrete(Type type)
     {
-        try
-        {
+        // try
+        // {
             var concreteType = findConcrete(type);
             var obj = Activator.CreateInstance(concreteType);
 
@@ -46,15 +46,15 @@ public class DependencySystem
             node.LoadMembers();
             node.Load();
             return node;
-        }
-        catch (MissingConcreteTypeException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            throw new ActivatorException(ex);
-        }
+        // }
+        // catch (MissingConcreteTypeException ex)
+        // {
+        //     throw ex;
+        // }
+        // catch (Exception ex)
+        // {
+        //     throw new ActivatorException(ex);
+        // }
     }
 
     private Type findConcrete(Type inputType)

@@ -19,6 +19,7 @@ public abstract class Node
         {
             foreach (var binding in bindings)
             {
+                System.Console.WriteLine(binding);
                 var info = getBindingInformation(binding);
                 var index = baseGetBindIndex(info.field);
 
@@ -32,6 +33,7 @@ public abstract class Node
                     int dataIndex = BindingSystem
                         .Current.Add(info.obj);
                     baseSetBind(index, dataIndex);
+                    return;
                 }
                 
                 var parentType = info.member.DeclaringType;
@@ -95,8 +97,8 @@ public abstract class Node
 
     private void loadProperty(PropertyInfo prop)
     {
-        try
-        {
+        // try
+        // {
             var get = prop.GetMethod;
             var set = prop.SetMethod;
             if (!get.IsVirtual || !set.IsVirtual)
@@ -107,13 +109,13 @@ public abstract class Node
                 initSubNode(prop);
                 return;
             }
-        }
-        catch (Exception ex)
-        {
-            throw new PropertyInitializationException(
-                prop.Name, ex
-            );
-        }
+        // }
+        // catch (Exception ex)
+        // {
+        //     throw new PropertyInitializationException(
+        //         prop.Name, ex
+        //     );
+        // }
     }
 
     private void initSubNode(PropertyInfo prop)

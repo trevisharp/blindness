@@ -10,6 +10,6 @@ public class MissingConcreteTypeException : Exception
 
     public override string Message =>
         $"""
-            Missing a subtype of {baseType} with concrete attribute. 
+        Missing a subtype of {baseType} with concrete attribute. 
         """;
 }

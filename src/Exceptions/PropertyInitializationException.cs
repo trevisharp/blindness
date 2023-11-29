@@ -14,7 +14,7 @@ public class PropertyInitializationException : Exception
     
     public override string Message =>
         $"""
-            The following error has throwed on property {property} definition:
-                {inner.Message}
+        The following error has throwed on property {property} initialization:
+            {inner.Message}
         """;
 }

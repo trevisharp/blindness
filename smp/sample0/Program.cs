@@ -43,8 +43,8 @@ public class MyComponentA : Node<MyComponentA>
 
     protected override void Load()
     {
-        compB |= n => size;
-        compB |= list => texts;
+        // compB |= n => size;
+        // compB |= list => texts;
     }
 
     public void Run()

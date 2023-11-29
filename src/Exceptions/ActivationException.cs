@@ -10,7 +10,7 @@ public class ActivatorException : Exception
 
     public override string Message =>
         $"""
-        The follow error are throwed at instanciation of concrete node:
+        The following error are throwed at instanciation of concrete node:
             {inner.Message}
         Sometimes this error is caused by constructors in Node class.
         """;
