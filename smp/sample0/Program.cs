@@ -14,22 +14,19 @@ public class MyApp : Root
 
     protected override void OnLoad()
     {
-        System.Console.WriteLine("[MyApp]Binding Start:");
         compA |= size => 6;
         compA |= texts => new List<string> {
             "Textos",
             "Salvos"
         };
         compA |= _compB => compB;
-        System.Console.WriteLine("[MyApp]Binding End:");
     }
 
-    protected void OnProcess()
+    protected override void OnProcess()
     {
-        // Console.Clear();
+        Console.Clear();
         compA?.Process();
         compB?.Process();
-        Console.WriteLine("Aperte qualquer botão pra proceder...");
         Console.ReadKey(true);
     }
 }
@@ -42,10 +39,8 @@ public class MyComponentA : Node<MyComponentA>
 
     protected override void OnLoad()
     {
-        System.Console.WriteLine("[MyComponentA]Binding Start:");
         compB |= n => size;
         compB |= list => texts;
-        System.Console.WriteLine("[MyComponentA]Binding End:");
     }
 
     protected override void OnProcess()
@@ -86,7 +81,9 @@ public class MyComponentA : Node<MyComponentA>
             Console.WriteLine("\tLista vazia!");
         
         if (size == 10)
+        {
             compB = null;
+        }
     }
 }
 
@@ -95,7 +92,7 @@ public class MyComponentB : Node<MyComponentB>
     protected virtual int n { get; set; }
     protected virtual List<string> list { get; set; }
 
-    public void OnProcess()
+    protected override void OnProcess()
     {
         Console.Write("Item a adicionar: ");
         var text = Console.ReadLine();

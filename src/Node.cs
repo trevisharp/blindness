@@ -23,7 +23,6 @@ public abstract class Node
             foreach (var binding in bindings)
             {
                 var info = getBindingInformation(binding);
-                System.Console.WriteLine(info);
                 var index = baseGetBindIndex(
                     info.field.Replace("_", "")
                 );
