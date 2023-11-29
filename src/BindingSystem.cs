@@ -15,6 +15,7 @@ public class BindingSystem
 
     public int Add(object obj)
     {
+        System.Console.WriteLine($"Data Add: {obj} at {data.Count}");
         data.Add(obj);
         return data.Count - 1;
     }
@@ -26,13 +27,16 @@ public class BindingSystem
         {
             obj = data[index] = DependencySystem.Current
                 .GetConcrete(init.RealType);
+            System.Console.WriteLine($"Data Set: {obj} at {index}");
         }
 
+        System.Console.WriteLine($"Data Get: {obj} at {index}");
         return (T)obj;
     }
 
     public void Set<T>(int index, T value)
     {
+        System.Console.WriteLine($"Data Set: {value} at {index}");
         data[index] = value;
     }
 }

@@ -17,12 +17,14 @@ public abstract class Node
 
     internal void Bind(params Expression<Func<object, object>>[] bindings)
     {
-        try
-        {
+        // try
+        // {
             foreach (var binding in bindings)
             {
                 var info = getBindingInformation(binding);
-                var index = baseGetBindIndex(info.field);
+                var index = baseGetBindIndex(
+                    info.field.Replace("_", "")
+                );
 
                 if (index == -1)
                     throw new MissingFieldException(
@@ -38,26 +40,21 @@ public abstract class Node
                 }
                 
                 var parentType = info.member.DeclaringType;
-                var parentGetBind = parentType.GetRuntimeMethod(
-                    "baseGetBind", new[] { typeof(int), typeof(int) }
-                );
-                var parentGetBindIndex = parentType.GetRuntimeMethod(
-                    "baseGetBindIndex", new[] { typeof(string) }
-                );
-                // TODO: Get Node object
+                var parentGetBind = findMethod("baseGetBind", parentType);
+                var parentGetBindIndex = findMethod("baseGetBindIndex", parentType);
                 var parentBindIndex = parentGetBindIndex.Invoke(
-                    null, new object[] { info.member.Name }
+                    info.parent, new object[] { info.member.Name }
                 );
                 var parentDataIndex = parentGetBind.Invoke(
-                    null, new object[] { parentBindIndex }
+                    info.parent, new object[] { parentBindIndex }
                 );
                 baseSetBind(index, (int)parentDataIndex);
             }
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
+        // }
+        // catch (Exception ex)
+        // {
+        //     throw ex;
+        // }
     }
 
     internal void LoadMembers()
@@ -90,9 +87,9 @@ public abstract class Node
         return (int)getBindIndexInfo.Invoke(this, new object[] { field });
     }
 
-    private MethodInfo findMethod(string name)
+    private MethodInfo findMethod(string name, Type type = null)
     {
-        var type = this.GetType();
+        type ??= this.GetType();
         foreach (var method in type.GetRuntimeMethods())
         {
             if (method.Name == name)
@@ -136,7 +133,7 @@ public abstract class Node
         baseSetBind(index, preInitNode.DataIndex);
     }
 
-    private (string field, MemberInfo member, object obj) getBindingInformation(
+    private (string field, MemberInfo member, object obj, object parent) getBindingInformation(
         Expression<Func<object, object>> binding
     )
     {
@@ -145,18 +142,30 @@ public abstract class Node
         var reciver = binding.Parameters[0].Name;
         
         var body = binding.Body;
-        var member = fieldObjectSearch(body);
-        if (member != null && member.DeclaringType.IsSubclassOf(typeof(Node)))
-            return (reciver, member, null);
+        var result = fieldObjectSearch(body);
+        if (result != null && result.Value.member.DeclaringType.IsSubclassOf(typeof(Node)))
+        {
+            return (reciver, result.Value.member, null, result.Value.obj);
+        }
         
         var func = binding.Compile();
-        return (reciver, null, func(null));
+        return (reciver, null, func(null), null);
     }
 
-    private MemberInfo fieldObjectSearch(Expression body)
+    private (MemberInfo member, object obj)? fieldObjectSearch(
+        Expression body
+    )
     {
         switch (body.NodeType)
         {
+            case ExpressionType.Parameter:
+                throw new InvalidBindingFormatException(
+                    @"
+                    This error may be thrwoed by a expression in
+                    x => x format, for techinical motivations try to use _x => x
+                    "
+                );
+
             case ExpressionType.Convert:
                 var unaryExp = body as UnaryExpression;
                 var operand = unaryExp.Operand;
@@ -164,7 +173,8 @@ public abstract class Node
             
             case ExpressionType.MemberAccess:
                 var memberExp = body as MemberExpression;
-                return memberExp.Member;
+                var consExp = memberExp.Expression as ConstantExpression;
+                return (memberExp.Member, consExp.Value);
             
             case ExpressionType.ListInit:
             case ExpressionType.Constant:

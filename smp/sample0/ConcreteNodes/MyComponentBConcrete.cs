@@ -4,10 +4,15 @@ using Blindness;
 
 [Concrete]
 public class MyComponentBConcrete : MyComponentB
-{   
+{
     protected override List<string> list
     {
-        get => BindingSystem.Current.Get<List<string>>(indexMap[0]);
+        get
+        {
+            foreach (var item in indexMap)
+                System.Console.WriteLine(item);
+            return BindingSystem.Current.Get<List<string>>(indexMap[0]);
+        } 
         set => BindingSystem.Current.Set<List<string>>(indexMap[0], value);
     }
 

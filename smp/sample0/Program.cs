@@ -7,7 +7,7 @@ var app = Root.New<MyApp>();
 
 while (true)
 {
-    Console.Clear();
+    // Console.Clear();
     app.Run();
     Console.WriteLine("Aperte qualquer botão pra proceder...");
     Console.ReadKey(true);
@@ -25,7 +25,7 @@ public class MyApp : Root
             "Textos",
             "Salvos"
         };
-        compA |= compB => compB;
+        compA |= _compB => compB;
     }
 
     public void Run()
