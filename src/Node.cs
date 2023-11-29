@@ -9,7 +9,7 @@ using Exceptions;
 
 public abstract class Node
 {
-    protected void Bind(params Expression<Func<object, object>>[] bindings)
+    internal void Bind(params Expression<Func<object, object>>[] bindings)
     {
         try
         {
@@ -112,7 +112,16 @@ public abstract class Node<T> : Node
     where T : Node<T>
 {
     public static T Get()
-        => DependencySystem.Current.GetConcrete<T>();
+    {
+        try
+        {
+            return DependencySystem.Current.GetConcrete<T>();
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
 
     public static T operator |(
         Node<T> node, Expression<Func<object, object>> binding)

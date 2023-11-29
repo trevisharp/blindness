@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Blindness;
 
 public class BindingSystem
@@ -9,5 +11,15 @@ public class BindingSystem
     public static void Reset()
         => crr = new();
     
-    
+    List<object> data = new List<object>();
+
+    public object Get(int index)
+    {
+        return data[index];
+    }
+
+    public void Set(int index, object value)
+    {
+        data[index] = value;
+    }
 }

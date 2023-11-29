@@ -30,7 +30,8 @@ public class MyApp : Root
 
     public void Run()
     {
-        compA.Run();
+        compA?.Run();
+        compB?.Run();
     }
 }
 
@@ -83,7 +84,6 @@ public class MyComponentA : Node<MyComponentA>
         if (texts.Count == 0)
             Console.WriteLine("\tLista vazia!");
         
-        compB?.Run();
         if (size == 10)
             compB = null;
     }
