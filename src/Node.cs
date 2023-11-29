@@ -16,6 +16,9 @@ public abstract class Node
             foreach (var binding in bindings)
             {
                 var info = getBindingInformation(binding);
+
+                if (info.member is null)
+                    BindingSystem.Current.Add(info.obj);
                 
                 // TODO
             }

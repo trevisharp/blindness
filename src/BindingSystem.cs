@@ -13,12 +13,18 @@ public class BindingSystem
     
     List<object> data = new List<object>();
 
-    public object Get(int index)
+    public int Add(object obj)
     {
-        return data[index];
+        data.Add(obj);
+        return data.Count - 1;
     }
 
-    public void Set(int index, object value)
+    public T Get<T>(int index)
+    {
+        return (T)data[index];
+    }
+
+    public void Set<T>(int index, T value)
     {
         data[index] = value;
     }
