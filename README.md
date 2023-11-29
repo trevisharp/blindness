@@ -1,1 +1,1 @@
-# Blindness
+![](res/logo.svg)
