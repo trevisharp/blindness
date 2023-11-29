@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using Blindness;
 
 [Concrete]
-public class MyAppConcrete : MyApp, IConcrete
+public class MyAppConcrete : MyApp
 {
-    int[] indexMap = new int[2];
-    public void SetBind(int index, int code)
-        => indexMap[index] = code;
-
     protected override MyComponentA compA
     {
         get => BindingSystem.Current.Get<MyComponentA>(indexMap[0]);
@@ -20,4 +16,17 @@ public class MyAppConcrete : MyApp, IConcrete
         get => BindingSystem.Current.Get<MyComponentB>(indexMap[1]);
         set => BindingSystem.Current.Set<MyComponentB>(indexMap[1], value);
     }
+    
+    int[] indexMap = new int[2];
+    void setBind(int index, int code)
+        => indexMap[index] = code;
+    int getBind(int index)
+        => indexMap[index];
+    int getBindIndex(string field)
+        => field switch
+        {
+            "compA" => 0,
+            "compB" => 1,
+            _ => -1
+        };
 }
