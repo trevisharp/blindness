@@ -9,6 +9,10 @@ using Exceptions;
 
 public abstract class Node
 {
+    MethodInfo setBindInfo = null;
+    MethodInfo getBindInfo = null;
+    MethodInfo getBindIndexInfo = null;
+
     internal void Bind(params Expression<Func<object, object>>[] bindings)
     {
         try
@@ -16,11 +20,34 @@ public abstract class Node
             foreach (var binding in bindings)
             {
                 var info = getBindingInformation(binding);
+                var index = baseGetBindIndex(info.field);
+
+                if (index == -1)
+                    throw new MissingFieldException(
+                        info.field, this.GetType()
+                    );
 
                 if (info.member is null)
-                    BindingSystem.Current.Add(info.obj);
+                {
+                    int dataIndex = BindingSystem
+                        .Current.Add(info.obj);
+                    baseSetBind(index, dataIndex);
+                }
                 
-                // TODO
+                var parentType = info.member.DeclaringType;
+                var parentGetBind = parentType.GetRuntimeMethod(
+                    "baseGetBind", new[] { typeof(int), typeof(int) }
+                );
+                var parentGetBindIndex = parentType.GetRuntimeMethod(
+                    "baseGetBindIndex", new[] { typeof(string) }
+                );
+                var parentBindIndex = parentGetBindIndex.Invoke(
+                    null, new object[] { info.member.Name }
+                );
+                var parentDataIndex = parentGetBind.Invoke(
+                    null, new object[] { parentBindIndex }
+                );
+                baseSetBind(index, (int)parentDataIndex);
             }
         }
         catch (Exception ex)
@@ -36,6 +63,35 @@ public abstract class Node
             loadProperty(prop);
     }
     protected internal virtual void Load() { }
+
+    void baseSetBind(int index, int code)
+    {
+        if (setBindInfo == null)
+            setBindInfo = findMethod("setBind", typeof(int), typeof(int));
+        
+        setBindInfo.Invoke(this, new object[] { index, code });
+    }
+    int baseGetBind(int index)
+    {
+        if (getBindInfo == null)
+            getBindInfo = findMethod("getBind", typeof(int));
+        
+        return (int)setBindInfo.Invoke(this, new object[] { index });
+    }
+    int baseGetBindIndex(string field)
+    {
+        if (getBindIndexInfo == null)
+            getBindIndexInfo = findMethod("getBindIndex", typeof(string));
+        
+        return (int)setBindInfo.Invoke(this, new object[] { field });
+    }
+
+    private MethodInfo findMethod(string name, params Type[] types)
+    {
+        var type = this.GetType();
+        var method = type.GetRuntimeMethod(name, types);
+        return method;
+    }
 
     private void loadProperty(PropertyInfo prop)
     {
@@ -82,7 +138,7 @@ public abstract class Node
         
         var body = binding.Body;
         var member = fieldObjectSearch(body);
-        if (member != null)
+        if (member != null && member.DeclaringType.IsSubclassOf(typeof(Node)))
             return (reciver, member, null);
         
         var func = binding.Compile();
