@@ -27,7 +27,7 @@ public class BindingSystem
         {
             obj = data[index] = DependencySystem.Current
                 .GetConcrete(init.RealType);
-            System.Console.WriteLine($"Data Set: {obj} at {index}");
+            System.Console.WriteLine($"Data Auto Replace: {obj} at {index}");
         }
 
         System.Console.WriteLine($"Data Get: {obj} at {index}");
