@@ -21,7 +21,6 @@ public abstract class Node
         {
             foreach (var binding in bindings)
             {
-                System.Console.WriteLine(binding);
                 var info = getBindingInformation(binding);
                 var index = baseGetBindIndex(info.field);
 
@@ -45,6 +44,7 @@ public abstract class Node
                 var parentGetBindIndex = parentType.GetRuntimeMethod(
                     "baseGetBindIndex", new[] { typeof(string) }
                 );
+                // TODO: Get Node object
                 var parentBindIndex = parentGetBindIndex.Invoke(
                     null, new object[] { info.member.Name }
                 );
@@ -71,36 +71,40 @@ public abstract class Node
     internal void baseSetBind(int index, int code)
     {
         if (setBindInfo is null)
-            setBindInfo = findMethod("setBind", typeof(int), typeof(int));
+            setBindInfo = findMethod("setBind");
         
         setBindInfo.Invoke(this, new object[] { index, code });
     }
     internal int baseGetBind(int index)
     {
         if (getBindInfo is null)
-            getBindInfo = findMethod("getBind", typeof(int));
+            getBindInfo = findMethod("getBind");
         
         return (int)getBindInfo.Invoke(this, new object[] { index });
     }
     internal int baseGetBindIndex(string field)
     {
         if (getBindIndexInfo is null)
-            getBindIndexInfo = findMethod("getBindIndex", typeof(string));
+            getBindIndexInfo = findMethod("getBindIndex");
         
-        return (int)setBindInfo.Invoke(this, new object[] { field });
+        return (int)getBindIndexInfo.Invoke(this, new object[] { field });
     }
 
-    private MethodInfo findMethod(string name, params Type[] types)
+    private MethodInfo findMethod(string name)
     {
         var type = this.GetType();
-        var method = type.GetRuntimeMethod(name, types);
-        return method;
+        foreach (var method in type.GetRuntimeMethods())
+        {
+            if (method.Name == name)
+                return method;
+        }
+        return null;
     }
 
     private void loadProperty(PropertyInfo prop)
     {
-        // try
-        // {
+        try
+        {
             var get = prop.GetMethod;
             var set = prop.SetMethod;
             if (!get.IsVirtual || !set.IsVirtual)
@@ -111,13 +115,13 @@ public abstract class Node
                 initSubNode(prop);
                 return;
             }
-        // }
-        // catch (Exception ex)
-        // {
-        //     throw new PropertyInitializationException(
-        //         prop.Name, ex
-        //     );
-        // }
+        }
+        catch (Exception ex)
+        {
+            throw new PropertyInitializationException(
+                prop.Name, ex
+            );
+        }
     }
 
     private void initSubNode(PropertyInfo prop)

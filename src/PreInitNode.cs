@@ -12,6 +12,7 @@ public class PreInitNode : Node
         var preInitNode = new PreInitNode();
         int preInitNodeIndex = BindingSystem
             .Current.Add(preInitNode);
+        preInitNode.RealType = type;
         preInitNode.DataIndex = preInitNodeIndex;
         return preInitNode;
     }
