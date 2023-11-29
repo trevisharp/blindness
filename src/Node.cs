@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 
 namespace Blindness;
 
+using System.Diagnostics.Tracing;
+using System.Runtime.Intrinsics.X86;
 using Exceptions;
 
 public abstract class Node
@@ -66,23 +68,23 @@ public abstract class Node
     }
     protected internal virtual void Load() { }
 
-    void baseSetBind(int index, int code)
+    internal void baseSetBind(int index, int code)
     {
-        if (setBindInfo == null)
+        if (setBindInfo is null)
             setBindInfo = findMethod("setBind", typeof(int), typeof(int));
         
         setBindInfo.Invoke(this, new object[] { index, code });
     }
-    int baseGetBind(int index)
+    internal int baseGetBind(int index)
     {
-        if (getBindInfo == null)
+        if (getBindInfo is null)
             getBindInfo = findMethod("getBind", typeof(int));
         
-        return (int)setBindInfo.Invoke(this, new object[] { index });
+        return (int)getBindInfo.Invoke(this, new object[] { index });
     }
-    int baseGetBindIndex(string field)
+    internal int baseGetBindIndex(string field)
     {
-        if (getBindIndexInfo == null)
+        if (getBindIndexInfo is null)
             getBindIndexInfo = findMethod("getBindIndex", typeof(string));
         
         return (int)setBindInfo.Invoke(this, new object[] { field });
@@ -125,9 +127,9 @@ public abstract class Node
         if (type == prop.DeclaringType)
             throw new DependenceOverflowException(type);
 
-        var node = DependencySystem
-            .Current.GetConcrete(type);
-        prop.SetValue(this, node);
+        var preInitNode = PreInitNode.Create(type);
+        int index = baseGetBindIndex(prop.Name);
+        baseSetBind(index, preInitNode.DataIndex);
     }
 
     private (string field, MemberInfo member, object obj) getBindingInformation(
@@ -187,6 +189,9 @@ public abstract class Node<T> : Node
     public static T operator |(
         Node<T> node, Expression<Func<object, object>> binding)
     {
+        if (node is null)
+            return null;
+        
         node.Bind(binding);
         return node as T;
     }
