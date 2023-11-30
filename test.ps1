@@ -1,6 +1,6 @@
 clear
 
-dotnet nuget delete Blindness 0.0.1 -s ($env:USERPROFILE + "\.nuget\packages") --non-interactive
+dotnet nuget delete Blindness 0.1.0 -s ($env:USERPROFILE + "\.nuget\packages") --non-interactive
 
 cd gen
 dotnet build -c Release

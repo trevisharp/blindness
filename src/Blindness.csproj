@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <PackageId>Blindness</PackageId>
-    <Version>0.0.1</Version>
+    <PackageVersion>0.1.0</PackageVersion>
     <Authors>Leonardo Trevisan Silio</Authors>
   </PropertyGroup>
 
