@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Diagnostics.CodeAnalysis;
 using Blindness;
 
 var app = Root.New<MyApp>();
 
 app.Run();
+
+public class BaseComponent : Node
+{
+
+}
 
 public class MyApp : Root
 {
@@ -31,7 +36,7 @@ public class MyApp : Root
     }
 }
 
-public class MyComponentA : Node<MyComponentA>
+public class MyComponentA : BaseComponent
 {
     protected virtual MyComponentB compB { get; set; }
     protected virtual int size { get; set; }
@@ -80,14 +85,12 @@ public class MyComponentA : Node<MyComponentA>
         if (texts.Count == 0)
             Console.WriteLine("\tLista vazia!");
         
-        if (size == 10)
-        {
+        if (texts.Count == 10)
             compB = null;
-        }
     }
 }
 
-public class MyComponentB : Node<MyComponentB>
+public class MyComponentB : BaseComponent
 {
     protected virtual int n { get; set; }
     protected virtual List<string> list { get; set; }

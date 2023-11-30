@@ -1,12 +1,9 @@
 using System;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Blindness;
 
-using System.Diagnostics.Tracing;
-using System.Runtime.Intrinsics.X86;
 using Exceptions;
 
 public abstract class Node
@@ -74,6 +71,19 @@ public abstract class Node
             firstOperate = false;
         }
         OnProcess();
+    }
+
+    public static dynamic operator |(
+        Node node, Expression<Func<object, object>> binding)
+    {
+        if (node is null)
+            return null;
+        
+        if (binding is null)
+            throw new NullReferenceException();
+        
+        node.Bind(binding);
+        return node;
     }
 
     internal void baseSetBind(int index, int code)
@@ -193,31 +203,5 @@ public abstract class Node
         }
         
         throw new InvalidBindingFormatException();
-    }
-}
-
-public abstract class Node<T> : Node
-    where T : Node<T>
-{
-    public static T Get()
-    {
-        try
-        {
-            return DependencySystem.Current.GetConcrete<T>();
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-
-    public static T operator |(
-        Node<T> node, Expression<Func<object, object>> binding)
-    {
-        if (node is null)
-            return null;
-        
-        node.Bind(binding);
-        return node as T;
     }
 }

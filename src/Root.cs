@@ -2,7 +2,7 @@ using System;
 
 namespace Blindness;
 
-public class Root : Node<Root>
+public class Root : Node
 {
     public static T New<T>()
         where T : Root

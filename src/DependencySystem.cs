@@ -17,21 +17,6 @@ public class DependencySystem
     
     private Dictionary<Type, Type> typeMap = new();
 
-    public T GetConcrete<T>()
-        where T : Node<T>
-    {
-        try
-        {
-            var inputType = typeof(T);
-            var obj = GetConcrete(inputType);
-            return obj as T;
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-
     public Node GetConcrete(Type type)
     {
         try
