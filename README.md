@@ -3,7 +3,29 @@
 </p>
 
 Blindness is a framework for you to build your frameworks without seeing the details.
+
+# Table of Contents
+
+ - [Overview](#overview)
+ - [How to install](#how-to-install)
+ - [Versions](#versions)
+
+# Overview
+
 Blidness will control your dependency injection system, your state management, your execution flow, your component oriented structure and your event system to allows you to concentrate where it really matters.
+
+# How to install
+
+```bash
+dotnet new classlib # Create your library
+dotnet add package Blindness # Install Blindness
+```
+
+# Versions
+
+### Blindness v0.1.0
+
+ - ![](https://img.shields.io/badge/new-green) Binding System added.
 
 # TODO (For the developer team)
 
