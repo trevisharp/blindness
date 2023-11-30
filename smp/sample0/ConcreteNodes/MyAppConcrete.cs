@@ -5,19 +5,19 @@ using Blindness;
 [Concrete]
 public class MyAppConcrete : MyApp
 {
-    protected override MyComponentA compA
+    protected override TableComponent table
     {
-        get => BindingSystem.Current.Get<MyComponentA>(indexMap[0]);
-        set => BindingSystem.Current.Set<MyComponentA>(indexMap[0], value);
+        get => BindingSystem.Current.Get<TableComponent>(indexMap[0]);
+        set => BindingSystem.Current.Set(indexMap[0], value);
     }
-    
-    protected override MyComponentB compB
+
+    protected override InputComponent input
     {
-        get => BindingSystem.Current.Get<MyComponentB>(indexMap[1]);
-        set => BindingSystem.Current.Set<MyComponentB>(indexMap[1], value);
+        get => BindingSystem.Current.Get<InputComponent>(indexMap[3]);
+        set => BindingSystem.Current.Set(indexMap[3], value);
     }
-    
-    int[] indexMap = new int[2];
+
+    int[] indexMap = new int[4];
     void setBind(int index, int code)
         => indexMap[index] = code;
     int getBind(int index)
@@ -25,8 +25,8 @@ public class MyAppConcrete : MyApp
     int getBindIndex(string field)
         => field switch
         {
-            "compA" => 0,
-            "compB" => 1,
+            "table" => 0,
+            "itemInput" => 1,
             _ => -1
         };
 }

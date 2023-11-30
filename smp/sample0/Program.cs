@@ -14,38 +14,41 @@ public class BaseComponent : Node
 
 public class MyApp : Root
 {
-    protected virtual MyComponentA compA { get; set; }
-    protected virtual MyComponentB compB { get; set; }
+    protected virtual TableComponent table { get; set; }
+    protected virtual InputComponent input { get; set; }
 
     protected override void OnLoad()
     {
-        compA |= size => 6;
-        compA |= texts => new List<string> {
+        table |= size => 6;
+        table |= texts => new List<string> {
             "Textos",
             "Salvos"
         };
-        compA |= _compB => compB;
+        table |= _input => input;
     }
 
     protected override void OnProcess()
     {
         Console.Clear();
-        compA?.Process();
-        compB?.Process();
+        table?.Process();
+        input?.Process();
         Console.ReadKey(true);
     }
 }
 
-public class MyComponentA : BaseComponent
+public class TableComponent : BaseComponent
 {
-    protected virtual MyComponentB compB { get; set; }
+    protected virtual InputComponent input { get; set; }
+    protected virtual InputCommandComponent commandInput { get; set; }
+    protected virtual InputItemComponent itemInput { get; set; }
     protected virtual int size { get; set; }
     protected virtual List<string> texts { get; set; }
 
     protected override void OnLoad()
     {
-        compB |= n => size;
-        compB |= list => texts;
+        input = commandInput;
+        input |= n => size;
+        input |= list => texts;
     }
 
     protected override void OnProcess()
@@ -86,18 +89,38 @@ public class MyComponentA : BaseComponent
             Console.WriteLine("\tLista vazia!");
         
         if (texts.Count == 10)
-            compB = null;
+            input = null;
     }
 }
 
-public class MyComponentB : BaseComponent
+public class InputComponent : BaseComponent
 {
     protected virtual int n { get; set; }
     protected virtual List<string> list { get; set; }
+}
 
+public class InputItemComponent : InputComponent
+{
     protected override void OnProcess()
     {
         Console.Write("Item a adicionar: ");
+        var text = Console.ReadLine();
+        
+        if (list is null)
+            return;
+        
+        list.Add(text);
+
+        if (text.Length > n)
+            n = text.Length;
+    }
+}
+
+public class InputCommandComponent : InputComponent
+{
+    protected override void OnProcess()
+    {
+        Console.Write("Comando a rodar: ");
         var text = Console.ReadLine();
         
         if (list is null)
@@ -108,10 +131,5 @@ public class MyComponentB : BaseComponent
             list = new();
             return;
         }
-        
-        list.Add(text);
-
-        if (text.Length > n)
-            n = text.Length;
     }
 }

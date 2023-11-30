@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using Blindness;
 
 [Concrete]
-public class MyComponentBConcrete : MyComponentB
+public class InputComponentConcrete : InputComponent
 {
     protected override List<string> list
     {
         get => BindingSystem.Current.Get<List<string>>(indexMap[0]);
-        set => BindingSystem.Current.Set<List<string>>(indexMap[0], value);
+        set => BindingSystem.Current.Set(indexMap[0], value);
     }
 
     protected override int n
     {
         get => BindingSystem.Current.Get<int>(indexMap[1]);
-        set => BindingSystem.Current.Set<int>(indexMap[1], value);
+        set => BindingSystem.Current.Set(indexMap[1], value);
     }
 
     int[] indexMap = new int[2];
