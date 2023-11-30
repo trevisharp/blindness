@@ -15,43 +15,36 @@ public abstract class Node
 
     internal void Bind(params Expression<Func<object, object>>[] bindings)
     {
-        try
+        foreach (var binding in bindings)
         {
-            foreach (var binding in bindings)
+            var info = getBindingInformation(binding);
+            var index = baseGetBindIndex(
+                info.field.Replace("_", "")
+            );
+
+            if (index == -1)
+                throw new MissingFieldException(
+                    info.field, this.GetType()
+                );
+
+            if (info.member is null)
             {
-                var info = getBindingInformation(binding);
-                var index = baseGetBindIndex(
-                    info.field.Replace("_", "")
-                );
-
-                if (index == -1)
-                    throw new MissingFieldException(
-                        info.field, this.GetType()
-                    );
-
-                if (info.member is null)
-                {
-                    int dataIndex = BindingSystem
-                        .Current.Add(info.obj);
-                    baseSetBind(index, dataIndex);
-                    return;
-                }
-                
-                var parentType = info.member.DeclaringType;
-                var parentGetBind = findMethod("baseGetBind", parentType);
-                var parentGetBindIndex = findMethod("baseGetBindIndex", parentType);
-                var parentBindIndex = parentGetBindIndex.Invoke(
-                    info.parent, new object[] { info.member.Name }
-                );
-                var parentDataIndex = parentGetBind.Invoke(
-                    info.parent, new object[] { parentBindIndex }
-                );
-                baseSetBind(index, (int)parentDataIndex);
+                int dataIndex = BindingSystem
+                    .Current.Add(info.obj);
+                baseSetBind(index, dataIndex);
+                return;
             }
-        }
-        catch (Exception ex)
-        {
-            throw ex;
+            
+            var parentType = info.member.DeclaringType;
+            var parentGetBind = findMethod("baseGetBind", parentType);
+            var parentGetBindIndex = findMethod("baseGetBindIndex", parentType);
+            var parentBindIndex = parentGetBindIndex.Invoke(
+                info.parent, new object[] { info.member.Name }
+            );
+            var parentDataIndex = parentGetBind.Invoke(
+                info.parent, new object[] { parentBindIndex }
+            );
+            baseSetBind(index, (int)parentDataIndex);
         }
     }
 

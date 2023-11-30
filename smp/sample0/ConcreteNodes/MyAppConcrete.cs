@@ -13,20 +13,20 @@ public class MyAppConcrete : MyApp
 
     protected override InputComponent input
     {
-        get => BindingSystem.Current.Get<InputComponent>(indexMap[3]);
-        set => BindingSystem.Current.Set(indexMap[3], value);
+        get => BindingSystem.Current.Get<InputComponent>(indexMap[1]);
+        set => BindingSystem.Current.Set(indexMap[1], value);
     }
 
-    int[] indexMap = new int[4];
-    void setBind(int index, int code)
+    int[] indexMap = new int[2];
+    protected void setBind(int index, int code)
         => indexMap[index] = code;
-    int getBind(int index)
+    protected int getBind(int index)
         => indexMap[index];
-    int getBindIndex(string field)
+    protected int getBindIndex(string field)
         => field switch
         {
             "table" => 0,
-            "itemInput" => 1,
+            "input" => 1,
             _ => -1
         };
 }

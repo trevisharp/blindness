@@ -18,11 +18,11 @@ public class InputComponentConcrete : InputComponent
     }
 
     int[] indexMap = new int[2];
-    void setBind(int index, int code)
+    public void setBind(int index, int code)
         => indexMap[index] = code;
-    int getBind(int index)
+    public int getBind(int index)
         => indexMap[index];
-    int getBindIndex(string field)
+    public int getBindIndex(string field)
         => field switch
         {
             "list" => 0,

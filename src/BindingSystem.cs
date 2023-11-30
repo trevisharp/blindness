@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Blindness;
@@ -16,6 +17,7 @@ public class BindingSystem
     public int Add(object obj)
     {
         data.Add(obj);
+        print();
         return data.Count - 1;
     }
 
@@ -26,6 +28,7 @@ public class BindingSystem
         {
             obj = data[index] = DependencySystem.Current
                 .GetConcrete(init.RealType);
+            print();
         }
 
         return (T)obj;
@@ -34,5 +37,21 @@ public class BindingSystem
     public void Set<T>(int index, T value)
     {
         data[index] = value;
+        print();
+    }
+
+    private void print()
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        int i = 0;
+        Console.WriteLine("Memory State");
+        foreach (var item in data)
+        {
+            Console.WriteLine(
+                $"data[{i++}] = {item}"
+            );
+        }
+        System.Console.WriteLine();
+        Console.ResetColor();
     }
 }

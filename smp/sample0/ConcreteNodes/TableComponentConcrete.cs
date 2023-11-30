@@ -25,29 +25,29 @@ public class TableComponentConcrete : TableComponent
     
     protected override InputItemComponent itemInput
     {
-        get => BindingSystem.Current.Get<InputItemComponent>(indexMap[1]);
+        get => BindingSystem.Current.Get<InputItemComponent>(indexMap[3]);
         set => BindingSystem.Current.Set(indexMap[3], value);
     }
 
     protected override InputCommandComponent commandInput
     {
-        get => BindingSystem.Current.Get<InputCommandComponent>(indexMap[2]);
+        get => BindingSystem.Current.Get<InputCommandComponent>(indexMap[4]);
         set => BindingSystem.Current.Set(indexMap[4], value);
     }
 
-    int[] indexMap = new int[3];
-    void setBind(int index, int code)
+    int[] indexMap = new int[5];
+    protected void setBind(int index, int code)
         => indexMap[index] = code;
-    int getBind(int index)
+    protected int getBind(int index)
         => indexMap[index];
-    int getBindIndex(string field)
+    protected int getBindIndex(string field)
         => field switch
         {
             "size" => 0,
             "texts" => 1,
             "input" => 2,
-            "commandInput" => 3,
-            "itemInput" => 4,
+            "itemInput" => 3,
+            "commandInput" => 4,
             _ => -1
         };
 }

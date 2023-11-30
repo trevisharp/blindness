@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+
 using Blindness;
 
 var app = Root.New<MyApp>();
-
 app.Run();
 
-public class BaseComponent : Node
-{
-
-}
+public class BaseComponent : Node { }
 
 public class MyApp : Root
 {
@@ -38,11 +34,11 @@ public class MyApp : Root
 
 public class TableComponent : BaseComponent
 {
-    protected virtual InputComponent input { get; set; }
-    protected virtual InputCommandComponent commandInput { get; set; }
-    protected virtual InputItemComponent itemInput { get; set; }
     protected virtual int size { get; set; }
     protected virtual List<string> texts { get; set; }
+    protected virtual InputComponent input { get; set; }
+    protected virtual InputItemComponent itemInput { get; set; }
+    protected virtual InputCommandComponent commandInput { get; set; }
 
     protected override void OnLoad()
     {

@@ -37,7 +37,7 @@ public class DependencySystem
         }
         catch (Exception ex)
         {
-            throw new ActivatorException(ex);
+            throw new ActivatorException(ex, type);
         }
     }
 
@@ -51,7 +51,7 @@ public class DependencySystem
 
         foreach (var type in types)
         {
-            if (!type.IsSubclassOf(inputType))
+            if (type.BaseType != inputType)
                 continue;
             
             if (type.GetCustomAttribute<ConcreteAttribute>() is null)
