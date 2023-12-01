@@ -7,6 +7,11 @@ using Blindness;
 [Concrete]
 public class MyAppConcrete : Node, MyApp
 {
+    public MyAppConcrete()
+    {
+        this.Bind = new MyAppConcreteBinding(this);
+    }
+
     public TableComponent table
     {
         get => BindingSystem.Current.Get<TableComponent>(indexMap[0]);
@@ -18,15 +23,10 @@ public class MyAppConcrete : Node, MyApp
         get => BindingSystem.Current.Get<InputComponent>(indexMap[1]);
         set => BindingSystem.Current.Set(indexMap[1], value);
     }
+    public Binding Bind { get; set; }
 
     public new void Process()
         => base.Process();
-
-    public dynamic Bind(Expression<Func<object, object>> binding)
-    {
-        base.Bind(binding);
-        return this;
-    }
 
     public void Deps(TableComponent table)
     {
@@ -53,7 +53,11 @@ public class MyAppConcrete : Node, MyApp
         };
 }
 
-public class MyAppConcreteBinding
+public class MyAppConcreteBinding : Binding
 {
-    
+    public MyAppConcreteBinding(INode node) : base(node) { }
+
+    public TableComponent table { get; set; }
+
+    public InputComponent input { get; set; }
 }

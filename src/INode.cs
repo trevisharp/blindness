@@ -5,6 +5,6 @@ namespace Blindness;
 
 public interface INode
 {
-    dynamic Bind(Expression<Func<object, object>> binding);
+    Binding Bind { get; set; }
     void Process();
 }

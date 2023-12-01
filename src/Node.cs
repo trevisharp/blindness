@@ -13,7 +13,7 @@ public abstract class Node
     MethodInfo getBindIndexInfo = null;
     bool firstOperate = true;
 
-    public void Bind(params Expression<Func<object, object>>[] bindings)
+    public void AddBind(params Expression<Func<object, object>>[] bindings)
     {
         foreach (var binding in bindings)
         {
@@ -75,7 +75,7 @@ public abstract class Node
         if (binding is null)
             throw new NullReferenceException();
         
-        node.Bind(binding);
+        node.AddBind(binding);
         return node;
     }
 

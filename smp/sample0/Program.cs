@@ -16,12 +16,12 @@ public interface MyApp : INode
 
     void OnLoad()
     {
-        table.Bind(size => 6);
-        table.Bind(texts => new List<string> {
+        table.Bind |= size => 6;
+        table.Bind |= texts => new List<string> {
             "Textos",
             "Salvos"
-        });
-        table.Bind(_input => input);
+        };
+        table.Bind |= input => this.input;
     }
 
     void OnProcess()
@@ -49,8 +49,8 @@ public interface TableComponent : INode
     void OnLoad()
     {
         input = itemInput;
-        input.Bind(n => size);
-        input.Bind(list => texts);
+        input.Bind |= n => size;
+        input.Bind |= list => texts;
     }
 
     void OnProcess()
@@ -93,8 +93,8 @@ public interface TableComponent : INode
         if (texts.Count == 10)
         {
             input = commandInput;
-            input.Bind(n => size);
-            input.Bind(list => texts);
+            input.Bind |= n => size;
+            input.Bind |= list => texts;
         }
     }
 }

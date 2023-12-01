@@ -7,6 +7,12 @@ using Blindness;
 [Concrete]
 public class InputCommandComponentConcrete : Node, InputCommandComponent
 {
+    public Binding Bind { get; set; }
+    public InputCommandComponentConcrete()
+    {
+        this.Bind = new InputCommandComponentConcreteBinding(this);
+    }
+
     public List<string> list
     {
         get => BindingSystem.Current.Get<List<string>>(indexMap[0]);
@@ -21,12 +27,6 @@ public class InputCommandComponentConcrete : Node, InputCommandComponent
 
     public new void Process()
         => base.Process();
-
-    public dynamic Bind(Expression<Func<object, object>> binding)
-    {
-        base.Bind(binding);
-        return this;
-    }
 
     protected override void OnProcess()
         => ((InputCommandComponent)this).OnProcess();
@@ -43,4 +43,13 @@ public class InputCommandComponentConcrete : Node, InputCommandComponent
             "n" => 1,
             _ => -1
         };
+}
+
+public class InputCommandComponentConcreteBinding : Binding
+{
+    public InputCommandComponentConcreteBinding(INode node) : base(node) { }
+
+    public List<string> list { get; set; }
+
+    public int n { get; set; }
 }

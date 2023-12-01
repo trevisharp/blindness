@@ -1,12 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-
+using System.Reflection;
 using Blindness;
 
 [Concrete]
 public class InputComponentConcrete : Node, InputComponent
 {
+    public Binding Bind { get; set;}
+    public InputComponentConcrete()
+    {
+        this.Bind = new InputComponentConcreteBinding(this);
+    }
+    
     public List<string> list
     {
         get => BindingSystem.Current.Get<List<string>>(indexMap[0]);
@@ -22,12 +28,6 @@ public class InputComponentConcrete : Node, InputComponent
     public new void Process()
         => base.Process();
 
-    public dynamic Bind(Expression<Func<object, object>> binding)
-    {
-        base.Bind(binding);
-        return this;
-    }
-
     int[] indexMap = new int[2];
     public void setBind(int index, int code)
         => indexMap[index] = code;
@@ -40,4 +40,13 @@ public class InputComponentConcrete : Node, InputComponent
             "n" => 1,
             _ => -1
         };
+}
+
+public class InputComponentConcreteBinding : Binding
+{
+    public InputComponentConcreteBinding(INode node) : base(node) { }
+
+    public List<string> list { get; set; }
+
+    public int n { get; set; }
 }

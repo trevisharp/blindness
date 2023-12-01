@@ -6,7 +6,12 @@ using Blindness;
 
 [Concrete]
 public class TableComponentConcrete : Node, TableComponent
-{   
+{
+    public Binding Bind { get; set; }
+    public TableComponentConcrete()
+    {
+        this.Bind = new TableComponentConcreteBinding(this);
+    }
     public int size
     {
         get => BindingSystem.Current.Get<int>(indexMap[0]);
@@ -40,12 +45,6 @@ public class TableComponentConcrete : Node, TableComponent
     public new void Process()
         => base.Process();
 
-    public dynamic Bind(Expression<Func<object, object>> binding)
-    {
-        base.Bind(binding);
-        return this;
-    }
-
     protected override void OnProcess()
         => ((TableComponent)this).OnProcess();
 
@@ -73,4 +72,18 @@ public class TableComponentConcrete : Node, TableComponent
         this.itemInput = itemInput;
         this.commandInput = commandInput;
     }
+}
+
+public class TableComponentConcreteBinding : Binding
+{
+    public TableComponentConcreteBinding(INode node) : base(node) { }
+    public int size { get; set; }
+
+    public List<string> texts { get; set; }
+
+    public InputComponent input { get; set; }
+    
+    public InputItemComponent itemInput { get; set; }
+
+    public InputCommandComponent commandInput { get; set; }
 }
