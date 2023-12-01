@@ -1,39 +1,56 @@
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 using Blindness;
 
 [Concrete]
-public class TableComponentConcrete : TableComponent
+public class TableComponentConcrete : Node, TableComponent
 {   
-    protected override int size
+    public int size
     {
         get => BindingSystem.Current.Get<int>(indexMap[0]);
         set => BindingSystem.Current.Set(indexMap[0], value);
     }
 
-    protected override List<string> texts
+    public List<string> texts
     {
         get => BindingSystem.Current.Get<List<string>>(indexMap[1]);
         set => BindingSystem.Current.Set(indexMap[1], value);
     }
 
-    protected override InputComponent input
+    public InputComponent input
     {
         get => BindingSystem.Current.Get<InputComponent>(indexMap[2]);
         set => BindingSystem.Current.Set(indexMap[2], value);
     }
     
-    protected override InputItemComponent itemInput
+    public InputItemComponent itemInput
     {
         get => BindingSystem.Current.Get<InputItemComponent>(indexMap[3]);
         set => BindingSystem.Current.Set(indexMap[3], value);
     }
 
-    protected override InputCommandComponent commandInput
+    public InputCommandComponent commandInput
     {
         get => BindingSystem.Current.Get<InputCommandComponent>(indexMap[4]);
         set => BindingSystem.Current.Set(indexMap[4], value);
     }
+
+    public new void Process()
+        => base.Process();
+
+    public dynamic Bind(Expression<Func<object, object>> binding)
+    {
+        base.Bind(binding);
+        return this;
+    }
+
+    protected override void OnProcess()
+        => ((TableComponent)this).OnProcess();
+
+    protected override void OnLoad()
+        => ((TableComponent)this).OnLoad();
 
     int[] indexMap = new int[5];
     protected void setBind(int index, int code)
@@ -50,4 +67,10 @@ public class TableComponentConcrete : TableComponent
             "commandInput" => 4,
             _ => -1
         };
+
+    public void Deps(InputItemComponent itemInput, InputCommandComponent commandInput)
+    {
+        this.itemInput = itemInput;
+        this.commandInput = commandInput;
+    }
 }

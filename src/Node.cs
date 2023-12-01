@@ -13,7 +13,7 @@ public abstract class Node
     MethodInfo getBindIndexInfo = null;
     bool firstOperate = true;
 
-    internal void Bind(params Expression<Func<object, object>>[] bindings)
+    public void Bind(params Expression<Func<object, object>>[] bindings)
     {
         foreach (var binding in bindings)
         {
