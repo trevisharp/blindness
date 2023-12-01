@@ -42,7 +42,7 @@ public class TableComponent : BaseComponent
 
     protected override void OnLoad()
     {
-        input = commandInput;
+        input = itemInput;
         input |= n => size;
         input |= list => texts;
     }
@@ -85,7 +85,11 @@ public class TableComponent : BaseComponent
             Console.WriteLine("\tLista vazia!");
         
         if (texts.Count == 10)
-            input = null;
+        {
+            input = commandInput;
+            input |= n => size;
+            input |= list => texts;
+        }
     }
 }
 

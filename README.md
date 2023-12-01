@@ -29,6 +29,7 @@ dotnet add package Blindness # Install Blindness
 
 # TODO (For the developer team)
 
+- Conseguir recuperar bindings antigos
 - Criar documentação da tecnologia
 - Melhorar divisão do código
 - Melhorar tratamento de exceção
