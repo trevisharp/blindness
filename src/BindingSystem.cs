@@ -24,13 +24,6 @@ public class BindingSystem
     public T Get<T>(int index)
     {
         var obj = data[index];
-        if (obj is PreInitNode init)
-        {
-            obj = data[index] = DependencySystem.Current
-                .GetConcrete(init.RealType);
-            print();
-        }
-
         return (T)obj;
     }
 

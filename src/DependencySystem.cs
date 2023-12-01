@@ -28,7 +28,7 @@ public class DependencySystem
             if (node is null)
                 return null;
             
-            node.LoadMembers();
+            node.LoadDependencies();
             return node;
         }
         catch (MissingConcreteTypeException ex)

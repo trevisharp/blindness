@@ -48,11 +48,24 @@ public abstract class Node
         }
     }
 
-    internal void LoadMembers()
+    internal void LoadDependencies()
     {
-        var type = this.GetType();
-        foreach (var prop in type.GetRuntimeProperties())
-            loadProperty(prop);
+        var deps = findDeps();
+        if (deps is null)
+            return;
+        
+        var parameters = deps.GetParameters();
+        object[] objs = new object[parameters.Length];
+
+        for (int i = 0; i < objs.Length; i++)
+        {
+            var param = parameters[i];
+            var type = param.ParameterType;
+            objs[i] = DependencySystem
+                .Current.GetConcrete(type);
+        }
+        
+        deps.Invoke(this, objs);
     }
     protected internal virtual void OnLoad() { }
     protected internal virtual void OnProcess() { }
@@ -101,50 +114,19 @@ public abstract class Node
         return (int)getBindIndexInfo.Invoke(this, new object[] { field });
     }
 
+    private MethodInfo findDeps()
+        => findMethod("Deps");
     private MethodInfo findMethod(string name, Type type = null)
     {
         type ??= this.GetType();
         foreach (var method in type.GetRuntimeMethods())
         {
-            if (method.Name == name)
-                return method;
+            if (method.Name != name)
+                continue;
+            
+            return method;
         }
         return null;
-    }
-
-    private void loadProperty(PropertyInfo prop)
-    {
-        try
-        {
-            var get = prop.GetMethod;
-            var set = prop.SetMethod;
-            if (!get.IsVirtual || !set.IsVirtual)
-                return;
-            
-            if (prop.PropertyType.IsSubclassOf(typeof(Node)))
-            {
-                initSubNode(prop);
-                return;
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new PropertyInitializationException(
-                prop.Name, ex
-            );
-        }
-    }
-
-    private void initSubNode(PropertyInfo prop)
-    {
-        var type = prop.PropertyType;
-
-        if (type == prop.DeclaringType)
-            throw new DependenceOverflowException(type);
-
-        var preInitNode = PreInitNode.Create(type);
-        int index = baseGetBindIndex(prop.Name);
-        baseSetBind(index, preInitNode.DataIndex);
     }
 
     private (string field, MemberInfo member, object obj, object parent) getBindingInformation(
