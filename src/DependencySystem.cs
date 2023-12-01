@@ -51,7 +51,13 @@ public class DependencySystem
 
         foreach (var type in types)
         {
-            if (type.BaseType != inputType)
+            bool finded = false;
+            foreach (var inter in type.GetInterfaces())
+            {
+                if (inter == inputType)
+                    finded = true;
+            }
+            if (!finded)
                 continue;
             
             if (type.GetCustomAttribute<ConcreteAttribute>() is null)

@@ -41,7 +41,15 @@ public class Binding
             throw new ArgumentOutOfRangeException(nameof(fieldCode));
         var pointer = this.pointerMap[fieldCode];
         
-        Memory.Current.Set<T>(pointer, value);
+        if (pointer != -1)
+        {
+            Memory.Current.Set<T>(pointer, value);
+            return;
+        }
+
+        var newIndexData = Memory.Current.Add(value);
+        pointer = newIndexData;
+        
     }
     
     public static Binding operator |(
@@ -162,7 +170,7 @@ public class Binding
 
     private void tryInitField(Type fieldType, int fieldCode)
     {
-        if (fieldType.IsSubclassOf(typeof(INode)))
+        if (fieldType.GetInterface(nameof(INode)) == typeof(INode))
             throw new NonInitializatedNodeException(
                 fieldType, this.node.GetType()
             );

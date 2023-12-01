@@ -18,7 +18,7 @@ public abstract class Node
         
         var parameters = deps.GetParameters();
         object[] objs = new object[parameters.Length];
-
+        // TODO: Init Memory with dependencies
         for (int i = 0; i < objs.Length; i++)
         {
             var param = parameters[i];

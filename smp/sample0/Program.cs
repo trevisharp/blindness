@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 using Blindness;
 
-var app = new MyAppConcrete();
+var app = DependencySystem
+    .Current.GetConcrete(typeof(MyApp));
 while (true)
     app.Process();
 
