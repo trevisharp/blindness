@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Blindness;
 
-public class BindingSystem
+public class Memory
 {
-    private BindingSystem() { }
-    private static BindingSystem crr = new();
-    public static BindingSystem Current => crr;
+    private Memory() { }
+    private static Memory crr = new();
+    public static Memory Current => crr;
 
     public static void Reset()
         => crr = new();

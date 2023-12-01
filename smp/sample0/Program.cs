@@ -16,8 +16,8 @@ public interface MyApp : INode
 
     void OnLoad()
     {
-        table.Bind |= size => 6;
-        table.Bind |= texts => new List<string> {
+        table.size = 6;
+        table.texts = new List<string> {
             "Textos",
             "Salvos"
         };
