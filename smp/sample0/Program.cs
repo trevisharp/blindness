@@ -22,7 +22,7 @@ public interface MyApp : INode
             "Textos",
             "Salvos"
         };
-        table.Bind |= input => this.input;
+        Bind |= input => table.input;
     }
 
     void OnProcess()
@@ -50,8 +50,8 @@ public interface TableComponent : INode
     void OnLoad()
     {
         input = itemInput;
-        input.Bind |= n => size;
-        input.Bind |= list => texts;
+        Bind |= size => input.n;
+        Bind |= texts => input.list;
     }
 
     void OnProcess()
@@ -94,8 +94,8 @@ public interface TableComponent : INode
         if (texts.Count == 10)
         {
             input = commandInput;
-            input.Bind |= n => size;
-            input.Bind |= list => texts;
+            Bind |= size => input.n;
+            Bind |= texts => input.list;
         }
     }
 }

@@ -10,11 +10,14 @@ public class MyAppConcrete : Node, MyApp
     public Binding Bind { get; set; }
     public MyAppConcrete() =>
         this.Bind = new Binding(
-            this, 2, s => s switch
+            this, 2, s => {
+                System.Console.WriteLine("ok"); 
+                return s switch
             {
                 "table" => 0,
                 "input" => 1,
                 _ => -1
+            };
             }
         );
 

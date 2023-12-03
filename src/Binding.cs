@@ -20,6 +20,7 @@ public class Binding
         this.pointerMap = new int[fieldCount];
         for (int i = 0; i < fieldCount; i++)
             pointerMap[i] = -1;
+        System.Console.WriteLine(fieldMap("input"));
         this.fieldMap = fieldMap;
     }
     
@@ -48,8 +49,7 @@ public class Binding
         }
 
         var newIndexData = Memory.Current.Add(value);
-        pointer = newIndexData;
-        
+        this.pointerMap[fieldCode] = newIndexData;
     }
     
     public static Binding operator |(
@@ -69,13 +69,16 @@ public class Binding
     private void bind(Expression<Func<object, object>> binding)
     {
         var info = getBindingInformation(binding);
+        System.Console.WriteLine(info.field);
+        System.Console.WriteLine(info.field.Replace("_", ""));
+        System.Console.WriteLine(fieldMap(info.field.Replace("_", "")));
         var index = fieldMap(
             info.field.Replace("_", "")
         );
 
         if (index == -1)
             throw new MissingFieldException(
-                info.field, this.GetType()
+                info.field, info.parent.GetType()
             );
 
         if (info.member is null)
@@ -114,7 +117,7 @@ public class Binding
         
         var body = binding.Body;
         var result = fieldObjectSearch(body);
-        if (result != null && result.Value.member.DeclaringType.IsSubclassOf(typeof(Node)))
+        if (result != null && result.Value.member.DeclaringType.GetInterface("INode") != null)
         {
             return (reciver, result.Value.member, null, result.Value.obj);
         }
