@@ -43,16 +43,10 @@ public class Binding
         if (fieldCode < 0 || fieldCode >= pointerMap.Length)
             throw new ArgumentOutOfRangeException(nameof(fieldCode));
         var pointer = this.pointerMap[fieldCode];
-        
+
         if (pointer != -1)
         {
             Memory.Current.Set<T>(pointer, value);
-            return;
-        }
-
-        if (value is Node node && node.MemoryLocation != -1)
-        {
-            this.pointerMap[fieldCode] = node.MemoryLocation;
             return;
         }
 

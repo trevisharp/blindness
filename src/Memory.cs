@@ -21,8 +21,7 @@ public class Memory
 
         if (obj is Node node)
             node.MemoryLocation = newIndex;
-
-        print();
+        
         return newIndex;
     }
 
@@ -35,10 +34,9 @@ public class Memory
     public void Set<T>(int index, T value)
     {
         data[index] = value;
-        print();
     }
 
-    private void print()
+    internal void print()
     {
         Console.ForegroundColor = ConsoleColor.Green;
         int i = 0;

@@ -27,7 +27,7 @@ public interface MyApp : INode
 
     void OnProcess()
     {
-        // Console.Clear();
+        Console.Clear();
         table?.Process();
         input?.Process();
         Console.ReadKey(true);
@@ -89,7 +89,12 @@ public interface TableComponent : INode
         }
         
         if (texts.Count == 0)
-            Console.WriteLine("\tLista vazia!");
+        {
+            Console.Write("└");
+            for (int i = 0; i < size + 2; i++)
+                Console.Write("─");
+            Console.WriteLine("┘");
+        }
         
         if (texts.Count == 10)
         {
