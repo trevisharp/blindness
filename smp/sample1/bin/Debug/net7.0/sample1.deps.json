@@ -1,0 +1,41 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "sample1/1.0.0": {
+        "dependencies": {
+          "Blindness": "0.2.0"
+        },
+        "runtime": {
+          "sample1.dll": {}
+        }
+      },
+      "Blindness/0.2.0": {
+        "runtime": {
+          "lib/net7.0/Blindness.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "sample1/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Blindness/0.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/hEuLM6NpSDk1ySFodTI2BMeLQDSUYlPaKkbbxC3T05qlzim9rC6MUb0p11y7LEAGaGrGS6TWpnVp5CedOLQrg==",
+      "path": "blindness/0.2.0",
+      "hashPath": "blindness.0.2.0.nupkg.sha512"
+    }
+  }
+}

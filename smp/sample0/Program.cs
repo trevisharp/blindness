@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
+using System.Collections.Generic;
+
 using Blindness;
 
 var app = DependencySystem
@@ -17,10 +18,10 @@ public interface MyApp : INode
 
     void OnLoad()
     {
-        table.size = 6;
+        table.size = 5;
         table.texts = new List<string> {
-            "Textos",
-            "Salvos"
+            "Saved",
+            "Texts"
         };
         table.Bind |= input => this.input;
     }
@@ -30,7 +31,6 @@ public interface MyApp : INode
         Console.Clear();
         table?.Process();
         input?.Process();
-        Console.ReadKey(true);
     }
 }
 

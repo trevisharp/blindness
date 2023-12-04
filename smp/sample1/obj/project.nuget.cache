@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "8ZzjyJHS0uDs7f42U7LeDOS67ryPoEFYZOXomfrbwYsZ9WdcguHSvyKj/bSVWFq1YtBk9sjMiQfW7LG50iqBWg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\sii5ct\\Desktop\\Blindness\\smp\\sample1\\sample1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\sii5ct\\.nuget\\packages\\blindness\\0.2.0\\blindness.0.2.0.nupkg.sha512"
+  ],
+  "logs": []
+}
