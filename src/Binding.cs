@@ -120,51 +120,37 @@ public class Binding
         {
             var bindInfo = FromToExpression
                 .FromExpression(binding, node, parentType);
+            System.Console.WriteLine(binding);
+            System.Console.WriteLine(bindInfo);
 
             var toBinding = getBinding(
-                bindInfo.To.ObjectValue,
-                bindInfo.From.ObjectType
+                bindInfo.To.ObjectValue
             );
 
             var fmFieldCode = this.fieldMap(
                 bindInfo.From.MemberInfo.Name
             );
+            System.Console.WriteLine(bindInfo.From.MemberInfo.Name);
+            System.Console.WriteLine(fmFieldCode);
             var pointer = this.GetBind(fmFieldCode);
+            System.Console.WriteLine(pointer);
             
             var toFieldCode = toBinding.fieldMap(
                 bindInfo.To.MemberInfo.Name
             );
+            System.Console.WriteLine(bindInfo.To.MemberInfo.Name);
+            System.Console.WriteLine(toFieldCode);
             toBinding.SetBind(toFieldCode, pointer);
         }
-        catch (Exception ex)
+        catch
         {
-            throw ex;
+            throw;
         }
-        
-        // var parentType = info.member.DeclaringType;
-        
-        // Binding bindingObj = null;
-        // foreach (var field in parentType.GetRuntimeFields())
-        // {
-        //     if (field.FieldType == typeof(Binding))
-        //     {
-                
-        //     }
-        // }
-        // var parentGetBind = findMethod("baseGetBind", parentType);
-        // var parentGetBindIndex = findMethod("baseGetBindIndex", parentType);
-        // var parentBindIndex = parentGetBindIndex.Invoke(
-        //     info.parent, new object[] { info.member.Name }
-        // );
-        // var parentDataIndex = parentGetBind.Invoke(
-        //     info.parent, new object[] { parentBindIndex }
-        // );
-        
-        // pointerMap[index] = (int)parentDataIndex;
     }
 
-    private Binding getBinding(object obj, Type type)
+    private Binding getBinding(object obj)
     {
+        var type = obj.GetType();
         var prop = type.GetProperty("Bind");
         if (prop is null)
             throw new InvalidBindingFormatException(

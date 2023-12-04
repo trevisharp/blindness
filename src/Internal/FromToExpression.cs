@@ -31,9 +31,9 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
             throw new InvalidBindingFormatException();
         var member = memberAccess.Member;
 
-        var parentMemberAccess = memberAccess.Expression as MemberExpression;
-        if (parentMemberAccess is not null)
+        if (memberAccess.Expression is MemberExpression parentMemberAccess)
         {
+            System.Console.WriteLine("AS MEMBEREXPRESSION");
             var parentField = parentMemberAccess?.Member;
             var parentConstant = parentMemberAccess.Expression as ConstantExpression;
             if (parentConstant is null)
@@ -50,14 +50,31 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
                     );
 
             to = new(obj, type, member);
+            
+            var fromFieldName = expression
+                .Parameters[0].Name;
+            MemberInfo fromMember = fromType.GetProperty(fromFieldName);
+            fromMember ??= fromType.GetField(fromFieldName);
+
+            from = new(fromInstance, fromType, fromMember);
         }
 
-        var fromFieldName = expression
-            .Parameters[0].Name;
-        MemberInfo fromMember = fromType.GetProperty(fromFieldName);
-        fromMember ??= fromType.GetField(fromFieldName);
+        if (memberAccess.Expression is ConstantExpression parentConstantAccess)
+        {
+            System.Console.WriteLine("AS FIELDEXPRESSION");
+            var propertyParent = parentConstantAccess.Value;
+            
+            var parentField = memberAccess?.Member;
 
-        from = new(fromInstance, fromType, fromMember);
+            to = new(propertyParent, parentField.DeclaringType, parentField);
+
+            var fromFieldName = expression
+                .Parameters[0].Name;
+            MemberInfo fromMember = fromType.GetProperty(fromFieldName);
+            fromMember ??= fromType.GetField(fromFieldName);
+
+            from = new(fromInstance, fromType, fromMember);
+        }
 
         return new(from, to);
     }

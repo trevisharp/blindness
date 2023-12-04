@@ -27,7 +27,7 @@ public interface MyApp : INode
 
     void OnProcess()
     {
-        Console.Clear();
+        // Console.Clear();
         table?.Process();
         input?.Process();
         Console.ReadKey(true);

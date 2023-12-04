@@ -17,6 +17,19 @@ public class DependencySystem
     
     private Dictionary<Type, Type> typeMap = new();
 
+    public Type GetConcreteType(Type type)
+    {
+        try
+        {
+            var concreteType = findConcrete(type);
+            return concreteType;
+        }
+        catch (MissingConcreteTypeException ex)
+        {
+            throw ex;
+        }
+    }
+
     public Node GetConcrete(Type type)
     {
         try

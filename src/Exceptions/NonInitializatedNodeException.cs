@@ -25,5 +25,18 @@ public class NonInitializatedNodeException : Exception
         
         // ...
     }
+
+    Other possibility is your code using Binding in a null Node field, like this:
+    public interface {{parentType}}
+    {
+        {{nodeType}} fieldName { get; set; } // Has a 'x' field Null
+        OtherNodeType otherName { get; set; }
+
+        void OnLoad()
+        {
+            fieldName.Bind |= x => otherName.y;
+        }
+    }
+    The 'x' in fieldName do not have a reference to pass to 'y' in otherName. 
     """;
 }

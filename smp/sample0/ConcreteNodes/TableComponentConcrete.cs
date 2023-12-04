@@ -13,8 +13,11 @@ public class TableComponentConcrete : Node, TableComponent
             this, 5, typeof(TableComponent),
             s => s switch
             {
-                "list" => 0,
-                "n" => 1,
+                "size" => 0,
+                "texts" => 1,
+                "input" => 2,
+                "itemInput" => 3,
+                "commandInput" => 4,
                 _ => -1
             }
         );
