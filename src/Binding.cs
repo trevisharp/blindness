@@ -50,6 +50,12 @@ public class Binding
             return;
         }
 
+        if (value is Node node && node.MemoryLocation != -1)
+        {
+            this.pointerMap[fieldCode] = node.MemoryLocation;
+            return;
+        }
+
         var newIndexData = Memory.Current.Add(value);
         this.pointerMap[fieldCode] = newIndexData;
     }
@@ -120,8 +126,6 @@ public class Binding
         {
             var bindInfo = FromToExpression
                 .FromExpression(binding, node, parentType);
-            System.Console.WriteLine(binding);
-            System.Console.WriteLine(bindInfo);
 
             var toBinding = getBinding(
                 bindInfo.To.ObjectValue
@@ -130,16 +134,19 @@ public class Binding
             var fmFieldCode = this.fieldMap(
                 bindInfo.From.MemberInfo.Name
             );
-            System.Console.WriteLine(bindInfo.From.MemberInfo.Name);
-            System.Console.WriteLine(fmFieldCode);
             var pointer = this.GetBind(fmFieldCode);
-            System.Console.WriteLine(pointer);
+            if (pointer == -1)
+                tryInitField(
+                    bindInfo.From.MemberInfo is PropertyInfo prop ? prop.PropertyType :
+                    bindInfo.From.MemberInfo is FieldInfo field ? field.FieldType :
+                    throw new InvalidBindingFormatException(),
+        	        fmFieldCode
+                );
+            pointer = this.GetBind(fmFieldCode);
             
             var toFieldCode = toBinding.fieldMap(
                 bindInfo.To.MemberInfo.Name
             );
-            System.Console.WriteLine(bindInfo.To.MemberInfo.Name);
-            System.Console.WriteLine(toFieldCode);
             toBinding.SetBind(toFieldCode, pointer);
         }
         catch

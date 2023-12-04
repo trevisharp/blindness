@@ -97,6 +97,12 @@ public interface TableComponent : INode
             Bind |= size => input.n;
             Bind |= texts => input.list;
         }
+        else
+        {
+            input = itemInput;
+            Bind |= size => input.n;
+            Bind |= texts => input.list;
+        }
     }
 }
 

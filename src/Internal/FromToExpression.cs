@@ -33,7 +33,6 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
 
         if (memberAccess.Expression is MemberExpression parentMemberAccess)
         {
-            System.Console.WriteLine("AS MEMBEREXPRESSION");
             var parentField = parentMemberAccess?.Member;
             var parentConstant = parentMemberAccess.Expression as ConstantExpression;
             if (parentConstant is null)
@@ -61,7 +60,6 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
 
         if (memberAccess.Expression is ConstantExpression parentConstantAccess)
         {
-            System.Console.WriteLine("AS FIELDEXPRESSION");
             var propertyParent = parentConstantAccess.Value;
             
             var parentField = memberAccess?.Member;

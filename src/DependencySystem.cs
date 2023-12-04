@@ -42,6 +42,7 @@ public class DependencySystem
                 return null;
             
             node.LoadDependencies();
+            node.OnLoad();
             return node;
         }
         catch (MissingConcreteTypeException ex)

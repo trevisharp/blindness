@@ -8,8 +8,8 @@ using Exceptions;
 
 public abstract class Node
 {
-    bool firstOperate = true;
-    
+    public int MemoryLocation { get; set; } = -1;
+
     internal void LoadDependencies()
     {
         var deps = findDeps();
@@ -32,14 +32,7 @@ public abstract class Node
     protected internal virtual void OnLoad() { }
     protected internal virtual void OnProcess() { }
     public void Process()
-    {
-        if (firstOperate)
-        {
-            OnLoad();
-            firstOperate = false;
-        }
-        OnProcess();
-    }
+        => OnProcess();
 
     private MethodInfo findDeps()
         => findMethod("Deps");

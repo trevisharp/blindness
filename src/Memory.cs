@@ -17,8 +17,13 @@ public class Memory
     public int Add(object obj)
     {
         data.Add(obj);
+        var newIndex = data.Count - 1;
+
+        if (obj is Node node)
+            node.MemoryLocation = newIndex;
+
         print();
-        return data.Count - 1;
+        return newIndex;
     }
 
     public T Get<T>(int index)
