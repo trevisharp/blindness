@@ -1,32 +1,39 @@
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 using Blindness;
 
 [Concrete]
-public class InputItemComponentConcrete : InputItemComponent
+public class InputItemComponentConcrete : Node, InputItemComponent
 {
-    protected override List<string> list
+    public Binding Bind { get; set;}
+    public InputItemComponentConcrete() =>
+        this.Bind = new Binding(
+            this, 2, typeof(InputItemComponent),
+            s => s switch
+            {
+                "list" => 0,
+                "n" => 1,
+                _ => -1
+            }
+        );
+
+    public List<string> list
     {
-        get => BindingSystem.Current.Get<List<string>>(indexMap[0]);
-        set => BindingSystem.Current.Set(indexMap[0], value);
+        get => Bind.Get<List<string>>(0);
+        set => Bind.Set(0, value);
     }
 
-    protected override int n
+    public int n
     {
-        get => BindingSystem.Current.Get<int>(indexMap[1]);
-        set => BindingSystem.Current.Set(indexMap[1], value);
+        get => Bind.Get<int>(1);
+        set => Bind.Set(1, value);
     }
 
-    int[] indexMap = new int[2];
-    public void setBind(int index, int code)
-        => indexMap[index] = code;
-    public int getBind(int index)
-        => indexMap[index];
-    public int getBindIndex(string field)
-        => field switch
-        {
-            "list" => 0,
-            "n" => 1,
-            _ => -1
-        };
+    public new void Process()
+        => base.Process();
+
+    protected override void OnProcess()
+        => ((InputItemComponent)this).OnProcess();
 }

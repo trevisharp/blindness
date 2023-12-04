@@ -9,5 +9,5 @@ public class InvalidBindingFormatException : Exception
         => this.extraInfo = extraInfo;
 
     public override string Message =>
-        $"A Binding function need be in the format x => y. {extraInfo ?? ""}";
+        $"A Binding function need be in the format x => obj.y. {extraInfo ?? ""}";
 }

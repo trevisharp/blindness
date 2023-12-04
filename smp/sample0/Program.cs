@@ -3,27 +3,29 @@ using System.Collections.Generic;
 
 using Blindness;
 
-var app = Root.New<MyApp>();
-app.Run();
+var app = DependencySystem
+    .Current.GetConcrete(typeof(MyApp));
+while (true)
+    app.Process();
 
-public class BaseComponent : Node { }
-
-public class MyApp : Root
+public interface MyApp : INode
 {
-    protected virtual TableComponent table { get; set; }
-    protected virtual InputComponent input { get; set; }
+    TableComponent table { get; set; }
+    InputComponent input { get; set; }
 
-    protected override void OnLoad()
+    void Deps(TableComponent table);
+
+    void OnLoad()
     {
-        table |= size => 6;
-        table |= texts => new List<string> {
+        table.size = 6;
+        table.texts = new List<string> {
             "Textos",
             "Salvos"
         };
-        table |= _input => input;
+        table.Bind |= input => this.input;
     }
 
-    protected override void OnProcess()
+    void OnProcess()
     {
         Console.Clear();
         table?.Process();
@@ -32,22 +34,27 @@ public class MyApp : Root
     }
 }
 
-public class TableComponent : BaseComponent
+public interface TableComponent : INode
 {
-    protected virtual int size { get; set; }
-    protected virtual List<string> texts { get; set; }
-    protected virtual InputComponent input { get; set; }
-    protected virtual InputItemComponent itemInput { get; set; }
-    protected virtual InputCommandComponent commandInput { get; set; }
+    int size { get; set; }
+    List<string> texts { get; set; }
+    InputComponent input { get; set; }
+    InputItemComponent itemInput { get; set; }
+    InputCommandComponent commandInput { get; set; }
 
-    protected override void OnLoad()
+    void Deps(
+        InputItemComponent itemInput,
+        InputCommandComponent commandInput
+    );
+
+    void OnLoad()
     {
-        input = commandInput;
-        input |= n => size;
-        input |= list => texts;
+        input = itemInput;
+        Bind |= size => input.n;
+        Bind |= texts => input.list;
     }
 
-    protected override void OnProcess()
+    void OnProcess()
     {
         Console.Write("┌");
         for (int i = 0; i < size + 2; i++)
@@ -82,22 +89,37 @@ public class TableComponent : BaseComponent
         }
         
         if (texts.Count == 0)
-            Console.WriteLine("\tLista vazia!");
+        {
+            Console.Write("└");
+            for (int i = 0; i < size + 2; i++)
+                Console.Write("─");
+            Console.WriteLine("┘");
+        }
         
         if (texts.Count == 10)
-            input = null;
+        {
+            input = commandInput;
+            Bind |= size => input.n;
+            Bind |= texts => input.list;
+        }
+        else
+        {
+            input = itemInput;
+            Bind |= size => input.n;
+            Bind |= texts => input.list;
+        }
     }
 }
 
-public class InputComponent : BaseComponent
+public interface InputComponent : INode
 {
-    protected virtual int n { get; set; }
-    protected virtual List<string> list { get; set; }
+    int n { get; set; }
+    List<string> list { get; set; }
 }
 
-public class InputItemComponent : InputComponent
+public interface InputItemComponent : InputComponent
 {
-    protected override void OnProcess()
+    void OnProcess()
     {
         Console.Write("Item a adicionar: ");
         var text = Console.ReadLine();
@@ -112,9 +134,9 @@ public class InputItemComponent : InputComponent
     }
 }
 
-public class InputCommandComponent : InputComponent
+public interface InputCommandComponent : InputComponent
 {
-    protected override void OnProcess()
+    void OnProcess()
     {
         Console.Write("Comando a rodar: ");
         var text = Console.ReadLine();

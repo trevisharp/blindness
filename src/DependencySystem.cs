@@ -17,6 +17,19 @@ public class DependencySystem
     
     private Dictionary<Type, Type> typeMap = new();
 
+    public Type GetConcreteType(Type type)
+    {
+        try
+        {
+            var concreteType = findConcrete(type);
+            return concreteType;
+        }
+        catch (MissingConcreteTypeException ex)
+        {
+            throw ex;
+        }
+    }
+
     public Node GetConcrete(Type type)
     {
         try
@@ -28,7 +41,8 @@ public class DependencySystem
             if (node is null)
                 return null;
             
-            node.LoadMembers();
+            node.LoadDependencies();
+            node.OnLoad();
             return node;
         }
         catch (MissingConcreteTypeException ex)
@@ -51,7 +65,13 @@ public class DependencySystem
 
         foreach (var type in types)
         {
-            if (type.BaseType != inputType)
+            bool finded = false;
+            foreach (var inter in type.GetInterfaces())
+            {
+                if (inter == inputType)
+                    finded = true;
+            }
+            if (!finded)
                 continue;
             
             if (type.GetCustomAttribute<ConcreteAttribute>() is null)
