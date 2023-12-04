@@ -56,9 +56,11 @@ public interface LoginScreen : INode
         Bind |= password => Password.Text;
         Bind |= repeat => Repeat.Text;
 
-        Login.Bind |= Selected => selectedField == 0;
-        Password.Bind |= Selected => selectedField == 1;
-        Repeat.Bind |= Selected => selectedField == 2;
+        // Hide Nodes idea
+        // Condition cond = null;
+        // cond.Bind |= Result => Login.Selected;
+        // cond.ValueExpected = 0;
+        // Bind |= selectedField => cond.RealValue;
     }
 
     void OnProcess()
@@ -163,5 +165,17 @@ public interface TextBox : INode
         }
 
         Console.WriteLine(sb);
+    }
+}
+
+public interface Condition : INode
+{
+    int ValueExpected { get; set; }
+    int RealValue { get; set; }
+    bool Result { get; set; }
+
+    void OnProcess()
+    {
+        Result = ValueExpected == RealValue;
     }
 }
