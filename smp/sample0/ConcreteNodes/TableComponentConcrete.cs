@@ -10,7 +10,8 @@ public class TableComponentConcrete : Node, TableComponent
     public Binding Bind { get; set; }
     public TableComponentConcrete() =>
         this.Bind = new Binding(
-            this, 5, s => s switch
+            this, 5, typeof(TableComponent),
+            s => s switch
             {
                 "list" => 0,
                 "n" => 1,

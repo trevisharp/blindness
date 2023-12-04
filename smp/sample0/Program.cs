@@ -22,7 +22,7 @@ public interface MyApp : INode
             "Textos",
             "Salvos"
         };
-        Bind |= input => table.input;
+        table.Bind |= input => this.input;
     }
 
     void OnProcess()

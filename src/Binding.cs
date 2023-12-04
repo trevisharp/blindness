@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 
 namespace Blindness;
 
+using Internal;
 using Exceptions;
 
 public class Binding
@@ -11,8 +12,11 @@ public class Binding
     Node node;
     int[] pointerMap;
     Func<string, int> fieldMap;
+    object parentRef;
+    Type parentType;
+
     public Binding(
-        Node node, int fieldCount, 
+        Node node, int fieldCount, Type parentType,
         Func<string, int> fieldMap
     )
     {
@@ -20,15 +24,13 @@ public class Binding
         this.pointerMap = new int[fieldCount];
         for (int i = 0; i < fieldCount; i++)
             pointerMap[i] = -1;
-        System.Console.WriteLine(fieldMap("input"));
         this.fieldMap = fieldMap;
+        this.parentType = parentType;
     }
     
     public T Get<T>(int fieldCode)
     {
-        if (fieldCode < 0 || fieldCode >= pointerMap.Length)
-            throw new ArgumentOutOfRangeException(nameof(fieldCode));
-        var pointer = this.pointerMap[fieldCode];
+        var pointer = GetBind(fieldCode);
 
         if (pointer == -1)
             tryInitField(typeof(T), fieldCode);
@@ -52,6 +54,22 @@ public class Binding
         this.pointerMap[fieldCode] = newIndexData;
     }
     
+    internal int GetBind(int fieldCode)
+    {
+        if (fieldCode < 0 || fieldCode >= pointerMap.Length)
+            throw new ArgumentOutOfRangeException(nameof(fieldCode));
+        var pointer = this.pointerMap[fieldCode];
+
+        return pointer;
+    }
+
+    internal void SetBind(int fieldCode, int pointer)
+    {
+        if (fieldCode < 0 || fieldCode >= pointerMap.Length)
+            throw new ArgumentOutOfRangeException(nameof(fieldCode));
+        this.pointerMap[fieldCode] = pointer;
+    }
+
     public static Binding operator |(
         Binding binding, 
         Expression<Func<object, object>> bindExpression
@@ -64,98 +82,6 @@ public class Binding
         
         binding.bind(bindExpression);
         return binding;
-    }
-
-    private void bind(Expression<Func<object, object>> binding)
-    {
-        var info = getBindingInformation(binding);
-        System.Console.WriteLine(info.field);
-        System.Console.WriteLine(info.field.Replace("_", ""));
-        System.Console.WriteLine(fieldMap(info.field.Replace("_", "")));
-        var index = fieldMap(
-            info.field.Replace("_", "")
-        );
-
-        if (index == -1)
-            throw new MissingFieldException(
-                info.field, info.parent.GetType()
-            );
-
-        if (info.member is null)
-            throw new InvalidBindingFormatException();
-    
-        // TODO: Reimplement
-        var parentType = info.member.DeclaringType;
-        
-        Binding bindingObj = null;
-        foreach (var field in parentType.GetRuntimeFields())
-        {
-            if (field.FieldType == typeof(Binding))
-            {
-                
-            }
-        }
-        var parentGetBind = findMethod("baseGetBind", parentType);
-        var parentGetBindIndex = findMethod("baseGetBindIndex", parentType);
-        var parentBindIndex = parentGetBindIndex.Invoke(
-            info.parent, new object[] { info.member.Name }
-        );
-        var parentDataIndex = parentGetBind.Invoke(
-            info.parent, new object[] { parentBindIndex }
-        );
-        
-        pointerMap[index] = (int)parentDataIndex;
-    }
-
-    private (string field, MemberInfo member, object obj, object parent) getBindingInformation(
-        Expression<Func<object, object>> binding
-    )
-    {
-        if (binding.Parameters.Count != 1)
-            throw new InvalidBindingFormatException();
-        var reciver = binding.Parameters[0].Name;
-        
-        var body = binding.Body;
-        var result = fieldObjectSearch(body);
-        if (result != null && result.Value.member.DeclaringType.GetInterface("INode") != null)
-        {
-            return (reciver, result.Value.member, null, result.Value.obj);
-        }
-        
-        var func = binding.Compile();
-        return (reciver, null, func(null), null);
-    }
-
-    private (MemberInfo member, object obj)? fieldObjectSearch(
-        Expression body
-    )
-    {
-        switch (body.NodeType)
-        {
-            case ExpressionType.Parameter:
-                throw new InvalidBindingFormatException(
-                    @"
-                    This error may be thrwoed by a expression in
-                    x => x format, for techinical motivations try to use _x => x
-                    "
-                );
-
-            case ExpressionType.Convert:
-                var unaryExp = body as UnaryExpression;
-                var operand = unaryExp.Operand;
-                return fieldObjectSearch(operand);
-            
-            case ExpressionType.MemberAccess:
-                var memberExp = body as MemberExpression;
-                var consExp = memberExp.Expression as ConstantExpression;
-                return (memberExp.Member, consExp.Value);
-            
-            case ExpressionType.ListInit:
-            case ExpressionType.Constant:
-                return null;
-        }
-        
-        throw new InvalidBindingFormatException();
     }
 
     private MethodInfo findMethod(string name, Type type = null)
@@ -186,5 +112,71 @@ public class Binding
             Memory.Current.Add(Activator.CreateInstance(fieldType));
         
         pointerMap[fieldCode] = newDataIndex;
+    }
+    
+    private void bind(Expression<Func<object, object>> binding)
+    {
+        try
+        {
+            var bindInfo = FromToExpression
+                .FromExpression(binding, node, parentType);
+
+            var toBinding = getBinding(
+                bindInfo.To.ObjectValue,
+                bindInfo.From.ObjectType
+            );
+
+            var fmFieldCode = this.fieldMap(
+                bindInfo.From.MemberInfo.Name
+            );
+            var pointer = this.GetBind(fmFieldCode);
+            
+            var toFieldCode = toBinding.fieldMap(
+                bindInfo.To.MemberInfo.Name
+            );
+            toBinding.SetBind(toFieldCode, pointer);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+        
+        // var parentType = info.member.DeclaringType;
+        
+        // Binding bindingObj = null;
+        // foreach (var field in parentType.GetRuntimeFields())
+        // {
+        //     if (field.FieldType == typeof(Binding))
+        //     {
+                
+        //     }
+        // }
+        // var parentGetBind = findMethod("baseGetBind", parentType);
+        // var parentGetBindIndex = findMethod("baseGetBindIndex", parentType);
+        // var parentBindIndex = parentGetBindIndex.Invoke(
+        //     info.parent, new object[] { info.member.Name }
+        // );
+        // var parentDataIndex = parentGetBind.Invoke(
+        //     info.parent, new object[] { parentBindIndex }
+        // );
+        
+        // pointerMap[index] = (int)parentDataIndex;
+    }
+
+    private Binding getBinding(object obj, Type type)
+    {
+        var prop = type.GetProperty("Bind");
+        if (prop is null)
+            throw new InvalidBindingFormatException(
+                "The binding object need has a Binding Property with name 'Bind'"
+            );
+        
+        var value = prop.GetValue(obj) as Binding;
+        if (value is null)
+            throw new InvalidBindingFormatException(
+                "The binding object need has a Binding Property with name 'Bind'"
+            );
+        
+        return value;
     }
 }

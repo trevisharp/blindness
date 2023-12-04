@@ -10,7 +10,8 @@ public class InputCommandComponentConcrete : Node, InputCommandComponent
     public Binding Bind { get; set; }
     public InputCommandComponentConcrete() =>
         this.Bind = new Binding(
-            this, 2, s => s switch
+            this, 2, typeof(TableComponent),
+            s => s switch
             {
                 "list" => 0,
                 "n" => 1,
