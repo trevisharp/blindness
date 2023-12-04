@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Text;
 using Blindness;
 
 var app = DependencySystem
@@ -50,64 +50,57 @@ public interface TableComponent : INode
     void OnLoad()
     {
         input = itemInput;
-        Bind |= size => input.n;
-        Bind |= texts => input.list;
+
+        Bind |= size => itemInput.n;
+        Bind |= texts => itemInput.list;
+
+        Bind |= size => commandInput.n;
+        Bind |= texts => commandInput.list;
     }
 
     void OnProcess()
     {
-        Console.Write("┌");
-        for (int i = 0; i < size + 2; i++)
-            Console.Write("─");
-        Console.WriteLine("┐");
+        StringBuilder sb = new StringBuilder();
+        sb.Append("┌");
+        sb.Append('─', size + 2);
+        sb.AppendLine("┐");
 
         int j = 0;
         foreach (var text in texts)
         {
             j++;
             
-            Console.Write("│");
-            Console.Write(" ");
-            Console.Write(text);
-            for (int i = text.Length; i < size + 1; i++)
-                Console.Write(" ");
-            Console.WriteLine("│");
+            sb.Append("│ ");
+            sb.Append(text);
+            sb.Append(' ', size + 1 - text.Length);
+            sb.AppendLine("│");
 
             if (j == texts.Count)
             {
-                Console.Write("└");
-                for (int i = 0; i < size + 2; i++)
-                    Console.Write("─");
-                Console.WriteLine("┘");
+                sb.Append("└");
+                sb.Append('─', size + 2);
+                sb.AppendLine("┘");
                 continue;
             }
 
-            Console.Write("├");
-            for (int i = 0; i < size + 2; i++)
-                Console.Write("─");
-            Console.WriteLine("┤");
+            
+            sb.Append("├");
+            sb.Append('─', size + 2);
+            sb.AppendLine("┤");
         }
         
         if (texts.Count == 0)
         {
-            Console.Write("└");
-            for (int i = 0; i < size + 2; i++)
-                Console.Write("─");
-            Console.WriteLine("┘");
+            sb.Append("└");
+            sb.Append('─', size + 2);
+            sb.AppendLine("┘");
         }
+        Console.WriteLine(sb);
         
-        if (texts.Count == 10)
-        {
-            input = commandInput;
-            Bind |= size => input.n;
-            Bind |= texts => input.list;
-        }
-        else
-        {
-            input = itemInput;
-            Bind |= size => input.n;
-            Bind |= texts => input.list;
-        }
+        input =
+            texts.Count == 10 ?
+            commandInput :
+            itemInput;
     }
 }
 
