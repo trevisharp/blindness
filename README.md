@@ -37,9 +37,11 @@ dotnet add package Blindness # Install Blindness
 
 - Criar documentação da tecnologia
 - Melhorar divisão do código
-- Melhorar tratamento de exceção
-- Aplicar sistema verbose.
-- Melhorar gerenciamento de memória e estruturas de dados internos.
-- Flexibilizar controle do fluxo de execução.
-- Criar sistema de eventos usando o sistema de binding.
-- Adicionar exemplos na pasta /smp/
+- Melhorar tratamento de exceções
+- Aplicar sistema verbose
+- Melhorar gerenciamento de memória e estruturas de dados internos
+- Flexibilizar controle do fluxo de execução
+- Criar sistema de eventos usando o sistema de binding
+- Melhorar estrutura de Biding
+  - Permitir binding functions (Bind |= x => operação(y))
+  - Permitir vector binding (Bind |= x => list\[index\])
