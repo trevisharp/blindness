@@ -47,20 +47,9 @@ public interface LoginScreen : INode
         Repeat.Title = "repeat password";
         Repeat.Size = 40;
 
-        selectedField = 0;
-        login = "";
-        password = "";
-        repeat = "";
-
         Bind |= login => Login.Text;
         Bind |= password => Password.Text;
         Bind |= repeat => Repeat.Text;
-
-        // Hide Nodes idea
-        // Condition cond = null;
-        // cond.Bind |= Result => Login.Selected;
-        // cond.ValueExpected = 0;
-        // Bind |= selectedField => cond.RealValue;
     }
 
     void OnProcess()

@@ -33,7 +33,7 @@ public class Binding
         var pointer = GetBind(fieldCode);
 
         if (pointer == -1)
-            tryInitField(typeof(T), fieldCode);
+            pointer = tryInitField(typeof(T), fieldCode);
 
         return Memory.Current.Get<T>(pointer);
     }
@@ -70,8 +70,7 @@ public class Binding
         this.pointerMap[fieldCode] = pointer;
     }
 
-    public static Binding operator |(
-        Binding binding, 
+    public static Binding operator |(Binding binding, 
         Expression<Func<object, object>> bindExpression
     )
     {
@@ -97,7 +96,7 @@ public class Binding
         return null;
     }
 
-    private void tryInitField(Type fieldType, int fieldCode)
+    private int tryInitField(Type fieldType, int fieldCode)
     {
         if (fieldType.GetInterface(nameof(INode)) == typeof(INode))
             throw new NonInitializatedNodeException(
@@ -107,11 +106,14 @@ public class Binding
             fieldType.IsGenericType &&
             fieldType.GetGenericTypeDefinition() == typeof(Nullable<>);
         int newDataIndex = 
+            fieldType == typeof(string) ?
+            Memory.Current.Add(string.Empty) :
             fieldType.IsClass || isNullable ?
             Memory.Current.Add(null) :
             Memory.Current.Add(Activator.CreateInstance(fieldType));
         
         pointerMap[fieldCode] = newDataIndex;
+        return newDataIndex;
     }
     
     private void bind(Expression<Func<object, object>> binding)
