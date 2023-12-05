@@ -44,12 +44,16 @@ public interface LoginScreen : INode
         Bind |= login => Login.Text;
         Bind |= password => Password.Text;
         Bind |= repeat => Repeat.Text;
+
+        // Login.Bind |= Selected => selectedField == 0;
     }
 
     void OnProcess()
     {
         Console.Clear();
         Panel.Process();
+
+        var x = (new int[0])[0];
 
         var newChar = Console.ReadKey(true);
         if (newChar.Key == ConsoleKey.Tab)

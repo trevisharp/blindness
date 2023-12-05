@@ -2,35 +2,28 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness;
+namespace Blindness.Internal;
 
 using Exceptions;
 
-public class DependencySystem
+internal class DependencySystem
 {
     private DependencySystem() { }
     private static DependencySystem crr = new();
     public static DependencySystem Current => crr;
 
-    public static void Reset()
+    internal static void Reset()
         => crr = new();
     
     private Dictionary<Type, Type> typeMap = new();
 
-    public Type GetConcreteType(Type type)
+    internal Type GetConcreteType(Type type)
     {
-        try
-        {
-            var concreteType = findConcrete(type);
-            return concreteType;
-        }
-        catch (MissingConcreteTypeException ex)
-        {
-            throw ex;
-        }
+        var concreteType = findConcrete(type);
+        return concreteType;
     }
 
-    public Node GetConcrete(Type type)
+    internal Node GetConcrete(Type type)
     {
         try
         {
@@ -43,11 +36,12 @@ public class DependencySystem
             
             node.LoadDependencies();
             node.OnLoad();
+
             return node;
         }
         catch (MissingConcreteTypeException ex)
         {
-            throw ex;
+            throw;
         }
         catch (Exception ex)
         {

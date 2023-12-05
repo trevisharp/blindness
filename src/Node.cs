@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 
 namespace Blindness;
 
+using Internal;
 using Exceptions;
 
 public abstract class Node
