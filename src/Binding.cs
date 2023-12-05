@@ -132,13 +132,12 @@ public class Binding
             );
             var pointer = this.GetBind(fmFieldCode);
             if (pointer == -1)
-                tryInitField(
+                pointer = tryInitField(
                     bindInfo.From.MemberInfo is PropertyInfo prop ? prop.PropertyType :
                     bindInfo.From.MemberInfo is FieldInfo field ? field.FieldType :
                     throw new InvalidBindingFormatException(),
         	        fmFieldCode
                 );
-            pointer = this.GetBind(fmFieldCode);
             
             var toFieldCode = toBinding.fieldMap(
                 bindInfo.To.MemberInfo.Name

@@ -14,6 +14,6 @@ public class MissingFieldException : Exception
 
     public override string Message =>
         $"""
-        The type '{parentType}' does not have a filed '{field}' as dependency (get/set).
+        The type '{parentType}' does not have a field '{field}'.
         """;
 }

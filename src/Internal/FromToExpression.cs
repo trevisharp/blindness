@@ -56,6 +56,12 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
             fromMember ??= fromType.GetField(fromFieldName);
 
             from = new(fromInstance, fromType, fromMember);
+            
+            if (from.MemberInfo is null)
+                throw new MissingFieldException(fromFieldName, from.ObjectType);
+            
+            if (to.MemberInfo is null)
+                throw new MissingFieldException("(unknown)", to.ObjectType);
         }
 
         if (memberAccess.Expression is ConstantExpression parentConstantAccess)
@@ -72,6 +78,12 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
             fromMember ??= fromType.GetField(fromFieldName);
 
             from = new(fromInstance, fromType, fromMember);
+            
+            if (from.MemberInfo is null)
+                throw new MissingFieldException(fromFieldName, from.ObjectType);
+            
+            if (to.MemberInfo is null)
+                throw new MissingFieldException("(unknown)", to.ObjectType);
         }
 
         return new(from, to);

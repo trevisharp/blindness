@@ -3,8 +3,6 @@ using System.Text;
 using System.Collections.Generic;
 
 using Blindness;
-using System.Runtime.InteropServices;
-using System.Linq;
 
 var app = DependencySystem
     .Current.GetConcrete(typeof(LoginScreen));
@@ -33,8 +31,7 @@ public interface LoginScreen : INode
     {
         Panel.Title = "Login Page";
         Panel.Width = 60;
-        Panel.Children = new List<INode>
-        {
+        Panel.Children = new() {
             Login, Password, Repeat
         };
 
@@ -47,7 +44,7 @@ public interface LoginScreen : INode
         Repeat.Title = "repeat password";
         Repeat.Size = 40;
 
-        Bind |= login => Login.Text;
+        Login.Bind |= Text => this.login;
         Bind |= password => Password.Text;
         Bind |= repeat => Repeat.Text;
     }
@@ -65,6 +62,37 @@ public interface LoginScreen : INode
                 selectedField + 1;
             return;
         }
+
+        if (newChar.Key == ConsoleKey.Backspace)
+        {
+            switch (selectedField)
+            {
+                case 0:
+                    if (login.Length == 0)
+                        break;
+                    login = login
+                        .Substring(0, login.Length - 1);
+                    break;
+                
+                case 1:
+                    if (password.Length == 0)
+                        break;
+                    password = password
+                        .Substring(0, password.Length - 1);
+                    break;
+                
+                case 2:
+                    if (repeat.Length == 0)
+                        break;
+                    repeat = repeat
+                        .Substring(0, repeat.Length - 1);
+                    break;
+            }
+            return;
+        }
+
+        if (newChar.Key == ConsoleKey.Enter)
+            return;
         
         switch (selectedField)
         {
@@ -118,6 +146,11 @@ public interface TextBox : INode
     void OnProcess()
     {
         StringBuilder sb = new StringBuilder();
+        int size = 8 * Size / 10;
+        var text = Text.Length < size ? Text : 
+            Text.Substring(
+            Text.Length - size, size
+        );
 
         if (Selected)
         {
@@ -127,8 +160,8 @@ public interface TextBox : INode
             sb.AppendLine("╗");
 
             sb.Append("║ ");
-            sb.Append(Text);
-            sb.Append(' ', Size + 1 - Text.Length);
+            sb.Append(text);
+            sb.Append(' ', Size + 1 - text.Length);
             sb.AppendLine("║");
         
             sb.Append("╚");
@@ -143,28 +176,15 @@ public interface TextBox : INode
             sb.AppendLine("┐");
 
             sb.Append("│ ");
-            sb.Append(Text);
-            sb.Append(' ', Size + 1 - Text.Length);
+            sb.Append(text);
+            sb.Append(' ', Size + 1 - text.Length);
             sb.AppendLine("│");
         
             sb.Append("└");
             sb.Append('─', Size + 2);
             sb.AppendLine("┘");
-
         }
 
         Console.WriteLine(sb);
-    }
-}
-
-public interface Condition : INode
-{
-    int ValueExpected { get; set; }
-    int RealValue { get; set; }
-    bool Result { get; set; }
-
-    void OnProcess()
-    {
-        Result = ValueExpected == RealValue;
     }
 }

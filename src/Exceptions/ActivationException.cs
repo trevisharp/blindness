@@ -17,8 +17,7 @@ public class ActivatorException : Exception
 
     public override string Message =>
         $"""
-        The following error are throwed at instanciation of node '{type.Name}'.
-        (Sometimes this error is caused by constructors in Node class)
+        The following error are throwed at creation of node '{type.Name}'.
             {inner.Message.Replace("\n", "\n\t")}
         """;
 }
