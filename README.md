@@ -23,6 +23,12 @@ dotnet add package Blindness # Install Blindness
 
 # Versions
 
+### Blindness v0.3.0 (coming soon)
+
+ - ![](https://img.shields.io/badge/new-green) Basic flow control system.
+ - ![](https://img.shields.io/badge/new-green) Verbose and exception system.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Many Bugs solved in field initialization.
+
 ### Blindness v0.2.0
 
  - ![](https://img.shields.io/badge/update-blue) Node creation systax changed to use interfaces.
