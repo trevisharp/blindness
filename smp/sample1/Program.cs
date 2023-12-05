@@ -4,10 +4,7 @@ using System.Collections.Generic;
 
 using Blindness;
 
-var app = DependencySystem
-    .Current.GetConcrete(typeof(LoginScreen));
-while (true)
-    app.Process();
+App.RunNode<LoginScreen>();
 
 public interface LoginScreen : INode
 {
@@ -44,9 +41,11 @@ public interface LoginScreen : INode
         Repeat.Title = "repeat password";
         Repeat.Size = 40;
 
-        Login.Bind |= Text => this.login;
+        Bind |= login => Login.Text;
         Bind |= password => Password.Text;
         Bind |= repeat => Repeat.Text;
+
+        Login.Bind |= Selected => selectedField == 0;
     }
 
     void OnProcess()

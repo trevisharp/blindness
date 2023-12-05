@@ -118,36 +118,29 @@ public class Binding
     
     private void bind(Expression<Func<object, object>> binding)
     {
-        try
-        {
-            var bindInfo = FromToExpression
-                .FromExpression(binding, node, parentType);
+        var bindInfo = FromToExpression
+            .FromExpression(binding, node, parentType);
 
-            var toBinding = getBinding(
-                bindInfo.To.ObjectValue
-            );
+        var toBinding = getBinding(
+            bindInfo.To.ObjectValue
+        );
 
-            var fmFieldCode = this.fieldMap(
-                bindInfo.From.MemberInfo.Name
+        var fmFieldCode = this.fieldMap(
+            bindInfo.From.MemberInfo.Name
+        );
+        var pointer = this.GetBind(fmFieldCode);
+        if (pointer == -1)
+            pointer = tryInitField(
+                bindInfo.From.MemberInfo is PropertyInfo prop ? prop.PropertyType :
+                bindInfo.From.MemberInfo is FieldInfo field ? field.FieldType :
+                throw new InvalidBindingFormatException(),
+                fmFieldCode
             );
-            var pointer = this.GetBind(fmFieldCode);
-            if (pointer == -1)
-                pointer = tryInitField(
-                    bindInfo.From.MemberInfo is PropertyInfo prop ? prop.PropertyType :
-                    bindInfo.From.MemberInfo is FieldInfo field ? field.FieldType :
-                    throw new InvalidBindingFormatException(),
-        	        fmFieldCode
-                );
-            
-            var toFieldCode = toBinding.fieldMap(
-                bindInfo.To.MemberInfo.Name
-            );
-            toBinding.SetBind(toFieldCode, pointer);
-        }
-        catch
-        {
-            throw;
-        }
+        
+        var toFieldCode = toBinding.fieldMap(
+            bindInfo.To.MemberInfo.Name
+        );
+        toBinding.SetBind(toFieldCode, pointer);
     }
 
     private Binding getBinding(object obj)

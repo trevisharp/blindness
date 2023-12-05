@@ -65,13 +65,7 @@ public class DependencySystem
 
         foreach (var type in types)
         {
-            bool finded = false;
-            foreach (var inter in type.GetInterfaces())
-            {
-                if (inter == inputType)
-                    finded = true;
-            }
-            if (!finded)
+            if (!implementsInterface(type, inputType))
                 continue;
             
             if (type.GetCustomAttribute<ConcreteAttribute>() is null)
@@ -82,5 +76,14 @@ public class DependencySystem
         }
 
         throw new MissingConcreteTypeException(inputType);
+    }
+
+    private bool implementsInterface(Type type, Type interfaceType)
+    {
+        foreach (var inter in type.GetInterfaces())
+            if (inter == interfaceType)
+                return true;
+        
+        return false;
     }
 }
