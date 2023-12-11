@@ -23,8 +23,7 @@ public static class App
         }
         catch (Exception ex)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(ex.Message);
+            Verbose.Error(ex.Message, -1);
 
             var lines = ex.StackTrace.Split('\n');
             foreach (var line in lines)
@@ -33,13 +32,8 @@ public static class App
                     .Trim()
                     .StartsWith("at Blindness");
                 
-                if (isInternal)
-                    continue;
-                
-                sb.AppendLine(line);
+                Verbose.Error(line, isInternal ? 1 : 0);
             }
-
-            Verbose.Error(sb.ToString(), -1);
         }
     }
 }

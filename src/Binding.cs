@@ -118,8 +118,25 @@ public class Binding
     
     private void bind(Expression<Func<object, object>> binding)
     {
+        if (binding.Parameters.Count != 1)
+            throw new InvalidBindingFormatException(
+                "The number of parameters may be 1."
+            );
+        
+        bool isBasic = tryBasicBind(binding);
+        if (isBasic)
+            return;
+        
+        
+    }
+
+    private bool tryBasicBind(Expression<Func<object, object>> binding)
+    {
         var bindInfo = FromToExpression
             .FromExpression(binding, node, parentType);
+        
+        if (bindInfo is null)
+            return false;
 
         var toBinding = getBinding(
             bindInfo.To.ObjectValue
@@ -141,6 +158,8 @@ public class Binding
             bindInfo.To.MemberInfo.Name
         );
         toBinding.SetBind(toFieldCode, pointer);
+
+        return true;
     }
 
     private Binding getBinding(object obj)

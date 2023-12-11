@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 using Blindness;
 
+Verbose.VerboseLevel = 1000;
 App.RunNode<LoginScreen>();
 
 public interface LoginScreen : INode

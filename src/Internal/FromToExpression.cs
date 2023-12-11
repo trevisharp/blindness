@@ -13,10 +13,6 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
         object fromInstance, Type fromType
     )
     {
-        if (expression.Parameters.Count != 1)
-            throw new InvalidBindingFormatException(
-                "The number of parameters may be 1."
-            );
         ObjectReference from = null, to = null;
             
         var body = expression.Body;
@@ -28,7 +24,7 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
 
         var memberAccess = body as MemberExpression;
         if (memberAccess is null)
-            throw new InvalidBindingFormatException();
+            return null;
         var member = memberAccess.Member;
 
         if (memberAccess.Expression is MemberExpression parentMemberAccess)
