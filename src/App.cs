@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Diagnostics;
 
 namespace Blindness;
@@ -22,25 +23,23 @@ public static class App
         }
         catch (Exception ex)
         {
-            StackTrace st = new StackTrace(ex);
-            var lines = ex.StackTrace.Split('\n');
-            
-            for (int i = 0; i < st.FrameCount; i++)
-            {
-                var frame = st.GetFrame(i);
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(ex.Message);
 
-                System.Console.WriteLine(frame.HasSource());
-                System.Console.WriteLine(frame.GetFileName());
-                System.Console.WriteLine(frame.GetFileLineNumber());
-                System.Console.WriteLine(frame.GetILOffset());
-                System.Console.WriteLine(frame.GetMethod().DeclaringType.Assembly);
-                System.Console.WriteLine(lines[i]);
-                System.Console.WriteLine();
+            var lines = ex.StackTrace.Split('\n');
+            foreach (var line in lines)
+            {
+                var isInternal = line
+                    .Trim()
+                    .StartsWith("at Blindness");
+                
+                if (isInternal)
+                    continue;
+                
+                sb.AppendLine(line);
             }
 
-            System.Console.WriteLine(lines.Length);
-
-            Verbose.Error(ex.Message, -1);
+            Verbose.Error(sb.ToString(), -1);
         }
     }
 }
