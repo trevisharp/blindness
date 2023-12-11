@@ -1,10 +1,10 @@
 using System;
 using System.Text;
+using System.Linq;
 using System.Diagnostics;
 
 namespace Blindness;
 
-using System.Linq;
 using Internal;
 
 public static class App
