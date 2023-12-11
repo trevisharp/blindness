@@ -46,7 +46,8 @@ public interface LoginScreen : INode
         Bind |= password => Password.Text;
         Bind |= repeat => Repeat.Text;
 
-        Login.Bind |= Selected => selectedField == 0;
+        // Login.Bind |= Selected => selectedField == 0;
+        
     }
 
     void OnProcess()

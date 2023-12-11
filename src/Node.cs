@@ -35,6 +35,21 @@ public abstract class Node
     public void Process()
         => OnProcess();
 
+    public void When(
+        Expression<Func<bool>> condition,
+        Action action
+    )
+    {
+
+    }
+    public void On(
+        Expression<Func<bool>> condition,
+        Action action
+    )
+    {
+        
+    }
+
     private MethodInfo findDeps()
         => findMethod("Deps");
     private MethodInfo findMethod(string name, Type type = null)

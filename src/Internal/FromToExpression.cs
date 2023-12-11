@@ -32,7 +32,9 @@ internal record FromToExpression(ObjectReference From, ObjectReference To)
             var parentField = parentMemberAccess?.Member;
             var parentConstant = parentMemberAccess.Expression as ConstantExpression;
             if (parentConstant is null)
-                throw new InvalidBindingFormatException();
+                throw new InvalidBindingFormatException(
+                    "Expected a x => obj.y format."
+                );
             
             var propertyParent = parentConstant.Value;
             var (type, obj) = 
