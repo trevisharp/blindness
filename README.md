@@ -23,6 +23,12 @@ dotnet add package Blindness # Install Blindness
 
 # Versions
 
+### Blindness v0.4.0 (coming soon)
+
+ - ![](https://img.shields.io/badge/new-green) Parallel and Async Node Actions System (PANAS) added.
+ - ![](https://img.shields.io/badge/new-green) Event system added.
+ - ![](https://img.shields.io/badge/new-green) Special Nodes added.
+
 ### Blindness v0.3.0 (coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Basic flow control system.
