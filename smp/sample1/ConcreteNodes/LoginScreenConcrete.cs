@@ -72,9 +72,6 @@ public class LoginScreenConcrete : Node, LoginScreen
         set => Bind.Set(7, value);
     }
 
-    public new void Process()
-        => base.Process();
-
     protected override void OnProcess()
         => ((LoginScreen)this).OnProcess();
 

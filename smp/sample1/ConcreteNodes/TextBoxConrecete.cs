@@ -36,8 +36,6 @@ public class TextBoxConcrete : Node, TextBox
         get => Bind.Get<bool>(3);
         set => Bind.Set(3, value);
     }
-    public new void Process()
-        => base.Process();
 
     protected override void OnProcess()
         => ((TextBox)this).OnProcess();
