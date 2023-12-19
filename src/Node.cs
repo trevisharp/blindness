@@ -1,14 +1,20 @@
 using System;
+using System.Threading;
 using System.Reflection;
 using System.Linq.Expressions;
 
 namespace Blindness;
 
 using Internal;
-using Exceptions;
+using Parallelism;
 
-public abstract class Node
+public abstract class Node : IAsyncElement
 {
+    private int signalCount = 0;
+    private AutoResetEvent signal = new(false);
+    private bool running = true;
+
+    public IAsyncModel Model { get; set; }
     public int MemoryLocation { get; set; } = -1;
 
     internal void LoadDependencies()
@@ -30,18 +36,41 @@ public abstract class Node
         
         deps.Invoke(this, objs);
     }
-    protected internal virtual void OnLoad() { }
-    protected internal virtual void OnProcess() { }
-    public void Process()
-        => OnProcess();
 
+    protected internal virtual void OnLoad() { }
+    protected internal virtual void OnRun() { }
+
+    public void Run()
+        => Start();
+    
+    public void Start() 
+    {
+        this.running = true;
+        OnRun();
+
+        if (signalCount == 0)
+            return;
+        signal.Set();
+    }
+
+    public void Await()
+    {
+        signalCount++;
+        signal.WaitOne();
+        signalCount--;
+    }
+
+    public void Finish()
+        => running = false;
+    
     public void When(
         Expression<Func<bool>> condition,
         Action action
     )
     {
-
+        
     }
+
     public void On(
         Expression<Func<bool>> condition,
         Action action

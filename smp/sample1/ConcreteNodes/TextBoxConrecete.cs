@@ -37,6 +37,6 @@ public class TextBoxConcrete : Node, TextBox
         set => Bind.Set(3, value);
     }
 
-    protected override void OnProcess()
+    protected override void OnRun()
         => ((TextBox)this).OnProcess();
 }

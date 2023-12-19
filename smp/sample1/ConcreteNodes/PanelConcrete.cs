@@ -33,7 +33,7 @@ public class PanelConcrete : Node, Panel
         set => Bind.Set(2, value);
     }
 
-    protected override void OnProcess()
+    protected override void OnRun()
         => ((Panel)this).OnProcess();
 
 }

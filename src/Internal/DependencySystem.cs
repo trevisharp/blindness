@@ -39,7 +39,7 @@ internal class DependencySystem
 
             return node;
         }
-        catch (MissingConcreteTypeException ex)
+        catch (MissingConcreteTypeException)
         {
             throw;
         }
