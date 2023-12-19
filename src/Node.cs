@@ -73,7 +73,7 @@ public abstract class Node : IAsyncElement
 
     public void On(
         Expression<Func<bool>> condition,
-        Action action
+        Action<bool> action
     )
     {
         

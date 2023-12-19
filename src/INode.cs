@@ -13,6 +13,6 @@ public interface INode
     );
     void On(
         Expression<Func<bool>> condition,
-        Action action
+        Action<bool> action
     );
 }

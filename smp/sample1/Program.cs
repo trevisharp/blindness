@@ -48,20 +48,29 @@ public interface LoginScreen : INode
 
         On(
             () => selectedField == 0,
-            () => Login.Selected = true
+            r => Login.Selected = r
         );
 
         On(
             () => selectedField == 1,
-            () => Password.Selected = true
+            r => Password.Selected = r
         );
 
         On(
             () => selectedField == 2,
-            () => Repeat.Selected = true
+            r => Repeat.Selected = r
         );
 
-        // Login.Bind |= Selected => selectedField == 0;
+        On(
+            () => 
+                password.Length > 5  &&
+                password.Length > 50 &&
+                password == repeat,
+            r =>
+                Password.Title = r ? 
+                "password" :
+                "password (has errors)"
+        );
     }
 
     void OnProcess()
