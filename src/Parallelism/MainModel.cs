@@ -7,19 +7,17 @@ namespace Blindness.Parallelism;
 
 public class MainModel : IAsyncModel
 {
-    bool isRunning;
-    int activeCount;
+    bool isRunning = false;
+    int activeCount = 0;
     AutoResetEvent stopSignal;
     AutoResetEvent queueSignal;
-    ConcurrentQueue<IAsyncElement> queue;
+    ConcurrentQueue<IAsyncElement> queue = new();
 
     public void Start()
     {
-        this.activeCount = 0;
         this.isRunning = true;
         this.stopSignal = new(false);
         this.queueSignal = new(false);
-        this.queue = new();
 
         Task.Run(() => {
             while (isRunning)
@@ -30,6 +28,10 @@ public class MainModel : IAsyncModel
                 bool dequeued = queue.TryDequeue(out IAsyncElement node);
                 if (!dequeued)
                     continue;
+                
+                if (queue.Count < 3)
+                    node.Start();
+                else executeAsync(node);
             }
         });
 
@@ -55,10 +57,10 @@ public class MainModel : IAsyncModel
         if (activeCount < 2 * coreCount && !queue.IsEmpty)
             queueSignal.Set();
         
-        execute(node);
+        executeAsync(node);
     }
 
-    void execute(IAsyncElement node)
+    void executeAsync(IAsyncElement node)
     {
         Task.Run(() => {
             activeCount++;
