@@ -6,7 +6,7 @@ namespace Blindness;
 public interface INode
 {
     Binding Bind { get; set; }
-    void Process();
+    void Start();
     void When(
         Expression<Func<bool>> condition,
         Action action

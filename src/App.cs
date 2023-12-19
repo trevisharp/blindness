@@ -6,20 +6,28 @@ using System.Diagnostics;
 namespace Blindness;
 
 using Internal;
+using Elements;
+using Parallelism;
 
 public static class App
 {
-    public static void RunNode<T>()
+    public static void StartWith<T>(IAsyncModel model = null)
         where T : INode
     {
         try
         {
+            model ??= new MainModel();
             var app = DependencySystem
                 .Current.GetConcrete(typeof(T));
-            while (true)
+
+            var realTime = new RealTimeElement
             {
-                app.Process();
-            }
+                Element = app,
+                Model = model
+            };
+            
+            model.Run(realTime);
+            model.Start();
         }
         catch (Exception ex)
         {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Blindness;
 
 Verbose.VerboseLevel = 1000;
-App.RunNode<LoginScreen>();
+App.StartWith<LoginScreen>();
 
 public interface LoginScreen : INode
 {
@@ -67,7 +67,7 @@ public interface LoginScreen : INode
     void OnProcess()
     {
         Console.Clear();
-        Panel.Process();
+        Panel.Start();
 
         var newChar = Console.ReadKey(true);
         if (newChar.Key == ConsoleKey.Tab)
@@ -143,7 +143,7 @@ public interface Panel : INode
         Console.WriteLine(sb);
 
         foreach (var child in Children)
-            child.Process();
+            child.Start();
         
         sb.Clear();
         sb.Append('─', Width);

@@ -11,7 +11,7 @@ public class MainModel : IAsyncModel
     int activeCount;
     AutoResetEvent stopSignal;
     AutoResetEvent queueSignal;
-    ConcurrentQueue<INode> queue;
+    ConcurrentQueue<IAsyncElement> queue;
 
     public void Start()
     {
@@ -27,7 +27,7 @@ public class MainModel : IAsyncModel
                 if (queue.Count == 0)
                     queueSignal.WaitOne();
                 
-                bool dequeued = queue.TryDequeue(out INode node);
+                bool dequeued = queue.TryDequeue(out IAsyncElement node);
                 if (!dequeued)
                     continue;
             }
@@ -42,7 +42,7 @@ public class MainModel : IAsyncModel
         stopSignal.Set();
     }
 
-    public void Run(INode node)
+    public void Run(IAsyncElement node)
     {
         int coreCount = Environment.ProcessorCount;
 
@@ -58,11 +58,11 @@ public class MainModel : IAsyncModel
         execute(node);
     }
 
-    void execute(INode node)
+    void execute(IAsyncElement node)
     {
         Task.Run(() => {
             activeCount++;
-            node.Process();
+            node.Start();
             activeCount--;
         });
     }
