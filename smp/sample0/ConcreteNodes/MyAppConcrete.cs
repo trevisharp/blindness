@@ -7,7 +7,6 @@ using Blindness;
 [Concrete]
 public class MyAppConcrete : Node, MyApp
 {
-    public Binding Bind { get; set; }
     public MyAppConcrete() =>
         this.Bind = new Binding(
             this, 2, typeof(MyApp), 

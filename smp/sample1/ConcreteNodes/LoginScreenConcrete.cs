@@ -3,7 +3,6 @@ using Blindness;
 [Concrete]
 public class LoginScreenConcrete : Node, LoginScreen
 {
-    public Binding Bind { get; set; }
     public LoginScreenConcrete() =>
         this.Bind = new Binding(
             this, 9, typeof(LoginScreen),

@@ -4,7 +4,6 @@ using Blindness;
 [Concrete]
 public class PanelConcrete : Node, Panel
 {
-    public Binding Bind { get; set; }
     public PanelConcrete() =>
         this.Bind = new Binding(
             this, 3, typeof(Panel),

@@ -7,7 +7,6 @@ using Blindness;
 [Concrete]
 public class InputComponentConcrete : Node, InputComponent
 {
-    public Binding Bind { get; set;}
     public InputComponentConcrete() =>
         this.Bind = new Binding(
             this, 2, typeof(InputComponent),

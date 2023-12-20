@@ -17,6 +17,7 @@ public abstract class Node : IAsyncElement
     private bool running = true;
     private List<(Func<bool> pred, Action act)> whenList = new();
 
+    public Binding Bind { get; set; }
     public IAsyncModel Model { get; set; }
     public int MemoryLocation { get; set; } = -1;
 

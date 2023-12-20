@@ -3,7 +3,6 @@ using Blindness;
 [Concrete]
 public class TextBoxConcrete : Node, TextBox
 {
-    public Binding Bind { get; set; }
     public TextBoxConcrete() =>
         this.Bind = new Binding(
             this, 4, typeof(TextBox),
