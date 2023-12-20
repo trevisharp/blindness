@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Blindness;
 
+using Blindness.Elements;
 using Internal;
 using Parallelism;
 
@@ -82,7 +83,11 @@ public abstract class Node : IAsyncElement
         Action<bool> action
     )
     {
-        
+        EventElement eventElement = new EventElement(
+            condition.Compile(), action
+        );
+
+        Model.Run(eventElement);
     }
 
     private void runWhenList()
