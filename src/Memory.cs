@@ -33,7 +33,10 @@ public class Memory
 
     public void Set<T>(int index, T value)
     {
-        data[index] = value;
+        lock (data[index])
+        {
+            data[index] = value;
+        }
     }
 
     internal void print()
