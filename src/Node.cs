@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Blindness;
 
@@ -13,6 +14,7 @@ public abstract class Node : IAsyncElement
     private int signalCount = 0;
     private AutoResetEvent signal = new(false);
     private bool running = true;
+    private List<(Func<bool> pred, Action act)> whenList = new();
 
     public IAsyncModel Model { get; set; }
     public int MemoryLocation { get; set; } = -1;
@@ -47,6 +49,7 @@ public abstract class Node : IAsyncElement
     {
         this.running = true;
         OnRun();
+        runWhenList();
 
         if (signalCount == 0)
             return;
@@ -64,11 +67,14 @@ public abstract class Node : IAsyncElement
         => running = false;
     
     public void When(
-        Expression<Func<bool>> condition,
+        Func<bool> condition,
         Action action
     )
     {
+        if (condition is null || action is null)
+            return;
         
+        whenList.Add((condition, action));
     }
 
     public void On(
@@ -79,6 +85,14 @@ public abstract class Node : IAsyncElement
         
     }
 
+    private void runWhenList()
+    {
+        foreach (var item in whenList)
+        {
+            if (item.pred())
+                item.act();
+        }
+    }
     private MethodInfo findDeps()
         => findMethod("Deps");
     private MethodInfo findMethod(string name, Type type = null)

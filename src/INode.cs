@@ -8,7 +8,7 @@ public interface INode
     Binding Bind { get; set; }
     void Start();
     void When(
-        Expression<Func<bool>> condition,
+        Func<bool> condition,
         Action action
     );
     void On(

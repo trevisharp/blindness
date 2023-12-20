@@ -127,13 +127,6 @@ public class Binding
         if (isBasic)
             return;
         
-        bool isCondition = tryExpressionBind(binding);
-        if (isCondition)
-            return;
-    }
-
-    private bool tryExpressionBind(Expression<Func<object, object>> binding)
-    {
         throw new InvalidBindingFormatException();
     }
 
