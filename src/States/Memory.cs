@@ -2,6 +2,7 @@ namespace Blindness.States;
 
 using Exceptions;
 using Concurrency.Elements;
+using System.Collections.Generic;
 
 public class Memory
 {
@@ -10,25 +11,31 @@ public class Memory
         => this.behaviour = behaviour;
     private static Memory crr = null;
     public static Memory Current => crr;
-
-    public static void Reset(IMemoryBehaviour behaviour)
-        => crr = new(behaviour);
     
+    Dictionary<int, List<EventElement>> eventDict = new();
+
     public void AddPointerListner(int pointer, EventElement element)
     {
-        if (this.behaviour is null)
-            throw new MemoryBehaviourNotDefined();
+        if (!eventDict.ContainsKey(pointer))
+            eventDict.Add(pointer, new());
+        var events = eventDict[pointer];
 
-        this.behaviour.AddPointerListner(pointer, element);
+        events.Add(element);
     }
 
     public void RemovePointerListner(int pointer, EventElement element)
     {
-        if (this.behaviour is null)
-            throw new MemoryBehaviourNotDefined();
+        if (!eventDict.ContainsKey(pointer))
+            return;
+        var events = eventDict[pointer];
 
-        this.behaviour.RemovePointerListner(pointer, element);
+        events.Remove(element);
+        if (events.Count == 0)
+            eventDict.Remove(pointer);
     }
+
+    public static void Reset(IMemoryBehaviour behaviour)
+        => crr = new(behaviour);
 
     public int Add(object obj)
     {
@@ -38,19 +45,30 @@ public class Memory
         return this.behaviour.Add(obj);
     }
 
-    public T Get<T>(int index)
+    public T Get<T>(int pointer)
     {
         if (this.behaviour is null)
             throw new MemoryBehaviourNotDefined();
 
-        return this.behaviour.Get<T>(index);
+        return this.behaviour.Get<T>(pointer);
     }
 
-    public void Set<T>(int index, T value)
+    public void Set<T>(int pointer, T value)
     {
         if (this.behaviour is null)
             throw new MemoryBehaviourNotDefined();
         
-        this.behaviour.Set<T>(index, value);
+        this.behaviour.Set<T>(pointer, value);
+        callEvents(pointer);
+    }
+
+    void callEvents(int pointer)
+    {
+        if (!eventDict.ContainsKey(pointer))
+            return;
+        
+        var list = eventDict[pointer];
+        foreach (var item in list)
+            item.Awake();
     }
 }

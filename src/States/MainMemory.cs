@@ -2,32 +2,9 @@ using System.Collections.Generic;
 
 namespace Blindness.States;
 
-using Concurrency.Elements;
-
 public class MainMemory : IMemoryBehaviour
 { 
     List<object> data = new List<object>();
-    Dictionary<int, List<EventElement>> eventDict = new();
-
-    public void AddPointerListner(int pointer, EventElement element)
-    {
-        if (!eventDict.ContainsKey(pointer))
-            eventDict.Add(pointer, new());
-        var events = eventDict[pointer];
-
-        events.Add(element);
-    }
-
-    public void RemovePointerListner(int pointer, EventElement element)
-    {
-        if (!eventDict.ContainsKey(pointer))
-            return;
-        var events = eventDict[pointer];
-
-        events.Remove(element);
-        if (events.Count == 0)
-            eventDict.Remove(pointer);
-    }
 
     public int Add(object obj)
     {
@@ -52,12 +29,5 @@ public class MainMemory : IMemoryBehaviour
         {
             data[index] = value;
         }
-        
-        if (!eventDict.ContainsKey(index))
-            return;
-        
-        var list = eventDict[index];
-        foreach (var item in list)
-            item.Awake();
     }
 }
