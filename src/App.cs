@@ -1,22 +1,24 @@
 using System;
-using System.Text;
-using System.Linq;
-using System.Diagnostics;
 
 namespace Blindness;
 
+using States;
 using Internal;
 using Elements;
 using Concurrency;
 
 public static class App
 {
-    public static void StartWith<T>(IAsyncModel model = null)
-        where T : INode
+    public static void StartWith<T>(
+        IAsyncModel model = null,
+        IMemoryBehaviour memory = null
+    ) where T : INode
     {
         try
         {
             model ??= new MainModel();
+            memory ??= new MainMemory();
+
             var app = DependencySystem
                 .Current.GetConcrete(typeof(T));
 

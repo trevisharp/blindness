@@ -1,86 +1,56 @@
-using System;
-using System.Collections.Generic;
-
 namespace Blindness.States;
 
 using Elements;
+using Exceptions;
 
 public class Memory
 {
-    private Memory() { }
-    private static Memory crr = new();
+    private IMemoryBehaviour behaviour;
+    private Memory(IMemoryBehaviour behaviour)
+        => this.behaviour = behaviour;
+    private static Memory crr = null;
     public static Memory Current => crr;
 
-    public static void Reset()
-        => crr = new();
+    public static void Reset(IMemoryBehaviour behaviour)
+        => crr = new(behaviour);
     
-    List<object> data = new List<object>();
-    Dictionary<int, List<EventElement>> eventDict = new();
-
     public void AddPointerListner(int pointer, EventElement element)
     {
-        if (!eventDict.ContainsKey(pointer))
-            eventDict.Add(pointer, new());
-        var events = eventDict[pointer];
+        if (this.behaviour is null)
+            throw new MemoryBehaviourNotDefined();
 
-        events.Add(element);
+        this.behaviour.AddPointerListner(pointer, element);
     }
 
     public void RemovePointerListner(int pointer, EventElement element)
     {
-        if (!eventDict.ContainsKey(pointer))
-            return;
-        var events = eventDict[pointer];
+        if (this.behaviour is null)
+            throw new MemoryBehaviourNotDefined();
 
-        events.Remove(element);
-        if (events.Count == 0)
-            eventDict.Remove(pointer);
+        this.behaviour.RemovePointerListner(pointer, element);
     }
 
     public int Add(object obj)
     {
-        data.Add(obj);
-        var newIndex = data.Count - 1;
+        if (this.behaviour is null)
+            throw new MemoryBehaviourNotDefined();
 
-        if (obj is Node node)
-            node.MemoryLocation = newIndex;
-        
-        return newIndex;
+        return this.behaviour.Add(obj);
     }
 
     public T Get<T>(int index)
     {
-        var obj = data[index];
-        return (T)obj;
+        if (this.behaviour is null)
+            throw new MemoryBehaviourNotDefined();
+
+        return this.behaviour.Get<T>(index);
     }
 
     public void Set<T>(int index, T value)
     {
-        lock (data[index])
-        {
-            data[index] = value;
-        }
+        if (this.behaviour is null)
+            throw new MemoryBehaviourNotDefined();
         
-        if (!eventDict.ContainsKey(index))
-            return;
-        
-        var list = eventDict[index];
-        foreach (var item in list)
-            item.Awake();
-    }
-
-    internal void print()
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        int i = 0;
-        Console.WriteLine("Memory State");
-        foreach (var item in data)
-        {
-            Console.WriteLine(
-                $"data[{i++}] = {item}"
-            );
-        }
-        System.Console.WriteLine();
-        Console.ResetColor();
+        this.behaviour.Set<T>(index, value);
     }
 }
