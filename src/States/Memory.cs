@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Blindness;
+namespace Blindness.States;
 
 using Elements;
 

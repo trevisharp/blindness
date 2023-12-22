@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
-namespace Blindness.Parallelism;
+namespace Blindness.Concurrency;
 
 public class MainModel : IAsyncModel
 {

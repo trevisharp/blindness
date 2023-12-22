@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 
 namespace Blindness;
 
+using States;
+
 public interface INode
 {
     Binding Bind { get; set; }

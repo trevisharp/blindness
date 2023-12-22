@@ -2,7 +2,7 @@ using System.Threading;
 
 namespace Blindness.Elements;
 
-using Parallelism;
+using Concurrency;
 
 public class RealTimeElement : IAsyncElement
 {

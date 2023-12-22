@@ -7,7 +7,7 @@ namespace Blindness;
 
 using Internal;
 using Elements;
-using Parallelism;
+using Concurrency;
 
 public static class App
 {

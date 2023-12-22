@@ -1,4 +1,4 @@
-namespace Blindness.Parallelism;
+namespace Blindness.Concurrency;
 
 public interface IAsyncModel
 {

@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Linq.Expressions;
 
-namespace Blindness;
+namespace Blindness.States;
 
 using Internal;
 using Exceptions;

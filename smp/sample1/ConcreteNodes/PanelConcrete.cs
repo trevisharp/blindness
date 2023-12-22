@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+
 using Blindness;
+using Blindness.States;
 
 [Concrete]
 public class PanelConcrete : Node, Panel

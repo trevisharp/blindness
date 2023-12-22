@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 
 using Blindness;
+using Blindness.States;
 
 [Concrete]
 public class MyAppConcrete : Node, MyApp

@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Blindness.Elements;
 
-using Parallelism;
+using Concurrency;
 
 public class EventElement : IAsyncElement
 {

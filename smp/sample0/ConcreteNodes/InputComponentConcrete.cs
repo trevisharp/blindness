@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+
 using Blindness;
+using Blindness.States;
 
 [Concrete]
 public class InputComponentConcrete : Node, InputComponent

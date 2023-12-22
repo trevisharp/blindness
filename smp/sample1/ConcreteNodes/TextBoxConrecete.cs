@@ -1,4 +1,5 @@
 using Blindness;
+using Blindness.States;
 
 [Concrete]
 public class TextBoxConcrete : Node, TextBox
