@@ -1,8 +1,6 @@
 using System.Threading;
 
-namespace Blindness.Elements;
-
-using Concurrency;
+namespace Blindness.Concurrency.Elements;
 
 public class RealTimeElement : IAsyncElement
 {

@@ -4,8 +4,8 @@ namespace Blindness;
 
 using States;
 using Internal;
-using Elements;
 using Concurrency;
+using Concurrency.Elements;
 
 public static class App
 {

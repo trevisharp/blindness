@@ -7,9 +7,9 @@ using System.Collections.Generic;
 namespace Blindness;
 
 using States;
-using Elements;
 using Internal;
 using Concurrency;
+using Concurrency.Elements;
 
 public abstract class Node : IAsyncElement
 {

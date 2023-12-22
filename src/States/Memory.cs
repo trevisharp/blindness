@@ -1,7 +1,7 @@
 namespace Blindness.States;
 
-using Elements;
 using Exceptions;
+using Concurrency.Elements;
 
 public class Memory
 {

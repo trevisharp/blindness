@@ -1,11 +1,11 @@
 namespace Blindness.States;
 
-using Elements;
+using Concurrency.Elements;
 
 public interface IMemoryBehaviour
 {
     int Add(object obj);
-    
+
     T Get<T>(int index);
     void Set<T>(int index, T value);
 
