@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Reflection;
 using System.Linq.Expressions;
@@ -92,35 +93,75 @@ public abstract class Node : IAsyncElement
         addEvents(condition, eventElement);
 
         Model.Run(eventElement);
-        System.Console.WriteLine("Running...");
     }
 
     void addEvents(
         Expression exp,
-        EventElement eventObj, 
-        int depth = 0
+        EventElement eventObj
     )
     {
-        for (int i = 0; i < depth; i++)
-            Console.Write('\t');
-        Console.WriteLine(exp.NodeType);
+        List<EventMatch> matches = new();
+        addEvents(exp, eventObj, matches);
 
+        var uniqueMatches = matches
+            .DistinctBy(m => m.Field);
+        
+        foreach (var match in uniqueMatches)
+            addEvent(match);
+    }
+
+    void addEvents(
+        Expression exp,
+        EventElement eventObj,
+        List<EventMatch> capturedEvents
+    )
+    {
         switch (exp.NodeType)
         {
             case ExpressionType.Lambda:
                 var lambdaExp = exp as LambdaExpression;
-                addEvents(lambdaExp.Body, eventObj, depth + 1);
+                addEvents(lambdaExp.Body, eventObj, capturedEvents);
+                break;
+            
+            case ExpressionType.AndAlso:
+            case ExpressionType.OrElse:
+            case ExpressionType.Add:
+            case ExpressionType.Subtract:
+            case ExpressionType.Multiply:
+            case ExpressionType.Divide:
+            case ExpressionType.And:
+            case ExpressionType.Or:
+            case ExpressionType.Equal:
+            case ExpressionType.GreaterThan:
+            case ExpressionType.GreaterThanOrEqual:
+            case ExpressionType.LessThan:
+            case ExpressionType.LessThanOrEqual:
+                var binExp = exp as BinaryExpression;
+                addEvents(binExp.Left, eventObj, capturedEvents);
+                addEvents(binExp.Right, eventObj, capturedEvents);
+                break;
+
+            case ExpressionType.MemberAccess:
+                var memberExp = exp as MemberExpression;
+
+                var propExp = memberExp.Expression as ConstantExpression;
+                if (propExp is not null)
+                {
+                    capturedEvents.Add(new(propExp.Value, memberExp.Member, eventObj));
+                    break;
+                }
+                
+                addEvents(memberExp.Expression, eventObj, capturedEvents);
                 break;
         }
     }
 
     void addEvent(
-        string parent,
-        string field,
-        EventElement eventObj
+        EventMatch match
     )
     {
-
+        var binding = getBinding(match.Parent);
+        
     }
 
     private void runWhenList()
@@ -131,18 +172,39 @@ public abstract class Node : IAsyncElement
                 item.act();
         }
     }
+
     private MethodInfo findDeps()
         => findMethod("Deps");
+
+    private Binding getBinding(object type)
+    {
+        if (type is null)
+            return null;
+        
+        var node = type as Node;
+        if (node is null)
+            return null;
+        
+        return node.Bind;
+    }
+    
     private MethodInfo findMethod(string name, Type type = null)
     {
         type ??= this.GetType();
-        foreach (var method in type.GetRuntimeMethods())
-        {
-            if (method.Name != name)
-                continue;
-            
-            return method;
-        }
-        return null;
+
+        var method =  type.GetRuntimeMethods()
+            .FirstOrDefault(p => p.Name == name);
+        
+        return method;
+    }
+
+    private PropertyInfo findProperty(string name, Type type = null)
+    {
+        type ??= this.GetType();
+        
+        var prop = type.GetRuntimeProperties()
+            .FirstOrDefault(p => p.Name == name);
+        
+        return prop;
     }
 }
