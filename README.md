@@ -23,7 +23,7 @@ dotnet add package Blindness # Install Blindness
 
 # Versions
 
-### Blindness v0.5.0 (coming soon)
+### Blindness v0.5.0
 
  - ![](https://img.shields.io/badge/new-green) Event system added.
 
