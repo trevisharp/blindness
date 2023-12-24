@@ -29,9 +29,7 @@ public class DefaultModel : IAsyncModel
                 if (!dequeued)
                     continue;
                 
-                if (queue.Count < 3)
-                    node.Start();
-                else executeAsync(node);
+                executeAsync(node);
             }
         });
 
