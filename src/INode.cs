@@ -8,7 +8,7 @@ using States;
 public interface INode
 {
     Binding Bind { get; set; }
-    void Start();
+    void Run();
     void When(
         Func<bool> condition,
         Action action

@@ -75,8 +75,9 @@ public interface LoginScreen : INode
 
     void OnProcess()
     {
+        return;
         Console.Clear();
-        Panel.Start();
+        Panel.Run();
 
         var newChar = Console.ReadKey(true);
         if (newChar.Key == ConsoleKey.Tab)
@@ -152,7 +153,7 @@ public interface Panel : INode
         Console.WriteLine(sb);
 
         foreach (var child in Children)
-            child.Start();
+            child.Run();
         
         sb.Clear();
         sb.Append('─', Width);

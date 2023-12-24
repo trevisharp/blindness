@@ -48,7 +48,7 @@ public abstract class Node : IAsyncElement
     public void Run()
         => Start();
     
-    public void Start() 
+    public void Start()
     {
         this.running = true;
         OnRun();
