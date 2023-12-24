@@ -43,6 +43,10 @@ internal class DependencySystem
         {
             throw;
         }
+        catch (TargetInvocationException ex)
+        {
+            throw new ActivatorException(ex.InnerException, type);
+        }
         catch (Exception ex)
         {
             throw new ActivatorException(ex, type);

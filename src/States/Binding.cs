@@ -1,11 +1,13 @@
 using System;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Blindness.States;
 
 using Internal;
 using Exceptions;
+using Concurrency.Elements;
 
 public class Binding
 {
@@ -14,6 +16,7 @@ public class Binding
     Func<string, int> fieldMap;
     object parentRef;
     Type parentType;
+    Dictionary<int, List<EventElement>> eventMap;
 
     public Binding(
         Node node, int fieldCount, Type parentType,
@@ -26,6 +29,7 @@ public class Binding
             pointerMap[i] = -1;
         this.fieldMap = fieldMap;
         this.parentType = parentType;
+        this.eventMap = new();
     }
     
     public T Get<T>(int fieldCode)

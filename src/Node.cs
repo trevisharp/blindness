@@ -38,7 +38,7 @@ public abstract class Node : IAsyncElement
             objs[i] = DependencySystem
                 .Current.GetConcrete(type);
         }
-        
+
         deps.Invoke(this, objs);
     }
 
@@ -89,7 +89,37 @@ public abstract class Node : IAsyncElement
             condition.Compile(), action
         );
 
+        addEvents(condition, eventElement);
+
         Model.Run(eventElement);
+    }
+
+    void addEvents(
+        Expression exp,
+        EventElement eventObj, 
+        int depth = 0
+    )
+    {
+        for (int i = 0; i < depth; i++)
+            Console.Write('\t');
+        Console.WriteLine(exp.NodeType);
+
+        switch (exp.NodeType)
+        {
+            case ExpressionType.Lambda:
+                var lambdaExp = exp as LambdaExpression;
+                addEvents(lambdaExp.Body, eventObj, depth + 1);
+                break;
+        }
+    }
+
+    void addEvent(
+        string parent,
+        string field,
+        EventElement eventObj
+    )
+    {
+
     }
 
     private void runWhenList()

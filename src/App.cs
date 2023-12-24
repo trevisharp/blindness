@@ -18,6 +18,7 @@ public static class App
         {
             model ??= new MainModel();
             memory ??= new MainMemory();
+            Memory.Reset(memory);
 
             var app = DependencySystem
                 .Current.GetConcrete(typeof(T));
@@ -33,17 +34,22 @@ public static class App
         }
         catch (Exception ex)
         {
-            Verbose.Error(ex.Message, -1);
+            showError(ex);
+        }
+    }
 
-            var lines = ex.StackTrace.Split('\n');
-            foreach (var line in lines)
-            {
-                var isInternal = line
-                    .Trim()
-                    .StartsWith("at Blindness");
-                
-                Verbose.Error(line, isInternal ? 1 : 0);
-            }
+    private static void showError(Exception ex)
+    {
+        Verbose.Error(ex.Message, -1);
+
+        var lines = ex.StackTrace.Split('\n');
+        foreach (var line in lines)
+        {
+            var isInternal = line
+                .Trim()
+                .StartsWith("at Blindness");
+            
+            Verbose.Error(line, isInternal ? 1 : 0);
         }
     }
 }
