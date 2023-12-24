@@ -17,6 +17,8 @@ public static class App
         try
         {
             model ??= new MainModel();
+            DependencySystem.Current.Model = model;
+            
             memory ??= new MainMemory();
             Memory.Reset(memory);
 

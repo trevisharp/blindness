@@ -5,6 +5,7 @@ using System.Collections.Generic;
 namespace Blindness.Internal;
 
 using Exceptions;
+using Concurrency;
 
 internal class DependencySystem
 {
@@ -15,6 +16,7 @@ internal class DependencySystem
     internal static void Reset()
         => crr = new();
     
+    public IAsyncModel Model { get; set; }
     private Dictionary<Type, Type> typeMap = new();
 
     internal Type GetConcreteType(Type type)
@@ -34,6 +36,7 @@ internal class DependencySystem
             if (node is null)
                 return null;
             
+            node.Model = this.Model;
             node.LoadDependencies();
             node.OnLoad();
 
