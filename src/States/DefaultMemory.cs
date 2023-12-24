@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Blindness.States;
 
-public class MainMemory : IMemoryBehaviour
+public class DefaultMemory : IMemoryBehaviour
 { 
     List<object> data = new List<object>();
 

@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace Blindness.Concurrency;
 
-public class MainModel : IAsyncModel
+public class DefaultModel : IAsyncModel
 {
     bool isRunning = false;
     int activeCount = 0;

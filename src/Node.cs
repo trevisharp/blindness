@@ -92,6 +92,7 @@ public abstract class Node : IAsyncElement
         addEvents(condition, eventElement);
 
         Model.Run(eventElement);
+        System.Console.WriteLine("Running...");
     }
 
     void addEvents(

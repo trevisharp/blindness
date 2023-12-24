@@ -16,10 +16,10 @@ public static class App
     {
         try
         {
-            model ??= new MainModel();
+            model ??= new DefaultModel();
             DependencySystem.Reset(model);
 
-            memory ??= new MainMemory();
+            memory ??= new DefaultMemory();
             Memory.Reset(memory);
 
             var app = DependencySystem
