@@ -4,4 +4,4 @@ namespace Blindness.Internal;
 
 using Concurrency.Elements;
 
-public record EventMatch(object Parent, PropertyInfo Field, EventElement EventObject);
+internal record EventMatch(object Parent, PropertyInfo Field, EventElement EventObject);

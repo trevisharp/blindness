@@ -1,8 +1,11 @@
+using System.Linq;
+using System.Collections.Generic;
+
 namespace Blindness.States;
 
+using Internal;
 using Exceptions;
 using Concurrency.Elements;
-using System.Collections.Generic;
 
 public class Memory
 {
@@ -12,24 +15,49 @@ public class Memory
     private static Memory crr = null;
     public static Memory Current => crr;
     
-    Dictionary<int, List<EventElement>> eventDict = new();
+    Dictionary<int, List<PointerListner>> eventDict = new();
 
     public void AddPointerListner(int pointer, EventElement element)
     {
         if (!eventDict.ContainsKey(pointer))
             eventDict.Add(pointer, new());
         var events = eventDict[pointer];
+        
+        var repeatitionElement = events
+            .FirstOrDefault(el => el.EventObject == element);
+        
+        if (repeatitionElement is not null)
+        {
+            repeatitionElement.Counter++;
+            return;
+        }
 
-        events.Add(element);
+        events.Add(new PointerListner {
+            EventObject = element,
+            Counter = 1
+        });
     }
 
     public void RemovePointerListner(int pointer, EventElement element)
     {
+        if (pointer == -1)
+            return;
+
         if (!eventDict.ContainsKey(pointer))
             return;
         var events = eventDict[pointer];
+        
+        var repeatitionElement = events
+            .FirstOrDefault(el => el.EventObject == element);
+        
+        if (repeatitionElement is null)
+            return;
+        repeatitionElement.Counter--;
+        
+        if (repeatitionElement.Counter > 0)
+            return;
+        events.Remove(repeatitionElement);
 
-        events.Remove(element);
         if (events.Count == 0)
             eventDict.Remove(pointer);
     }
@@ -69,6 +97,6 @@ public class Memory
         
         var list = eventDict[pointer];
         foreach (var item in list)
-            item.Awake();
+            item?.EventObject?.Awake();
     }
 }

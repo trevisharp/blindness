@@ -84,7 +84,18 @@ public class Binding
     {
         if (fieldCode < 0 || fieldCode >= pointerMap.Length)
             throw new ArgumentOutOfRangeException(nameof(fieldCode));
+        
+        var oldPointer = this.pointerMap[fieldCode];
         this.pointerMap[fieldCode] = pointer;
+
+        var events = eventMap[fieldCode];
+        if (events is null)
+            return;
+        foreach (var eventObj in events)
+        {
+            Memory.Current.RemovePointerListner(oldPointer, eventObj);
+            Memory.Current.AddPointerListner(pointer, eventObj);
+        }
     }
 
     public static Binding operator |(Binding binding, 
