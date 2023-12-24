@@ -9,14 +9,15 @@ using Concurrency;
 
 internal class DependencySystem
 {
-    private DependencySystem() { }
-    private static DependencySystem crr = new();
+    private DependencySystem(IAsyncModel model)
+        => this.model = model;
+    private static DependencySystem crr = null;
     public static DependencySystem Current => crr;
 
-    internal static void Reset()
-        => crr = new();
+    internal static void Reset(IAsyncModel model)
+        => crr = new(model);
     
-    public IAsyncModel Model { get; set; }
+    private IAsyncModel model;
     private Dictionary<Type, Type> typeMap = new();
 
     internal Type GetConcreteType(Type type)
@@ -36,7 +37,7 @@ internal class DependencySystem
             if (node is null)
                 return null;
             
-            node.Model = this.Model;
+            node.Model = this.model;
             node.LoadDependencies();
             node.OnLoad();
 
