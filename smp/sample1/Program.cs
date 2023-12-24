@@ -75,7 +75,6 @@ public interface LoginScreen : INode
 
     void OnProcess()
     {
-        return;
         Console.Clear();
         Panel.Run();
 

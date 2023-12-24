@@ -104,6 +104,7 @@ public abstract class Node : IAsyncElement
         addEvents(exp, eventObj, matches);
 
         var uniqueMatches = matches
+            .Where(m => m.Field is not null)
             .DistinctBy(m => m.Field);
         
         foreach (var match in uniqueMatches)
@@ -147,7 +148,7 @@ public abstract class Node : IAsyncElement
                 var propExp = memberExp.Expression as ConstantExpression;
                 if (propExp is not null)
                 {
-                    capturedEvents.Add(new(propExp.Value, memberExp.Member, eventObj));
+                    capturedEvents.Add(new(propExp.Value, memberExp.Member as PropertyInfo, eventObj));
                     break;
                 }
                 
@@ -161,7 +162,11 @@ public abstract class Node : IAsyncElement
     )
     {
         var binding = getBinding(match.Parent);
-        
+
+        binding.AddEvent(
+            match.Field,
+            match.EventObject
+        );
     }
 
     private void runWhenList()

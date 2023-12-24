@@ -16,7 +16,7 @@ public class Binding
     Func<string, int> fieldMap;
     object parentRef;
     Type parentType;
-    Dictionary<int, List<EventElement>> eventMap;
+    List<EventElement>[] eventMap;
 
     public Binding(
         Node node, int fieldCount, Type parentType,
@@ -25,11 +25,11 @@ public class Binding
     {
         this.node = node;
         this.pointerMap = new int[fieldCount];
+        this.eventMap = new List<EventElement>[fieldCount];
         for (int i = 0; i < fieldCount; i++)
             pointerMap[i] = -1;
         this.fieldMap = fieldMap;
         this.parentType = parentType;
-        this.eventMap = new();
     }
     
     public T Get<T>(int fieldCode)
@@ -54,10 +54,23 @@ public class Binding
             return;
         }
 
-        var newIndexData = Memory.Current.Add(value);
-        this.pointerMap[fieldCode] = newIndexData;
+        initFieldWithValue<T>(fieldCode, value);
     }
     
+    internal void AddEvent(PropertyInfo prop, EventElement eventObj)
+    {
+        var index = fieldMap(prop.Name);
+        var pointer = pointerMap[index];
+        if (pointer == -1)
+            pointer = tryInitField(prop.PropertyType, index);
+
+        if (eventMap[index] is null)
+            eventMap[index] = new();
+        eventMap[index].Add(eventObj);
+
+        Memory.Current.AddPointerListner(pointer, eventObj);
+    }
+
     internal int GetBind(int fieldCode)
     {
         if (fieldCode < 0 || fieldCode >= pointerMap.Length)
@@ -182,5 +195,11 @@ public class Binding
             );
         
         return value;
+    }
+
+    private void initFieldWithValue<T>(int fieldCode, T value)
+    {
+        var newIndexData = Memory.Current.Add(value);
+        this.pointerMap[fieldCode] = newIndexData;
     }
 }

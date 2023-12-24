@@ -14,7 +14,7 @@ public class LoginScreenConcrete : Node, LoginScreen
                 "Password" => 2,
                 "login" => 3,
                 "password" => 4,
-                "inLogin" => 5,
+                "selectedField" => 5,
                 "Repeat" => 6,
                 "repeat" => 7,
                 _ => -1
