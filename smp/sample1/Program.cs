@@ -64,7 +64,7 @@ public interface LoginScreen : INode
         On(
             () => 
                 password.Length > 5  &&
-                password.Length > 50 &&
+                password.Length < 50 &&
                 password == repeat,
             r =>
                 Password.Title = r ? 
