@@ -7,7 +7,6 @@ var dir = Environment.CurrentDirectory;
 var csFiles = findCSharpFiles(dir);
 
 System.Console.WriteLine("Generating...");
-System.Console.WriteLine(dir);
 foreach (var file in csFiles)
     System.Console.WriteLine(file);
 

@@ -3,7 +3,8 @@
         <MeuGeradorDeCodigoExecutable Include="$(MSBuildThisFileDirectory)tools\CodeGenerator.exe" />
     </ItemGroup>
 
-    <Target Name="GenerateCode" BeforeTargets="CoreCompile">
+    <Target Name="GenerateCode" BeforeTargets="Build">
+        <Message Text="Running Blindness Code Generator..." Importance="High"/>
         <Exec Command="@(MeuGeradorDeCodigoExecutable)" />
     </Target>
 </Project>

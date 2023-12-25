@@ -18,7 +18,7 @@ cd smp
 cd sample2
 dotnet remove package Blindess
 dotnet add package -s ..\..\src\output Blindness
-dotnet run
+dotnet build
 cd ..
 cd ..
 
