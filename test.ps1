@@ -1,6 +1,6 @@
 clear
 
-dotnet nuget delete Blindness 0.2.0 -s ($env:USERPROFILE + "\.nuget\packages") --non-interactive
+dotnet nuget delete Blindness 0.5.0 -s ($env:USERPROFILE + "\.nuget\packages") --non-interactive
 
 cd gen
 dotnet build -c Release
@@ -15,7 +15,7 @@ dotnet pack -c Release -o output
 cd ..
 
 cd smp
-cd sample1
+cd sample2
 dotnet remove package Blindess
 dotnet add package -s ..\..\src\output Blindness
 dotnet run
