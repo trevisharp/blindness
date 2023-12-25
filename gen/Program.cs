@@ -113,11 +113,6 @@ IEnumerable<string> findCSharpFiles(string directory)
     }
 }
 
-public class Cache
-{
-    public List<string> Interfaces { get; private set; } = new();
-}
-
 public class Interface
 {
     public string Name { get; set; }
