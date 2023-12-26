@@ -5,6 +5,7 @@ namespace Blindness;
 
 using States;
 
+[Ignore]
 public interface INode
 {
     Binding Bind { get; set; }

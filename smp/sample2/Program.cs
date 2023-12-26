@@ -2,6 +2,7 @@
 
 using Blindness;
 
+Verbose.VerboseLevel = 10000;
 App.StartWith<C1>();
 
 public interface C1 : INode
