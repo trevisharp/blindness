@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -20,13 +22,80 @@ public class Implementer
         reRun();
     }
 
+    private bool needImplement()
+    {
+        return Random.Shared.Next(2) == 0;
+    }
+
     private void implements()
     {
         Verbose.Info("Implementing Concrete Nodes...");
         var nodeTypes = getNodeType();
 
         foreach (var node in nodeTypes)
-            Verbose.Info(node);
+            implement(node);
+    }
+    
+    private void reRun()
+    {
+        Verbose.Info("Rebuilding the app...", 1);
+        execute("dotnet", "build");
+        
+        var assembly = Assembly.GetEntryAssembly();
+        var dll = assembly.Location;
+        var exe = dll.Replace(".dll", ".exe");
+        execute(exe);
+    }
+
+    private void implement(Type type)
+    {
+        const string basePath = "ConcreteNodes/";
+        var path = $"{basePath}/{type.Name}.g.cs";
+
+        if (!Directory.Exists(basePath))
+            Directory.CreateDirectory(basePath);
+
+        var nodeCode = getCode(type);
+        File.WriteAllText(path, nodeCode);
+    }
+
+    private string getCode(Type type)
+    {
+        StringBuilder fieldsMap = new();
+
+        var props = type.GetProperties();
+        int fieldCount = props.Length;
+
+        for (int i = 0; i < props.Length; i++)
+        {
+            var prop = props[i];
+            fieldsMap.AppendLine(
+                $"""
+                "{prop.Name}" => {i},
+                """
+            );
+            i++;
+        }
+        fieldsMap.Append("_ => -1");
+        
+        return
+        $$"""
+        using Blindness;
+        using Blindness.States;
+
+        [Concrete]
+        public class {{type.Name}}Concrete : Node
+        {
+            public {{type.Name}}Concrete() =>
+                this.Bind = new Binding(
+                    this, {{fieldCount}}, typeof({{type.Name}}),
+                    s => s switch
+                    {
+                        {{fieldsMap}}
+                    }
+                );
+        }
+        """;
     }
 
     private Type[] getNodeType()
@@ -95,17 +164,6 @@ public class Implementer
         return interfaces;
     }
 
-    private void reRun()
-    {
-        Verbose.Info("Rebuilding the app...", 1);
-        execute("dotnet", "build");
-        
-        var assembly = Assembly.GetEntryAssembly();
-        var dll = assembly.Location;
-        var exe = dll.Replace(".dll", ".exe");
-        execute(exe);
-    }
-
     private void execute(string filename, string args = "")
     {
         var info = new ProcessStartInfo {
@@ -130,10 +188,5 @@ public class Implementer
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
         process.WaitForExit();
-    }
-
-    private bool needImplement()
-    {
-        return Random.Shared.Next(2) == 0;
     }
 }
