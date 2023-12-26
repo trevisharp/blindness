@@ -39,12 +39,7 @@ public class Implementer
     private void reRun()
     {
         Verbose.Info("Rebuilding the app...", 1);
-        execute("dotnet", "build");
-        
-        var assembly = Assembly.GetEntryAssembly();
-        var dll = assembly.Location;
-        var exe = dll.Replace(".dll", ".exe");
-        execute(exe);
+        CSharpCompiler.Recompile();
     }
 
     private void implement(Type type)
@@ -98,8 +93,12 @@ public class Implementer
                 );
             }
             methodsCode.AppendLine("}");
+
+            methods.Remove(deps);
         }
+
         
+
         for (int i = 0; i < props.Length; i++)
         {
             var prop = props[i];
@@ -128,7 +127,7 @@ public class Implementer
         using Blindness.States;
 
         [Concrete]
-        public class {{type.Name}}Concrete : Node
+        public class {{type.Name}}Concrete : Node, {{type.Name}}
         {
             public {{type.Name}}Concrete() =>
                 this.Bind = new Binding(
