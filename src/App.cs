@@ -4,6 +4,7 @@ namespace Blindness;
 
 using States;
 using Internal;
+using Abstracts;
 using Concurrency;
 using Concurrency.Elements;
 
@@ -16,23 +17,27 @@ public static class App
     {
         try
         {
-            model ??= new DefaultModel();
-            DependencySystem.Reset(model);
-
-            memory ??= new DefaultMemory();
-            Memory.Reset(memory);
-
-            var app = DependencySystem
-                .Current.GetConcrete(typeof(T));
-
-            var realTime = new RealTimeElement
+            var implementer = new Implementer();
+            implementer.ImplementAndRun(() =>
             {
-                Element = app,
-                Model = model
-            };
-            
-            model.Run(realTime);
-            model.Start();
+                model ??= new DefaultModel();
+                DependencySystem.Reset(model);
+
+                memory ??= new DefaultMemory();
+                Memory.Reset(memory);
+
+                var app = DependencySystem
+                    .Current.GetConcrete(typeof(T));
+
+                var realTime = new RealTimeElement
+                {
+                    Element = app,
+                    Model = model
+                };
+                
+                model.Run(realTime);
+                model.Start();
+            });
         }
         catch (Exception ex)
         {

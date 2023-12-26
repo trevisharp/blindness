@@ -2,7 +2,7 @@
 
 using Blindness;
 
-Console.WriteLine("Example!");
+App.StartWith<C1>();
 
 public interface C1 : INode
 {
