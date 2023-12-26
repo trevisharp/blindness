@@ -97,8 +97,6 @@ public class Implementer
             methods.Remove(deps);
         }
 
-        
-
         for (int i = 0; i < props.Length; i++)
         {
             var prop = props[i];
