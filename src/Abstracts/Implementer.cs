@@ -61,22 +61,66 @@ public class Implementer
 
     private string getCode(Type type)
     {
-        StringBuilder fieldsMap = new();
+        StringBuilder fieldsMapCode = new();
+        StringBuilder fieldsCode = new();
+        StringBuilder methodsCode = new();
 
         var props = type.GetProperties();
         int fieldCount = props.Length;
 
+        var methods = type
+            .GetMethods()
+            .ToList();
+
+        var deps = methods
+            .FirstOrDefault(m => m.Name == "Deps");
+        if (deps is not null)
+        {
+            var parameters = deps.GetParameters();
+            methodsCode.AppendLine("public void Deps(");
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+                methodsCode.Append(
+                    $"\t{parameter.ParameterType.Name} {parameter.Name}"
+                );
+                if (i == parameters.Length - 1)
+                    methodsCode.Append(",");
+                methodsCode.AppendLine();
+            }
+            methodsCode.Append("{");
+            
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+                methodsCode.AppendLine(
+                    $"this.{parameter.Name} = {parameter.Name};"
+                );
+            }
+            methodsCode.AppendLine("}");
+        }
+        
         for (int i = 0; i < props.Length; i++)
         {
             var prop = props[i];
-            fieldsMap.AppendLine(
+            fieldsMapCode.AppendLine(
                 $"""
                 "{prop.Name}" => {i},
                 """
             );
+
+            fieldsCode.AppendLine(
+                $$"""
+                public {{prop.PropertyType.Name}} {{prop.Name}}
+                {
+                    get => Bind.Get<{{prop.PropertyType.Name}}>({{i}});
+                    set => Bind.Set({{i}}, value);
+                }
+                """
+            );
             i++;
         }
-        fieldsMap.Append("_ => -1");
+        fieldsMapCode.Append("_ => -1");
         
         return
         $$"""
@@ -91,9 +135,17 @@ public class Implementer
                     this, {{fieldCount}}, typeof({{type.Name}}),
                     s => s switch
                     {
-                        {{fieldsMap}}
+                        {{fieldsMapCode}}
                     }
                 );
+
+            {{fieldsCode}}
+
+            protected override void OnRun()
+                => (({{type.Name}})this).OnProcess();
+
+            protected override void OnLoad()
+                => (({{type.Name}})this).OnLoad();
         }
         """;
     }

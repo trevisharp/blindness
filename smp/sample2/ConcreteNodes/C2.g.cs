@@ -10,7 +10,6 @@ public class C2Concrete : Node
             s => s switch
             {
                 _ => -1
-
             }
         );
 }
