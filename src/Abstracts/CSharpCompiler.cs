@@ -39,6 +39,7 @@ public static class CSharpCompiler
         var references = assembly
             .GetReferencedAssemblies()
             .Select(r => Assembly.Load(r))
+            .Append(Assembly.GetEntryAssembly())
             .Append(Assembly.Load("System.Private.CoreLib"))
             .Select(r => MetadataReference.CreateFromFile(r.Location));
         
@@ -46,7 +47,7 @@ public static class CSharpCompiler
             Verbose.Success(reference.FilePath);
         
         var compilation = CSharpCompilation.Create(
-            "MyTemporaryAssembly",
+            "HotReload",
             syntaxTrees: syntaxTrees,
             references: references,
             options: compilationOptions
