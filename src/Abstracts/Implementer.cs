@@ -52,7 +52,7 @@ public class Implementer
         );
         var filePath = Path.Combine(
             dirPath,
-            $"{type.Name}.g.cs"
+            $"{type.Name}Concrete.g.cs"
         );
 
         if (!Directory.Exists(dirPath))
@@ -69,12 +69,10 @@ public class Implementer
         StringBuilder fieldsCode = new();
         StringBuilder methodsCode = new();
 
-        var props = type.GetProperties();
-        int fieldCount = props.Length;
+        var props = getInterfaceProperties(type);
+        int fieldCount = props.Count;
 
-        var methods = type
-            .GetMethods()
-            .ToList();
+        var methods = getIntefaceMethods(type);
 
         var deps = methods
             .FirstOrDefault(m => m.Name == "Deps");
@@ -88,11 +86,12 @@ public class Implementer
                 methodsCode.Append(
                     $"\t{parameter.ParameterType.Name} {parameter.Name}"
                 );
-                if (i == parameters.Length - 1)
+                if (i < parameters.Length - 1)
                     methodsCode.Append(",");
                 methodsCode.AppendLine();
             }
-            methodsCode.Append("{");
+            methodsCode.AppendLine(")");
+            methodsCode.AppendLine("{");
             
             for (int i = 0; i < parameters.Length; i++)
             {
@@ -116,7 +115,7 @@ public class Implementer
                 {
                     var hotReloaded = Blindness.Abstracts.HotReload.Use(
                         "{{type.Name}}Concrete.OnLoad",
-                        {{code}}
+                        "{{code}}"
                     );
                     if (hotReloaded)
                         return;
@@ -150,27 +149,26 @@ public class Implementer
             methods.Remove(onRun);
         }
 
-        for (int i = 0; i < props.Length; i++)
+        for (int i = 0; i < props.Count; i++)
         {
             var prop = props[i];
             fieldsMapCode.AppendLine(
-                $"""
-                "{prop.Name}" => {i},
-                """
+                $"\t\t\"{prop.Name}\" => {i},"
             );
 
             fieldsCode.AppendLine(
                 $$"""
-                public {{prop.PropertyType.Name}} {{prop.Name}}
-                {
-                    get => Bind.Get<{{prop.PropertyType.Name}}>({{i}});
-                    set => Bind.Set({{i}}, value);
-                }
+
+                    public {{prop.PropertyType.Name}} {{prop.Name}}
+                    {
+                        get => Bind.Get<{{prop.PropertyType.Name}}>({{i}});
+                        set => Bind.Set({{i}}, value);
+                    }
                 """
             );
             i++;
         }
-        fieldsMapCode.Append("_ => -1");
+        fieldsMapCode.Append("\t\t_ => -1");
         
         return
         $$"""
@@ -185,7 +183,7 @@ public class Implementer
                     this, {{fieldCount}}, typeof({{type.Name}}),
                     s => s switch
                     {
-                        {{fieldsMapCode}}
+                {{fieldsMapCode}}
                     }
                 );
 
@@ -194,6 +192,40 @@ public class Implementer
             {{methodsCode}}
         }
         """;
+    }
+
+    private List<MethodInfo> getIntefaceMethods(Type type)
+    {
+        var types = getAllBaseInterfaces(type);
+        return types
+            .Append(type)
+            .SelectMany(t => t.GetMethods())
+            .ToList();
+
+    }
+
+    private List<PropertyInfo> getInterfaceProperties(Type type)
+    {
+        var types = getAllBaseInterfaces(type);
+        return types
+            .Append(type)
+            .SelectMany(t => t.GetProperties())
+            .Where(p => p.Name != "Bind")
+            .ToList();
+    }
+
+    private List<Type> getAllBaseInterfaces(Type type)
+    {
+        List<Type> types = type
+            .GetInterfaces()
+            .ToList();
+        
+        for (int i = 0; i < types.Count; i++)
+            types.AddRange(
+                getAllBaseInterfaces(types[i])
+            );
+        
+        return types;
     }
 
     private Type[] getNodeType()

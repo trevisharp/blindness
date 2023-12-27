@@ -25,9 +25,6 @@ public static class CSharpCompiler
     static Assembly CompileProjet(string csprojPath)
     {
         var sourceFiles = findCSharpFiles(Environment.CurrentDirectory);
-        
-        foreach (var file in sourceFiles)
-            Verbose.Success(file);
 
         var syntaxTrees = sourceFiles
             .Select(file => CSharpSyntaxTree.ParseText(File.ReadAllText(file)));
@@ -41,6 +38,7 @@ public static class CSharpCompiler
             .Select(r => Assembly.Load(r))
             .Append(Assembly.GetEntryAssembly())
             .Append(Assembly.Load("System.Private.CoreLib"))
+            .Append(Assembly.Load("System.Linq.Expressions"))
             .Select(r => MetadataReference.CreateFromFile(r.Location));
         
         foreach (var reference in references)
@@ -65,9 +63,7 @@ public static class CSharpCompiler
             else
             {
                 foreach (var diagnostic in resultado.Diagnostics)
-                {
                     Verbose.Error(diagnostic);
-                }
                 return null;
             }
         }

@@ -17,7 +17,7 @@ public interface C1 : INode
     }
 }
 
-public interface C2 : C1
+public interface C2 : INode
 {
 
 }
