@@ -8,6 +8,8 @@ using System.Collections.Generic;
 
 namespace Blindness.Abstracts;
 
+using Internal;
+
 public class Implementer
 {
     public void ImplementAndRun(Action appFunc)
@@ -44,18 +46,25 @@ public class Implementer
 
     private void implement(Type type)
     {
-        const string basePath = "ConcreteNodes/";
-        var path = $"{basePath}/{type.Name}.g.cs";
+        var dirPath = Path.Combine(
+            Environment.CurrentDirectory,
+            "ConcreteNodes"
+        );
+        var filePath = Path.Combine(
+            dirPath,
+            $"{type.Name}.g.cs"
+        );
 
-        if (!Directory.Exists(basePath))
-            Directory.CreateDirectory(basePath);
+        if (!Directory.Exists(dirPath))
+            Directory.CreateDirectory(dirPath);
 
-        var nodeCode = getCode(type);
-        File.WriteAllText(path, nodeCode);
+        var nodeCode = getCode(type, filePath);
+        File.WriteAllText(filePath, nodeCode);
     }
 
-    private string getCode(Type type)
+    private string getCode(Type type, string fileName)
     {
+        var code = fileName.ToHash();
         StringBuilder fieldsMapCode = new();
         StringBuilder fieldsCode = new();
         StringBuilder methodsCode = new();
@@ -95,6 +104,50 @@ public class Implementer
             methodsCode.AppendLine("}");
 
             methods.Remove(deps);
+        }
+        
+        var onLoad = methods
+            .FirstOrDefault(m => m.Name == "OnLoad");
+        if (onLoad is not null)
+        {
+            methodsCode.AppendLine(
+                $$"""
+                protected override void OnLoad()
+                {
+                    var hotReloaded = Blindness.Abstracts.HotReload.Use(
+                        "{{type.Name}}Concrete.OnLoad",
+                        {{code}}
+                    );
+                    if (hotReloaded)
+                        return;
+                    
+                    (({{type.Name}})this).OnLoad();
+                }
+                """
+            );
+            methods.Remove(onLoad);
+        }
+        
+        var onRun = methods
+            .FirstOrDefault(m => m.Name == "OnProcess");
+        if (onRun is not null)
+        {
+            methodsCode.AppendLine(
+                $$"""
+                protected override void OnRun()
+                {
+                    var hotReloaded = Blindness.Abstracts.HotReload.Use(
+                        "{{type.Name}}Concrete.OnLoad",
+                        {{code}}
+                    );
+                    if (hotReloaded)
+                        return;
+                    
+                    (({{type.Name}})this).OnProcess();
+                }
+                """
+            );
+            methods.Remove(onRun);
         }
 
         for (int i = 0; i < props.Length; i++)
@@ -138,11 +191,7 @@ public class Implementer
 
             {{fieldsCode}}
 
-            protected override void OnRun()
-                => (({{type.Name}})this).OnProcess();
-
-            protected override void OnLoad()
-                => (({{type.Name}})this).OnLoad();
+            {{methodsCode}}
         }
         """;
     }
