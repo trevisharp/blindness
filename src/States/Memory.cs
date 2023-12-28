@@ -76,11 +76,14 @@ public class Memory
     }
 
     public T Get<T>(int pointer)
+        => (T)GetObject(pointer);
+
+    public object GetObject(int pointer)
     {
         if (this.behaviour is null)
             throw new MemoryBehaviourNotDefined();
 
-        return this.behaviour.Get<T>(pointer);
+        return this.behaviour.Get(pointer);
     }
 
     public void Set<T>(int pointer, T value)
@@ -88,7 +91,7 @@ public class Memory
         if (this.behaviour is null)
             throw new MemoryBehaviourNotDefined();
         
-        this.behaviour.Set<T>(pointer, value);
+        this.behaviour.Set(pointer, value);
         callEvents(pointer);
     }
 

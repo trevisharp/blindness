@@ -24,14 +24,14 @@ public class RealTimeElement<T> : IAsyncElement
         running = true;
         while (running)
         {
-            var data = Memory.Current.Get<T>(ElementPointer);
+            var data = Memory.Current.GetObject(ElementPointer);
             if (data is IAsyncElement element)
             {
                 Model.Run(element);
                 element.Await();
                 continue;
             }
-
+            
             throw new NonAsyncElementException(typeof(T));
         }
     }

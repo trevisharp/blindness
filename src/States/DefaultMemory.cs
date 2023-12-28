@@ -18,13 +18,13 @@ public class DefaultMemory : IMemoryBehaviour
         return newIndex;
     }
 
-    public T Get<T>(int index)
+    public object Get(int index)
     {
         var obj = data[index];
-        return (T)obj;
+        return obj;
     }
 
-    public void Set<T>(int index, T value)
+    public void Set(int index, object value)
     {
         lock (data[index])
         {
