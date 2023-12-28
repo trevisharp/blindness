@@ -14,7 +14,7 @@ foreach (var node in nodes)
 
 // Primary Strategy: Always implement on Debug
 if (Directory.Exists("ConcreteNodes"))
-    Directory.Delete("ConcreteNodes");
+    Directory.Delete("ConcreteNodes", true);
 
 Interface[] getNodes(IEnumerable<Interface> interfaces)
 {
