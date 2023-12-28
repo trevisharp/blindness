@@ -95,12 +95,11 @@ internal class DependencySystem
         if (typeMap.ContainsKey(inputType))
             return typeMap[inputType];
 
-        var assembly = inputType.Assembly;
-        var types = assembly.GetTypes();
+        var types = crrAssembly.GetTypes();
 
         foreach (var type in types)
         {
-            if (!implementsInterface(type, inputType))
+            if (!implementsInterface(type, inputType.Name))
                 continue;
             
             if (type.GetCustomAttribute<ConcreteAttribute>() is null)
@@ -111,6 +110,15 @@ internal class DependencySystem
         }
 
         throw new MissingConcreteTypeException(inputType);
+    }
+
+    private bool implementsInterface(Type type, string interfaceName)
+    {
+        foreach (var inter in type.GetInterfaces())
+            if (inter.Name == interfaceName)
+                return true;
+        
+        return false;
     }
 
     private bool implementsInterface(Type type, Type interfaceType)
