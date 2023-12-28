@@ -101,13 +101,6 @@ public class Implementer
                 $$"""
                 protected override void OnLoad()
                 {
-                    var hotReloaded = Blindness.Abstracts.HotReload.Use(this,
-                        "{{code}}",
-                        MethodBase.GetCurrentMethod() as MethodInfo
-                    );
-                    if (hotReloaded)
-                        return;
-                    
                     (({{type.Name}})this).OnLoad();
                 }
                 """
@@ -123,13 +116,6 @@ public class Implementer
                 $$"""
                 protected override void OnRun()
                 {
-                    var hotReloaded = Blindness.Abstracts.HotReload.Use(this,
-                        "{{code}}",
-                        MethodBase.GetCurrentMethod() as MethodInfo
-                    );
-                    if (hotReloaded)
-                        return;
-                    
                     (({{type.Name}})this).OnRun();
                 }
                 """
