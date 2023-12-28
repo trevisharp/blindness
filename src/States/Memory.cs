@@ -99,4 +99,9 @@ public class Memory
         foreach (var item in list)
             item?.EventObject?.Awake();
     }
+
+    internal void Replace()
+    {
+        
+    }
 }

@@ -43,6 +43,7 @@ protected override void OnLoad()
 }
 protected override void OnRun()
 {
+    System.Console.WriteLine("BANMAN");
     var hotReloaded = Blindness.Abstracts.HotReload.Use(this,
         "SSkjykJ5FOuOVR5SpLI4hJRr5yZZFgt96XnIwCrY5i08eM4A3iZuJuY43B9KEn4UGP+5oOlRGYH3aqao8p1tlQ==",
         MethodBase.GetCurrentMethod() as MethodInfo

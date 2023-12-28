@@ -22,6 +22,8 @@ internal class CallInfo
 
     public void Call(object obj, params object[] input)
     {
+        Verbose.Success("HotReload Call");
+        Verbose.Success(this.CurrentMethod);
         this.CurrentMethod?.Invoke(obj, input);
     }
 }

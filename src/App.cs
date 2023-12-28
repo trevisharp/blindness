@@ -17,8 +17,8 @@ public static class App
     {
         try
         {
-            var implementer = new Implementer();
-            implementer.Implement();
+            // var implementer = new Implementer();
+            // implementer.Implement();
 
             HotReload.IsActive = true;
 

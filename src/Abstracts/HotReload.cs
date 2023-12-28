@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Blindness.Abstracts;
 
+using States;
 using Internal;
 
 public static class HotReload
@@ -61,7 +62,7 @@ public static class HotReload
             return false;
         }
 
-        if (callInfo.OriginalMethod == method)
+        if (callInfo.CurrentMethod == method)
             return false;
 
         callInfo.Call(obj, parameters);
@@ -70,13 +71,32 @@ public static class HotReload
 
     static void updateInfos(string file)
     {
-        Verbose.Info(file + " updated. Applying hot reload.");
+        Verbose.Info(file + " updated. Applying hot reload...");
         var assembly = compile(file);
         if (assembly is null)
             return;
         
         var code = file.ToHash();
-        var info = infos[code];
+        var infos = get(code);
+        
+
+        var types = assembly.GetTypes();
+        foreach (var info in infos)
+        {
+            var type = types
+                .FirstOrDefault(t => t.Name == info.Type.Name);
+            if (type is null)
+                continue;
+            
+            var methods = type.GetRuntimeMethods();
+            var method = methods
+                .FirstOrDefault(m => m.Name == info.OriginalMethod.Name);
+            if (method is null)
+                continue;
+
+            Verbose.Info($"Updating {info.OriginalMethod.Name}...");
+            info.CurrentMethod = method;
+        }
     }
 
     static List<CallInfo> get(string code)
@@ -96,7 +116,7 @@ public static class HotReload
         };
 
         var compilationOptions = new CSharpCompilationOptions(
-            OutputKind.ConsoleApplication
+            OutputKind.DynamicallyLinkedLibrary
         );
         
         var compilation = CSharpCompilation.Create(
@@ -138,9 +158,21 @@ public static class HotReload
         watcher = new FileSystemWatcher(
             Environment.CurrentDirectory
         );
-        watcher.Filter = "*.cs";
+        watcher.IncludeSubdirectories = true;
+        watcher.Filters.Add("*.cs");
+        watcher.Filters.Add("*.g.cs");
         watcher.Changed += (sender, e) =>
-            updateInfos(e.FullPath);
+        {
+            try
+            {
+                updateInfos(e.FullPath);
+            }
+            catch (Exception ex)
+            {
+                Verbose.Error(ex.Message);
+                Verbose.Error(ex.StackTrace);
+            }
+        };
         watcher.EnableRaisingEvents = true;
     }
 }

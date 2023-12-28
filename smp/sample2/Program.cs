@@ -19,7 +19,7 @@ public interface C1 : INode
     void OnRun()
     {
         Console.ReadKey(true);
-        Console.WriteLine("Running...");
+        Console.WriteLine("Running!");
     }
 }
 
