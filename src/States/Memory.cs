@@ -106,9 +106,11 @@ public class Memory
     {
         this.behaviour.Reload(obj =>
         {
+            if (obj is null)
+                return null;
             var type = obj.GetType();
 
-            if (type.GetInterface("INode") is null)
+            if (!type.Implements("INode"))
                 return obj;
             
             return DependencySystem.Current

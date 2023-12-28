@@ -11,10 +11,10 @@ public static class TypeExtension
         if (type is null)
             return false;
         
-        if (type.BaseType == baseType)
+        if (type == baseType)
             return true;
 
-        if (type.BaseType.Implements(baseType)) 
+        if (type.BaseType?.Implements(baseType) ?? false) 
             return true;
         
         if (!baseType.IsInterface)
@@ -36,10 +36,13 @@ public static class TypeExtension
         if (type is null)
             return false;
         
-        if (type.BaseType.Name == baseType)
+        var nonGeneratedName = type.Name
+            .Replace("<>c", "")
+            .Replace("+", "");
+        if (nonGeneratedName == baseType)
             return true;
 
-        if (type.BaseType.Implements(baseType)) 
+        if (type.BaseType?.Implements(baseType) ?? false) 
             return true;
 
         var interfaces = type.GetInterfaces();

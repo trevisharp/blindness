@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -68,6 +69,9 @@ internal class DependencySystem
     {
         if (this.crrAssembly is not null)
             return findConcreteByAssembly(inputType);
+        
+        if (!inputType.IsAbstract && !inputType.IsInterface)
+            return inputType;
 
         if (typeMap.ContainsKey(inputType))
             return typeMap[inputType];
@@ -77,7 +81,7 @@ internal class DependencySystem
 
         foreach (var type in types)
         {
-            if (!implementsInterface(type, inputType))
+            if (!type.Implements(inputType))
                 continue;
             
             if (type.GetCustomAttribute<ConcreteAttribute>() is null)
@@ -99,7 +103,7 @@ internal class DependencySystem
 
         foreach (var type in types)
         {
-            if (!implementsInterface(type, inputType.Name))
+            if (!type.Implements(inputType.Name))
                 continue;
             
             if (type.GetCustomAttribute<ConcreteAttribute>() is null)
@@ -110,23 +114,5 @@ internal class DependencySystem
         }
 
         throw new MissingConcreteTypeException(inputType);
-    }
-
-    private bool implementsInterface(Type type, string interfaceName)
-    {
-        foreach (var inter in type.GetInterfaces())
-            if (inter.Name == interfaceName)
-                return true;
-        
-        return false;
-    }
-
-    private bool implementsInterface(Type type, Type interfaceType)
-    {
-        foreach (var inter in type.GetInterfaces())
-            if (inter == interfaceType)
-                return true;
-        
-        return false;
     }
 }
