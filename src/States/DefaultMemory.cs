@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Blindness.States;
@@ -28,6 +29,15 @@ public class DefaultMemory : IMemoryBehaviour
         lock (data[index])
         {
             data[index] = value;
+        }
+    }
+    
+    public void Reload(Func<object, object> func)
+    {
+        lock (data)
+        {
+            for (int i = 0; i < data.Count; i++)
+                data[i] = func(data[i]);
         }
     }
 }

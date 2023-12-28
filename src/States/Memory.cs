@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace Blindness.States;
@@ -6,6 +7,7 @@ namespace Blindness.States;
 using Internal;
 using Exceptions;
 using Concurrency.Elements;
+using System.Reflection;
 
 public class Memory
 {
@@ -100,8 +102,17 @@ public class Memory
             item?.EventObject?.Awake();
     }
 
-    internal void Replace()
+    public void Reload()
     {
-        
+        this.behaviour.Reload(obj =>
+        {
+            var type = obj.GetType();
+
+            if (type.GetInterface("INode") is null)
+                return obj;
+            
+            return DependencySystem.Current
+                .GetConcrete(type);
+        });
     }
 }

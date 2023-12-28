@@ -71,8 +71,10 @@ public static class HotReload
 
     static void updateInfos(string file)
     {
-        Verbose.Info(file + " updated. Applying hot reload...");
-        var assembly = compile(file);
+        Verbose.Info(file + " updated! Applying hot reload...");
+        watcher.EnableRaisingEvents = false;
+
+        var assembly = updateAssembly();
         if (assembly is null)
             return;
         
@@ -97,6 +99,8 @@ public static class HotReload
             Verbose.Info($"Updating {info.OriginalMethod.Name}...");
             info.CurrentMethod = method;
         }
+
+        watcher.EnableRaisingEvents = true;
     }
 
     static List<CallInfo> get(string code)
@@ -109,14 +113,15 @@ public static class HotReload
         return newItem;
     }
 
-    static Assembly compile(string file)
+    static Assembly updateAssembly()
     {
-        var syntaxTrees = new SyntaxTree[]{
-            CSharpSyntaxTree.ParseText(File.ReadAllText(file))
-        };
+        var sourceFiles = findCSharpFiles(Environment.CurrentDirectory);
+
+        var syntaxTrees = sourceFiles
+            .Select(file => CSharpSyntaxTree.ParseText(File.ReadAllText(file)));
 
         var compilationOptions = new CSharpCompilationOptions(
-            OutputKind.DynamicallyLinkedLibrary
+            OutputKind.ConsoleApplication
         );
         
         var compilation = CSharpCompilation.Create(
@@ -160,7 +165,6 @@ public static class HotReload
         );
         watcher.IncludeSubdirectories = true;
         watcher.Filters.Add("*.cs");
-        watcher.Filters.Add("*.g.cs");
         watcher.Changed += (sender, e) =>
         {
             try
@@ -174,5 +178,26 @@ public static class HotReload
             }
         };
         watcher.EnableRaisingEvents = true;
+    }
+
+    static IEnumerable<string> findCSharpFiles(string directory)
+    {
+        var files =
+            Directory.GetFiles(directory)
+            .Where(file => file.EndsWith(".cs"))
+            .Where(d => !d.Contains("/obj/"));
+        
+        foreach (var file in files)
+            yield return file;
+        
+        var directories = Directory
+            .GetDirectories(directory);
+
+        foreach (var dir in directories)
+        {
+            files = findCSharpFiles(dir);
+            foreach (var file in files)
+                yield return file;
+        }
     }
 }

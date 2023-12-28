@@ -18,7 +18,14 @@ internal class DependencySystem
         => crr = new(model);
     
     private IAsyncModel model;
+    private Assembly crrAssembly = null;
     private Dictionary<Type, Type> typeMap = new();
+    
+    internal void UpdateAssembly(Assembly assembly)
+    {
+        this.crrAssembly = assembly;
+        this.typeMap = new();
+    }
 
     internal Type GetConcreteType(Type type)
     {
@@ -58,6 +65,32 @@ internal class DependencySystem
     }
 
     private Type findConcrete(Type inputType)
+    {
+        if (this.crrAssembly is not null)
+            return findConcreteByAssembly(inputType);
+
+        if (typeMap.ContainsKey(inputType))
+            return typeMap[inputType];
+
+        var assembly = inputType.Assembly;
+        var types = assembly.GetTypes();
+
+        foreach (var type in types)
+        {
+            if (!implementsInterface(type, inputType))
+                continue;
+            
+            if (type.GetCustomAttribute<ConcreteAttribute>() is null)
+                continue;
+            
+            this.typeMap.Add(inputType, type);
+            return type;
+        }
+
+        throw new MissingConcreteTypeException(inputType);
+    }
+
+    private Type findConcreteByAssembly(Type inputType)
     {
         if (typeMap.ContainsKey(inputType))
             return typeMap[inputType];
