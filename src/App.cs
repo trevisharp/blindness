@@ -10,6 +10,8 @@ using Concurrency.Elements;
 
 public static class App
 {
+    public static bool Debug { get; set; } = true;
+
     public static void StartWith<T>(
         IAsyncModel model = null,
         IMemoryBehaviour memory = null
@@ -17,10 +19,13 @@ public static class App
     {
         try
         {
-            // var implementer = new Implementer();
-            // implementer.Implement();
+            if (Debug)
+            {
+                var implementer = new Implementer();
+                implementer.Implement();
 
-            HotReload.IsActive = true;
+                HotReload.IsActive = true;
+            }
 
             model ??= new DefaultModel();
             DependencySystem.Reset(model);
