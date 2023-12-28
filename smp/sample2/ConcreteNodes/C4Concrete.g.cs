@@ -32,24 +32,10 @@ this.MyField = MyField;
 }
 protected override void OnLoad()
 {
-    var hotReloaded = Blindness.Abstracts.HotReload.Use(this,
-        "t+JtvWi6a4ctThn7nPgS4AIPmixgR4lVVXnlz9M+fDv+JL+y9cS4qtSadraK/Cd1yiBRdaIWE6jDxSc0FPKixg==",
-        MethodBase.GetCurrentMethod() as MethodInfo
-    );
-    if (hotReloaded)
-        return;
-    
     ((C4)this).OnLoad();
 }
 protected override void OnRun()
 {
-    var hotReloaded = Blindness.Abstracts.HotReload.Use(this,
-        "t+JtvWi6a4ctThn7nPgS4AIPmixgR4lVVXnlz9M+fDv+JL+y9cS4qtSadraK/Cd1yiBRdaIWE6jDxSc0FPKixg==",
-        MethodBase.GetCurrentMethod() as MethodInfo
-    );
-    if (hotReloaded)
-        return;
-    
     ((C4)this).OnRun();
 }
 

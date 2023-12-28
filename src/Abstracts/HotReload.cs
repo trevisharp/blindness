@@ -69,7 +69,7 @@ public static class HotReload
         return true;
     }
 
-    static void updateInfos(string file)
+    static void updateObjects(string file)
     {
         Verbose.Info(file + " updated! Applying hot reload...");
         watcher.EnableRaisingEvents = false;
@@ -78,27 +78,8 @@ public static class HotReload
         if (assembly is null)
             return;
         
-        var code = file.ToHash();
-        var infos = get(code);
-        
-
-        var types = assembly.GetTypes();
-        foreach (var info in infos)
-        {
-            var type = types
-                .FirstOrDefault(t => t.Name == info.Type.Name);
-            if (type is null)
-                continue;
-            
-            var methods = type.GetRuntimeMethods();
-            var method = methods
-                .FirstOrDefault(m => m.Name == info.OriginalMethod.Name);
-            if (method is null)
-                continue;
-
-            Verbose.Info($"Updating {info.OriginalMethod.Name}...");
-            info.CurrentMethod = method;
-        }
+        DependencySystem.Current.UpdateAssembly(assembly);
+        Memory.Current.Reload();
 
         watcher.EnableRaisingEvents = true;
     }
@@ -169,7 +150,7 @@ public static class HotReload
         {
             try
             {
-                updateInfos(e.FullPath);
+                updateObjects(e.FullPath);
             }
             catch (Exception ex)
             {
