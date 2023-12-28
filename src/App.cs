@@ -18,26 +18,27 @@ public static class App
         try
         {
             var implementer = new Implementer();
-            implementer.ImplementAndRun(() =>
+            implementer.Implement();
+
+            HotReload.IsActive = true;
+
+            model ??= new DefaultModel();
+            DependencySystem.Reset(model);
+
+            memory ??= new DefaultMemory();
+            Memory.Reset(memory);
+
+            var app = DependencySystem
+                .Current.GetConcrete(typeof(T));
+
+            var realTime = new RealTimeElement
             {
-                model ??= new DefaultModel();
-                DependencySystem.Reset(model);
-
-                memory ??= new DefaultMemory();
-                Memory.Reset(memory);
-
-                var app = DependencySystem
-                    .Current.GetConcrete(typeof(T));
-
-                var realTime = new RealTimeElement
-                {
-                    Element = app,
-                    Model = model
-                };
-                
-                model.Run(realTime);
-                model.Start();
-            });
+                Element = app,
+                Model = model
+            };
+            
+            model.Run(realTime);
+            model.Start();
         }
         catch (Exception ex)
         {

@@ -23,11 +23,17 @@ dotnet add package Blindness # Install Blindness
 
 # Versions
 
+### Blindness v1.1.0 (Coming soon)
+
+ - ![](https://img.shields.io/badge/update-blue) Comments and documentation improvements. 
+ - ![](https://img.shields.io/badge/update-blue) Improvement in customization of Code Generation System.
+  - ![](https://img.shields.io/badge/update-blue) Geral improvements in HotReload System.
+
 ### Blindness v1.0.0 (Coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Code generation added.
  - ![](https://img.shields.io/badge/new-green) Concrete node generations system.
- - ![](https://img.shields.io/badge/update-blue) Comments and documentation improvements. 
+ - ![](https://img.shields.io/badge/new-green) HotReload system added.
 
 ### Blindness v0.5.0
 

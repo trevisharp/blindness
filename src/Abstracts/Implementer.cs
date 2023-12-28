@@ -12,16 +12,10 @@ using Internal;
 
 public class Implementer
 {
-    public void ImplementAndRun(Action appFunc)
+    public void Implement()
     {
-        if (!needImplement())
-        {
-            appFunc();
-            return;
-        }
-
-        implements();
-        reRun();
+        if (needImplement())
+            implements();
     }
 
     private bool needImplement()
@@ -38,12 +32,6 @@ public class Implementer
             implement(node);
     }
     
-    private void reRun()
-    {
-        Verbose.Info("Rebuilding the app...", 1);
-        CSharpCompiler.Recompile();
-    }
-
     private void implement(Type type)
     {
         var dirPath = Path.Combine(
@@ -113,9 +101,9 @@ public class Implementer
                 $$"""
                 protected override void OnLoad()
                 {
-                    var hotReloaded = Blindness.Abstracts.HotReload.Use(
-                        "{{type.Name}}Concrete.OnLoad",
-                        "{{code}}"
+                    var hotReloaded = Blindness.Abstracts.HotReload.Use(this,
+                        "{{code}}",
+                        MethodBase.GetCurrentMethod() as MethodInfo
                     );
                     if (hotReloaded)
                         return;
@@ -128,21 +116,21 @@ public class Implementer
         }
         
         var onRun = methods
-            .FirstOrDefault(m => m.Name == "OnProcess");
+            .FirstOrDefault(m => m.Name == "OnRun");
         if (onRun is not null)
         {
             methodsCode.AppendLine(
                 $$"""
                 protected override void OnRun()
                 {
-                    var hotReloaded = Blindness.Abstracts.HotReload.Use(
-                        "{{type.Name}}Concrete.OnLoad",
-                        {{code}}
+                    var hotReloaded = Blindness.Abstracts.HotReload.Use(this,
+                        "{{code}}",
+                        MethodBase.GetCurrentMethod() as MethodInfo
                     );
                     if (hotReloaded)
                         return;
                     
-                    (({{type.Name}})this).OnProcess();
+                    (({{type.Name}})this).OnRun();
                 }
                 """
             );
@@ -172,6 +160,8 @@ public class Implementer
         
         return
         $$"""
+        using System.Reflection;
+
         using Blindness;
         using Blindness.States;
 

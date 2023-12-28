@@ -15,6 +15,12 @@ public interface C1 : INode
     {
         Console.WriteLine("Olá, mundo!");
     }
+
+    void OnRun()
+    {
+        Console.ReadKey(true);
+        Console.WriteLine("Running...");
+    }
 }
 
 public interface C2 : INode

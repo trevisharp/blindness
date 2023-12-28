@@ -41,31 +41,52 @@ public static class HotReload
     }
 
     public static bool Use(
+        object obj,
         string code,
-        string function,
+        MethodInfo method,
         params object[] parameters
     )
     {
         if (!IsActive)
             return false;
-
-        if (!infos.ContainsKey(code))
+        
+        var infos = get(code);
+        CallInfo callInfo = infos
+            .FirstOrDefault(i => i.OriginalMethod == method);
+        
+        if (callInfo is null)
         {
-
+            callInfo = new CallInfo(method);
+            infos.Add(callInfo);
+            return false;
         }
 
+        if (callInfo.OriginalMethod == method)
+            return false;
 
+        callInfo.Call(obj, parameters);
         return true;
     }
 
     static void updateInfos(string file)
     {
+        Verbose.Info(file + " updated. Applying hot reload.");
         var assembly = compile(file);
         if (assembly is null)
             return;
         
         var code = file.ToHash();
         var info = infos[code];
+    }
+
+    static List<CallInfo> get(string code)
+    {
+        if (infos.ContainsKey(code))
+            return infos[code];
+        
+        var newItem = new List<CallInfo>();
+        infos.Add(code, newItem);
+        return newItem;
     }
 
     static Assembly compile(string file)
@@ -114,9 +135,12 @@ public static class HotReload
 
     static void initWatcher()
     {
-        watcher = new FileSystemWatcher();
+        watcher = new FileSystemWatcher(
+            Environment.CurrentDirectory
+        );
         watcher.Filter = "*.cs";
         watcher.Changed += (sender, e) =>
             updateInfos(e.FullPath);
+        watcher.EnableRaisingEvents = true;
     }
 }
