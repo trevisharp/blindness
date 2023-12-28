@@ -19,7 +19,7 @@ public class ChainElement : IAsyncElement
     {
         Model.Run(First);
         First.Await();
-
+        
         Model.Run(Second);
 
         signal.WaitOne();

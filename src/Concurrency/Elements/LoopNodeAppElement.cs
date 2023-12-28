@@ -32,8 +32,7 @@ public class LoopNodeAppElement<T> : IAsyncElement
             var data = Memory.Current.GetObject(ElementPointer);
             if (data is IAsyncElement element)
             {
-                Model.Run(element);
-                element.Await();
+                element.Start();
                 continue;
             }
             

@@ -49,6 +49,11 @@ public static class App
                 model.Run(loopApp);
             }
             
+            model.OnError += (el, er) =>
+            {
+                Verbose.Error($"On {el} AsyncElement:");
+                showError(er);
+            };
             model.Start();
         }
         catch (Exception ex)

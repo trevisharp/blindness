@@ -13,6 +13,8 @@ public class DefaultModel : IAsyncModel
     AutoResetEvent queueSignal;
     ConcurrentQueue<IAsyncElement> queue = new();
 
+    public event Action<IAsyncElement, Exception> OnError;
+
     public void Start()
     {
         this.isRunning = true;
@@ -61,9 +63,17 @@ public class DefaultModel : IAsyncModel
     void executeAsync(IAsyncElement node)
     {
         Task.Run(() => {
-            activeCount++;
-            node.Start();
-            activeCount--;
+            try
+            {
+                activeCount++;
+                node.Start();
+                activeCount--;
+            }
+            catch (Exception ex)
+            {
+                if (OnError != null)
+                    OnError(node, ex);
+            }
         });
     }
 }

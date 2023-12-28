@@ -17,23 +17,18 @@ using Concurrency;
 public class HotReload : IAsyncElement
 {
     private FileSystemWatcher watcher;
-    private int updates = int.MaxValue;
+    private int updates = 1;
     private bool running = false;
     private AutoResetEvent signal = new(false);
 
     void updateObjects()
     {
-        Verbose.Info("HotReload!!");
-        watcher.EnableRaisingEvents = false;
-
         var assembly = updateAssembly();
         if (assembly is null)
             return;
         
         DependencySystem.Current.UpdateAssembly(assembly);
         Memory.Current.Reload();
-
-        watcher.EnableRaisingEvents = true;
     }
 
     Assembly updateAssembly()
