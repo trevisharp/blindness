@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 
 namespace Blindness.States;
@@ -7,7 +6,6 @@ namespace Blindness.States;
 using Internal;
 using Exceptions;
 using Concurrency.Elements;
-using System.Reflection;
 
 public class Memory
 {

@@ -14,7 +14,6 @@ using Internal;
 
 public static class HotReload
 {
-    private static Dictionary<string, List<CallInfo>> infos;
     private static FileSystemWatcher watcher;
     
     public static bool IsActive 
@@ -36,42 +35,11 @@ public static class HotReload
     }
 
     static HotReload()
-    {
-        infos = new();
-        IsActive = false;
-    }
-
-    public static bool Use(
-        object obj,
-        string code,
-        MethodInfo method,
-        params object[] parameters
-    )
-    {
-        if (!IsActive)
-            return false;
-        
-        var infos = get(code);
-        CallInfo callInfo = infos
-            .FirstOrDefault(i => i.OriginalMethod == method);
-        
-        if (callInfo is null)
-        {
-            callInfo = new CallInfo(method);
-            infos.Add(callInfo);
-            return false;
-        }
-
-        if (callInfo.CurrentMethod == method)
-            return false;
-
-        callInfo.Call(obj, parameters);
-        return true;
-    }
+        => IsActive = false;
 
     static void updateObjects(string file)
     {
-        Verbose.Info(file + " updated! Applying hot reload...");
+        Verbose.Info(file + " updated! Applying hot reload...", 2);
         watcher.EnableRaisingEvents = false;
 
         var assembly = updateAssembly();
@@ -82,16 +50,6 @@ public static class HotReload
         Memory.Current.Reload();
 
         watcher.EnableRaisingEvents = true;
-    }
-
-    static List<CallInfo> get(string code)
-    {
-        if (infos.ContainsKey(code))
-            return infos[code];
-        
-        var newItem = new List<CallInfo>();
-        infos.Add(code, newItem);
-        return newItem;
     }
 
     static Assembly updateAssembly()
