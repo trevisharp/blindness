@@ -8,4 +8,5 @@ public interface IAsyncModel
     void Run(IAsyncElement node);
     void Stop();
     event Action<IAsyncElement, Exception> OnError;
+    void SendError(IAsyncElement el, Exception ex);
 }

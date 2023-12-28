@@ -73,7 +73,7 @@ public interface LoginScreen : INode
         );
     }
 
-    void OnProcess()
+    void OnRun()
     {
         Console.Clear();
         Panel.Run();
@@ -141,7 +141,7 @@ public interface Panel : INode
     int Width { get; set; }
     List<INode> Children { get; set; }
 
-    void OnProcess()
+    void OnRun()
     {
         StringBuilder sb = new StringBuilder();
 
@@ -167,7 +167,7 @@ public interface TextBox : INode
     int Size { get; set; }
     bool Selected { get; set; }
 
-    void OnProcess()
+    void OnRun()
     {
         StringBuilder sb = new StringBuilder();
         int size = 8 * Size / 10;

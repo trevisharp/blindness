@@ -83,5 +83,9 @@ protected override void OnLoad()
 {
     ((LoginScreen)this).OnLoad();
 }
+protected override void OnRun()
+{
+    ((LoginScreen)this).OnRun();
+}
 
 }

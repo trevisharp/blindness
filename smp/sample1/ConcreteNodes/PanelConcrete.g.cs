@@ -37,5 +37,9 @@ public class PanelConcrete : Node, Panel
 	}
 
 
+protected override void OnRun()
+{
+    ((Panel)this).OnRun();
+}
 
 }

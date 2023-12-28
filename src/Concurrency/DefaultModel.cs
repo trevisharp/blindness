@@ -71,9 +71,16 @@ public class DefaultModel : IAsyncModel
             }
             catch (Exception ex)
             {
-                if (OnError != null)
-                    OnError(node, ex);
+                SendError(node, ex);
             }
         });
+    }
+
+    public void SendError(IAsyncElement el, Exception ex)
+    {
+        if (OnError is null)
+            return;
+        
+        OnError(el, ex);
     }
 }

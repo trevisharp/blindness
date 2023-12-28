@@ -43,5 +43,9 @@ public class TextBoxConcrete : Node, TextBox
 	}
 
 
+protected override void OnRun()
+{
+    ((TextBox)this).OnRun();
+}
 
 }

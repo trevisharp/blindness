@@ -2,7 +2,7 @@ using System.Threading;
 
 namespace Blindness.Concurrency.Elements;
 
-public class ChainElement : IAsyncElement
+public class ReloadLoopElement : IAsyncElement
 {
     private AutoResetEvent signal = new(false);
 
@@ -17,11 +17,16 @@ public class ChainElement : IAsyncElement
 
     public void Start()
     {
-        Model.Run(First);
-        First.Await();
-        
-        Model.Run(Second);
+        Model.OnError += (el, ex) =>
+        {
+            if (el != Second)
+                return;
+            
+            First.Await();
+            Model.Run(Second);
+        };
 
-        signal.WaitOne();
+        Model.Run(First);
+        Model.Run(Second);
     }
 }

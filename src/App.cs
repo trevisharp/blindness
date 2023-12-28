@@ -37,7 +37,7 @@ public static class App
 
             if (Debug)
             {
-                var chain = new ChainElement {
+                var chain = new ReloadLoopElement {
                     Model = model,
                     First = new HotReload(),
                     Second = loopApp
