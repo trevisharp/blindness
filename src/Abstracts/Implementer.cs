@@ -128,26 +128,29 @@ public class Implementer
         {
             var prop = props[i];
             fieldsMapCode.AppendLine(
-                $"\t\t\"{prop.Name}\" => {i},"
+                $"\t\t\t\t\"{prop.Name}\" => {i},"
             );
 
+            var typeName = arrangeTypeName(prop.PropertyType);
             fieldsCode.AppendLine(
-                $$"""
-
-                    public {{prop.PropertyType.Name}} {{prop.Name}}
-                    {
-                        get => Bind.Get<{{prop.PropertyType.Name}}>({{i}});
-                        set => Bind.Set({{i}}, value);
-                    }
-                """
+                $"\tpublic {typeName} {prop.Name}"
             );
-            i++;
+            fieldsCode.AppendLine("\t{");
+            fieldsCode.AppendLine(
+                $"\t\tget => Bind.Get<{typeName}>({i});"
+            );
+            fieldsCode.AppendLine(
+                $"\t\tset => Bind.Set({i}, value);"
+            );
+            fieldsCode.AppendLine("\t}");
         }
-        fieldsMapCode.Append("\t\t_ => -1");
+        fieldsMapCode.Append("\t\t\t\t_ => -1");
         
         return
         $$"""
+        using System;
         using System.Reflection;
+        using System.Collections.Generic;
 
         using Blindness;
         using Blindness.States;
@@ -160,15 +163,29 @@ public class Implementer
                     this, {{fieldCount}}, typeof({{type.Name}}),
                     s => s switch
                     {
-                {{fieldsMapCode}}
+        {{fieldsMapCode}}
                     }
                 );
 
-            {{fieldsCode}}
+        {{fieldsCode}}
 
-            {{methodsCode}}
+        {{methodsCode}}
         }
         """;
+    }
+
+    private string arrangeTypeName(Type type)
+    {
+        var genericParams = type.GetGenericArguments();
+        if (genericParams.Length == 0)
+            return type.Name;
+
+        var name = type.GetGenericTypeDefinition().Name;
+
+        return type.Name.Replace("`1", "") 
+            + "<" + string.Join(",",
+                genericParams.Select(p => p.Name)
+            ) + ">";
     }
 
     private List<MethodInfo> getIntefaceMethods(Type type)

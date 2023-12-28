@@ -23,6 +23,7 @@ public class HotReload : IAsyncElement
 
     void updateObjects()
     {
+        Verbose.Info("HotReload!!");
         watcher.EnableRaisingEvents = false;
 
         var assembly = updateAssembly();
