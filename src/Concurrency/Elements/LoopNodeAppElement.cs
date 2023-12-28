@@ -3,9 +3,10 @@ using System.Threading;
 namespace Blindness.Concurrency.Elements;
 
 using States;
+using Internal;
 using Exceptions;
 
-public class RealTimeElement<T> : IAsyncElement
+public class LoopNodeAppElement<T> : IAsyncElement
 {
     public IAsyncModel Model { get; set; }
     public int ElementPointer { get; set; }
@@ -21,6 +22,10 @@ public class RealTimeElement<T> : IAsyncElement
 
     public void Start()
     {
+        var app = DependencySystem
+            .Current.GetConcrete(typeof(T));
+        this.ElementPointer = Memory.Current.Add(app);
+
         running = true;
         while (running)
         {

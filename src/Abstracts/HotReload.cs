@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -11,35 +12,17 @@ namespace Blindness.Abstracts;
 
 using States;
 using Internal;
+using Concurrency;
 
-public static class HotReload
+public class HotReload : IAsyncElement
 {
-    private static FileSystemWatcher watcher;
-    
-    public static bool IsActive 
+    private FileSystemWatcher watcher;
+    private int updates = int.MaxValue;
+    private bool running = false;
+    private AutoResetEvent signal = new(false);
+
+    void updateObjects()
     {
-        get => watcher?.EnableRaisingEvents ?? false;
-        set
-        {
-            if (watcher is not null)
-            {
-                watcher.EnableRaisingEvents = value;
-                return;
-            }
-
-            if (!value)
-                return;
-
-            initWatcher();
-        }
-    }
-
-    static HotReload()
-        => IsActive = false;
-
-    static void updateObjects(string file)
-    {
-        Verbose.Info(file + " updated! Applying hot reload...", 2);
         watcher.EnableRaisingEvents = false;
 
         var assembly = updateAssembly();
@@ -52,7 +35,7 @@ public static class HotReload
         watcher.EnableRaisingEvents = true;
     }
 
-    static Assembly updateAssembly()
+    Assembly updateAssembly()
     {
         var sourceFiles = findCSharpFiles(Environment.CurrentDirectory);
 
@@ -84,7 +67,7 @@ public static class HotReload
         return null;
     }
 
-    static IEnumerable<MetadataReference> getReferences()
+    IEnumerable<MetadataReference> getReferences()
     {
         var assembly = Assembly.GetEntryAssembly();
         var assemblies = assembly
@@ -97,25 +80,20 @@ public static class HotReload
             .Select(r => MetadataReference.CreateFromFile(r.Location));
     }
 
-    static void initWatcher()
+    void initWatcher()
     {
         watcher = new FileSystemWatcher(
             Environment.CurrentDirectory
         );
         watcher.IncludeSubdirectories = true;
         watcher.Filters.Add("*.cs");
-        watcher.Changed += (sender, e) =>
-        {
-            try
-            {
-                updateObjects(e.FullPath);
-            }
-            catch (Exception ex)
-            {
-                Verbose.Error(ex.Message);
-                Verbose.Error(ex.StackTrace);
-            }
-        };
+        watcher.Filters.Add("*.g.cs");
+
+        FileSystemEventHandler onChange = (sender, e) 
+            => updates++;
+
+        watcher.Created += onChange;
+        watcher.Changed += onChange;
         watcher.EnableRaisingEvents = true;
     }
 
@@ -139,4 +117,40 @@ public static class HotReload
                 yield return file;
         }
     }
+
+    public void Start()
+    {
+        running = true;
+
+        initWatcher();
+        int lastUpdates = 0;
+
+        while (running)
+        {
+            if (updates == 0)
+            {
+                Thread.Sleep(500);
+                signal.Set();
+                continue;
+            }
+            
+            if (updates > lastUpdates)
+            {
+                lastUpdates = updates;
+                Thread.Sleep(500);
+                signal.Set();
+                continue;
+            }
+            
+            updates = lastUpdates = 0;
+            updateObjects();
+            signal.Set();
+        }
+    }
+
+    public void Await()
+        => signal.WaitOne();
+
+    public void Finish()
+        => running = false;
 }

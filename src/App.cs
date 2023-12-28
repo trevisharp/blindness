@@ -19,30 +19,36 @@ public static class App
     {
         try
         {
-            if (Debug)
-            {
-                var implementer = new Implementer();
-                implementer.Implement();
-
-                HotReload.IsActive = true;
-            }
-
             model ??= new DefaultModel();
             DependencySystem.Reset(model);
 
             memory ??= new DefaultMemory();
             Memory.Reset(memory);
-
-            var app = DependencySystem
-                .Current.GetConcrete(typeof(T));
             
-            var realTime = new RealTimeElement<T>
+            if (Debug)
             {
-                ElementPointer = Memory.Current.Add(app),
+                var implementer = new Implementer();
+                implementer.Implement();
+            }
+            
+            var loopApp = new LoopNodeAppElement<T> {
                 Model = model
             };
+
+            if (Debug)
+            {
+                var chain = new ChainElement {
+                    Model = model,
+                    First = new HotReload(),
+                    Second = loopApp
+                };
+                model.Run(chain);
+            }
+            else
+            {
+                model.Run(loopApp);
+            }
             
-            model.Run(realTime);
             model.Start();
         }
         catch (Exception ex)
