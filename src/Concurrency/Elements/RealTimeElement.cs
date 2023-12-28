@@ -2,10 +2,13 @@ using System.Threading;
 
 namespace Blindness.Concurrency.Elements;
 
-public class RealTimeElement : IAsyncElement
+using States;
+using Exceptions;
+
+public class RealTimeElement<T> : IAsyncElement
 {
     public IAsyncModel Model { get; set; }
-    public IAsyncElement Element { get; set; }
+    public int ElementPointer { get; set; }
 
     bool running = false;
     AutoResetEvent signal = new(false);
@@ -21,8 +24,15 @@ public class RealTimeElement : IAsyncElement
         running = true;
         while (running)
         {
-            Model.Run(Element);
-            Element.Await();
+            var data = Memory.Current.Get<T>(ElementPointer);
+            if (data is IAsyncElement element)
+            {
+                Model.Run(element);
+                element.Await();
+                continue;
+            }
+
+            throw new NonAsyncElementException(typeof(T));
         }
     }
 }

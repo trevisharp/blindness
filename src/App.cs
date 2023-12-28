@@ -30,10 +30,10 @@ public static class App
 
             var app = DependencySystem
                 .Current.GetConcrete(typeof(T));
-
-            var realTime = new RealTimeElement
+            
+            var realTime = new RealTimeElement<T>
             {
-                Element = app,
+                ElementPointer = Memory.Current.Add(app),
                 Model = model
             };
             
