@@ -62,6 +62,7 @@ dotnet add package Blindness # Install Blindness
 
 # TODO (For the developer team)
 
+- Melhorar abstração do App para possibilitar customizações (crítico)
 - Criar documentação da tecnologia
 - Melhorar gerenciamento de memória e estruturas de dados internos
 - Flexibilizar geração de código
