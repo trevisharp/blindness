@@ -62,13 +62,11 @@ dotnet add package Blindness # Install Blindness
 
 # TODO (For the developer team)
 
-- Melhorar divisão do código
-- Melhorar tratamento de exceções
-- Aplicar sistema verbose
-- Flexibilizar controle do fluxo de execução
 - Criar documentação da tecnologia
 - Melhorar gerenciamento de memória e estruturas de dados internos
-- Criar sistema de eventos usando o sistema de binding
+- Flexibilizar geração de código
+- Melhorar validação 'needImplement'
+- Permitir geração de nós concretos em profundidade (a discutir)
 - Melhorar estrutura de Biding
   - Permitir binding functions (Bind |= x => operação(y))
   - Permitir vector binding (Bind |= x => list\[index\])

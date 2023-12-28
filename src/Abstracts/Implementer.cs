@@ -20,7 +20,8 @@ public class Implementer
 
     private bool needImplement()
     {
-        return Random.Shared.Next(2) == 0;
+        // Primary Strategy: Always implement on Debug
+        return true;
     }
 
     private void implements()

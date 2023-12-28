@@ -15,7 +15,7 @@ dotnet pack -c Release -o output
 cd ..
 
 cd smp
-cd sample2
+cd sample1
 dotnet remove package Blindess
 dotnet add package -s ..\..\src\output Blindness
 dotnet build

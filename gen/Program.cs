@@ -8,9 +8,13 @@ var csFiles = findCSharpFiles(dir);
 var interfaces = findAllInterfaces(csFiles);
 var nodes = getNodes(interfaces);
 
-System.Console.WriteLine("Generatig...");
+System.Console.WriteLine("Node Analyses:");
 foreach (var node in nodes)
     System.Console.WriteLine(node);
+
+// Primary Strategy: Always implement on Debug
+if (Directory.Exists("ConcreteNodes"))
+    Directory.Delete("ConcreteNodes");
 
 Interface[] getNodes(IEnumerable<Interface> interfaces)
 {
