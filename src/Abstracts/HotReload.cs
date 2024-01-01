@@ -139,8 +139,7 @@ public class HotReload : IAsyncElement
     {
         var files =
             Directory.GetFiles(directory)
-            .Where(file => file.EndsWith(".cs"))
-            .Where(d => !d.Contains("/obj/"));
+            .Where(file => file.EndsWith(".cs"));
         
         foreach (var file in files)
             yield return file;
@@ -150,6 +149,9 @@ public class HotReload : IAsyncElement
 
         foreach (var dir in directories)
         {
+            if (dir.EndsWith("obj") || dir.EndsWith("bin"))
+                continue;
+
             files = findCSharpFiles(dir);
             foreach (var file in files)
                 yield return file;

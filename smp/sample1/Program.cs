@@ -4,10 +4,6 @@ using System.Collections.Generic;
 
 using Blindness;
 
-#if !DEBUG
-App.Debug = false;
-#endif
-
 Verbose.VerboseLevel = 1000;
 App.StartWith<LoginScreen>();
 
