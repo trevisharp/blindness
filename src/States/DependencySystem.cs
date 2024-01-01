@@ -2,7 +2,6 @@
  * Date:    01/01/2024
  */
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -40,12 +39,6 @@ public class DependencySystem
         this.typeMap = new();
     }
 
-    public Type GetConcreteType(Type type)
-    {
-        var concreteType = findConcrete(type);
-        return concreteType;
-    }
-    
     /// <summary>
     /// Get a concrete object of a Node based on your type.
     /// </summary>
