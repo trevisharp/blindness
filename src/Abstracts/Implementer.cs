@@ -9,6 +9,8 @@ using System.Collections.Generic;
 
 namespace Blindness.Abstracts;
 
+using Internal;
+
 /// <summary>
 /// Code generator used to implement concrete nodes automatically.
 /// </summary>
@@ -24,26 +26,53 @@ public abstract class Implementer
     {
         Verbose.Info("Implementing Concrete Nodes...");
         var nodeTypes = getNodeType();
-
-        foreach (var node in nodeTypes)
-            implement(node);
-    }
-
-    private void implement(Type type)
-    {
         var dirPath = Path.Combine(
             Environment.CurrentDirectory,
             "ConcreteNodes"
         );
+        var cachePath = Path.Combine(
+            dirPath, ".cache"
+        );
+        
+        if (!Directory.Exists(dirPath))
+            Directory.CreateDirectory(dirPath);
+        
+        var dict = 
+            !File.Exists(cachePath) ?
+            new Dictionary<string, string>() :
+            File.ReadAllLines(cachePath)
+                .Select(line => line.Split(' '))
+                .ToDictionary(
+                    data => data[0],
+                    data => data[1]
+                );
+
+        foreach (var node in nodeTypes)
+            implement(dirPath, dict, node);
+        
+        File.WriteAllLines(
+            cachePath,
+            dict.Select(x => $"{x.Key} {x.Value}")
+        );
+    }
+
+    private void implement(
+        string dirPath,
+        Dictionary<string, string> cache,
+        Type type
+    )
+    {
         var filePath = Path.Combine(
             dirPath,
             $"{type.Name}Concrete.g.cs"
         );
-
-        if (!Directory.Exists(dirPath))
-            Directory.CreateDirectory(dirPath);
-
         var nodeCode = getCode(type, filePath);
+
+        var codeHash = nodeCode.ToHash();
+        if (cache.ContainsKey(filePath) && cache[filePath] == codeHash)
+            return;
+        
+        cache.Add(filePath, codeHash);
         File.WriteAllText(filePath, nodeCode);
     }
 
