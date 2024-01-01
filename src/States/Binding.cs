@@ -20,7 +20,6 @@ public class Binding
     Node node;
     int[] pointerMap;
     Func<string, int> fieldMap;
-    object parentRef;
     Type parentType;
     List<EventElement>[] eventMap;
 

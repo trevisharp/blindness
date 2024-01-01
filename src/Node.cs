@@ -23,7 +23,6 @@ public abstract class Node : IAsyncElement
 {
     private int signalCount = 0;
     private AutoResetEvent signal = new(false);
-    private bool running = true;
     private List<(Func<bool> pred, Action act)> whenList = new();
 
     public Binding Bind { get; set; }
@@ -50,6 +49,10 @@ public abstract class Node : IAsyncElement
         deps.Invoke(this, objs);
     }
 
+    /// <summary>
+    /// Field used to early stop Node.
+    /// </summary>
+    protected bool Running { get; set; } = true;
     protected internal virtual void OnLoad() { }
     protected internal virtual void OnRun() { }
 
@@ -58,7 +61,7 @@ public abstract class Node : IAsyncElement
     
     public void Start()
     {
-        this.running = true;
+        this.Running = true;
         OnRun();
         runWhenList();
 
@@ -75,7 +78,7 @@ public abstract class Node : IAsyncElement
     }
 
     public void Finish()
-        => running = false;
+        => Running = false;
     
     public void When(
         Func<bool> condition,
