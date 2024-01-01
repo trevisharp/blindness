@@ -27,6 +27,42 @@ public class HotReload : IAsyncElement
     private bool running = false;
     private AutoResetEvent signal = new(false);
 
+    public void Start()
+    {
+        running = true;
+
+        initWatcher();
+        int lastUpdates = 0;
+
+        while (running)
+        {
+            if (updates == 0)
+            {
+                Thread.Sleep(500);
+                signal.Set();
+                continue;
+            }
+            
+            if (updates > lastUpdates)
+            {
+                lastUpdates = updates;
+                Thread.Sleep(500);
+                signal.Set();
+                continue;
+            }
+            
+            updates = lastUpdates = 0;
+            updateObjects();
+            signal.Set();
+        }
+    }
+
+    public void Wait()
+        => signal.WaitOne();
+
+    public void Finish()
+        => running = false;
+    
     void updateObjects()
     {
         var assembly = updateAssembly();
@@ -99,7 +135,7 @@ public class HotReload : IAsyncElement
         watcher.EnableRaisingEvents = true;
     }
 
-    static IEnumerable<string> findCSharpFiles(string directory)
+    IEnumerable<string> findCSharpFiles(string directory)
     {
         var files =
             Directory.GetFiles(directory)
@@ -120,39 +156,4 @@ public class HotReload : IAsyncElement
         }
     }
 
-    public void Start()
-    {
-        running = true;
-
-        initWatcher();
-        int lastUpdates = 0;
-
-        while (running)
-        {
-            if (updates == 0)
-            {
-                Thread.Sleep(500);
-                signal.Set();
-                continue;
-            }
-            
-            if (updates > lastUpdates)
-            {
-                lastUpdates = updates;
-                Thread.Sleep(500);
-                signal.Set();
-                continue;
-            }
-            
-            updates = lastUpdates = 0;
-            updateObjects();
-            signal.Set();
-        }
-    }
-
-    public void Wait()
-        => signal.WaitOne();
-
-    public void Finish()
-        => running = false;
 }
