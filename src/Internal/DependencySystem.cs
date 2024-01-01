@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 using System.Linq;
 using System.Reflection;
@@ -8,33 +11,45 @@ namespace Blindness.Internal;
 using Exceptions;
 using Concurrency;
 
-internal class DependencySystem
+/// <summary>
+/// Dependency injection system.
+/// </summary>
+public class DependencySystem
 {
     private DependencySystem(IAsyncModel model)
         => this.model = model;
     private static DependencySystem crr = null;
     public static DependencySystem Current => crr;
 
-    internal static void Reset(IAsyncModel model)
+    /// <summary>
+    /// Reset a Dependency system sending a model used to init all nodes.
+    /// </summary>
+    public static void Reset(IAsyncModel model)
         => crr = new(model);
     
     private IAsyncModel model;
     private Assembly crrAssembly = null;
     private Dictionary<Type, Type> typeMap = new();
     
-    internal void UpdateAssembly(Assembly assembly)
+    /// <summary>
+    /// Update assembly type used to find concrete types.
+    /// </summary>
+    public void UpdateAssembly(Assembly assembly)
     {
         this.crrAssembly = assembly;
         this.typeMap = new();
     }
 
-    internal Type GetConcreteType(Type type)
+    public Type GetConcreteType(Type type)
     {
         var concreteType = findConcrete(type);
         return concreteType;
     }
-
-    internal Node GetConcrete(Type type)
+    
+    /// <summary>
+    /// Get a concrete object of a Node based on your type.
+    /// </summary>
+    public Node GetConcrete(Type type)
     {
         try
         {

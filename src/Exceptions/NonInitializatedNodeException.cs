@@ -1,7 +1,13 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 
 namespace Blindness.Exceptions;
 
+/// <summary>
+/// Represents a error that occurs on use of a non-initialized node.
+/// </summary>
 public class NonInitializatedNodeException : Exception
 {
     Type nodeType;

@@ -1,7 +1,15 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System.Threading;
 
 namespace Blindness.Concurrency.Elements;
 
+/// <summary>
+/// Run a first other element and a second other element.
+/// Reestart second other element every time that first element
+/// make a step operation.
+/// </summary>
 public class ReloadLoopElement : IAsyncElement
 {
     private AutoResetEvent signal = new(false);

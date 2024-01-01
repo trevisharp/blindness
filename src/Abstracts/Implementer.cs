@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 using System.IO;
 using System.Linq;
@@ -10,6 +13,9 @@ namespace Blindness.Abstracts;
 
 using Internal;
 
+/// <summary>
+/// Code generator used to implement concrete nodes automatically.
+/// </summary>
 public class Implementer
 {
     public void Implement()

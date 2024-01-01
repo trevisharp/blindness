@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 using System.Reflection;
 using System.Linq.Expressions;
@@ -9,6 +12,9 @@ using Internal;
 using Exceptions;
 using Concurrency.Elements;
 
+/// <summary>
+/// Binding object no manage states.
+/// </summary>
 public class Binding
 {
     Node node;
@@ -32,6 +38,9 @@ public class Binding
         this.parentType = parentType;
     }
     
+    /// <summary>
+    /// Get a value based on the code of the field.
+    /// </summary>
     public T Get<T>(int fieldCode)
     {
         var pointer = GetBind(fieldCode);
@@ -42,6 +51,9 @@ public class Binding
         return Memory.Current.Get<T>(pointer);
     }
 
+    /// <summary>
+    /// Set a value based on the code of the field.
+    /// </summary>
     public void Set<T>(int fieldCode, T value)
     {
         if (fieldCode < 0 || fieldCode >= pointerMap.Length)

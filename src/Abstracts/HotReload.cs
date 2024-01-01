@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 using System.IO;
 using System.Linq;
@@ -14,6 +17,9 @@ using States;
 using Internal;
 using Concurrency;
 
+/// <summary>
+/// HotReload system.
+/// </summary>
 public class HotReload : IAsyncElement
 {
     private FileSystemWatcher watcher;

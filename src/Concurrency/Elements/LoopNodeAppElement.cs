@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System.Threading;
 
 namespace Blindness.Concurrency.Elements;
@@ -6,6 +9,9 @@ using States;
 using Internal;
 using Exceptions;
 
+/// <summary>
+/// Loop a specific node.
+/// </summary>
 public class LoopNodeAppElement<T> : IAsyncElement
 {
     public IAsyncModel Model { get; set; }

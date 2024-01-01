@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System.Linq;
 using System.Collections.Generic;
 
@@ -7,6 +10,9 @@ using Internal;
 using Exceptions;
 using Concurrency.Elements;
 
+/// <summary>
+/// A memory abstraction to provide binding features.
+/// </summary>
 public class Memory
 {
     private IMemoryBehaviour behaviour;
@@ -17,6 +23,9 @@ public class Memory
     
     Dictionary<int, List<PointerListner>> eventDict = new();
 
+    /// <summary>
+    /// Add a event to listen a specific memory address.
+    /// </summary>
     public void AddPointerListner(int pointer, EventElement element)
     {
         if (!eventDict.ContainsKey(pointer))
@@ -38,6 +47,9 @@ public class Memory
         });
     }
 
+    /// <summary>
+    /// Remove a specific event from a memory address.
+    /// </summary>
     public void RemovePointerListner(int pointer, EventElement element)
     {
         if (pointer == -1)
@@ -62,9 +74,15 @@ public class Memory
             eventDict.Remove(pointer);
     }
 
+    /// <summary>
+    /// Reset memory with a specific memory implementation
+    /// </summary>
     public static void Reset(IMemoryBehaviour behaviour)
         => crr = new(behaviour);
 
+    /// <summary>
+    /// Add a object to memory and receive your memory address.
+    /// </summary>
     public int Add(object obj)
     {
         if (this.behaviour is null)
@@ -73,9 +91,15 @@ public class Memory
         return this.behaviour.Add(obj);
     }
 
+    /// <summary>
+    /// Get an object of type T at a memory address.
+    /// </summary>
     public T Get<T>(int pointer)
         => (T)GetObject(pointer);
 
+    /// <summary>
+    /// Get an object at a memory address.
+    /// </summary>
     public object GetObject(int pointer)
     {
         if (this.behaviour is null)
@@ -84,6 +108,9 @@ public class Memory
         return this.behaviour.Get(pointer);
     }
 
+    /// <summary>
+    /// Set an object at a memory address with type T.
+    /// </summary>
     public void Set<T>(int pointer, T value)
     {
         if (this.behaviour is null)
@@ -103,6 +130,9 @@ public class Memory
             item?.EventObject?.Awake();
     }
 
+    /// <summary>
+    /// Reload all nodes using dependency injection system.
+    /// </summary>
     public void Reload()
     {
         this.behaviour.Reload(obj =>

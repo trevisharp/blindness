@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 using System.Linq;
 using System.Threading;
@@ -12,6 +15,10 @@ using Internal;
 using Concurrency;
 using Concurrency.Elements;
 
+/// <summary>
+/// A base class for all concrete nodes.
+/// Used by code generator
+/// </summary>
 public abstract class Node : IAsyncElement
 {
     private int signalCount = 0;

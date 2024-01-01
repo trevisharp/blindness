@@ -1,8 +1,14 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 using System.Collections.Generic;
 
 namespace Blindness.States;
 
+/// <summary>
+/// Default implementation of memory.
+/// </summary>
 public class DefaultMemory : IMemoryBehaviour
 { 
     List<object> data = new List<object>();

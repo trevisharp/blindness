@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 
 namespace Blindness;
@@ -8,6 +11,9 @@ using Abstracts;
 using Concurrency;
 using Concurrency.Elements;
 
+/// <summary>
+/// Base class for start a application
+/// </summary>
 public static class App
 {
     public static bool Debug { get; set; } = true;

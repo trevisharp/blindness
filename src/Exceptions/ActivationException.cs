@@ -1,7 +1,13 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 
 namespace Blindness.Exceptions;
 
+/// <summary>
+/// Represents error that occurs during instantiation of a Node.
+/// </summary>
 public class ActivatorException : Exception
 {
     Exception inner;

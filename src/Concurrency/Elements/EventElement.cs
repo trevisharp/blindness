@@ -1,8 +1,14 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 using System.Threading;
 
 namespace Blindness.Concurrency.Elements;
 
+/// <summary>
+/// Represents a event used to listen memory addresses.
+/// </summary>
 public class EventElement : IAsyncElement
 {
     bool value;

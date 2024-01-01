@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    01/01/2024
+ */
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -5,6 +8,9 @@ using System.Collections.Concurrent;
 
 namespace Blindness.Concurrency;
 
+/// <summary>
+/// Default Model used in application.
+/// </summary>
 public class DefaultModel : IAsyncModel
 {
     bool isRunning = false;
