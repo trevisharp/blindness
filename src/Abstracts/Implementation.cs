@@ -13,8 +13,6 @@ namespace Blindness.Abstracts;
 /// </summary>
 public abstract class Implementation
 {
-    public bool ExtraFile { get; set; } = false;
-
     public abstract void ImplementType(
         ClassBuilder builder,
         string fileName, Type baseInterface,

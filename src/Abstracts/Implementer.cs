@@ -18,24 +18,32 @@ public abstract class Implementer
 {
     public Type BaseConcreteType { get; set; }
     public List<Implementation> Implementations { get; private set; } = new();
+    public List<ExtraFile> ExtraFiles { get; private set; } = new();
 
     /// <summary>
     /// Try implement if needed.
     /// </summary>
     public void Implement()
     {
-        Verbose.Info("Implementing Concrete Nodes...");
+        Verbose.Info("Generating Files...");
         var nodeTypes = getNodeType();
-        var dirPath = Path.Combine(
+        var nonConstDir = Path.Combine(
             Environment.CurrentDirectory,
-            "ConcreteNodes"
+            "NonConstantGeneratedFiles"
+        );
+        var ConstDir = Path.Combine(
+            Environment.CurrentDirectory,
+            "ConstantGeneratedFiles"
         );
         var cachePath = Path.Combine(
-            dirPath, ".cache"
+            nonConstDir, ".cache"
         );
         
-        if (!Directory.Exists(dirPath))
-            Directory.CreateDirectory(dirPath);
+        if (!Directory.Exists(nonConstDir))
+            Directory.CreateDirectory(nonConstDir);
+        
+        if (!Directory.Exists(ConstDir) && ExtraFiles.Exists(e => e.Constant))
+            Directory.CreateDirectory(ConstDir);
         
         var dict = 
             !File.Exists(cachePath) ?
@@ -48,7 +56,23 @@ public abstract class Implementer
                 );
 
         foreach (var node in nodeTypes)
-            implement(dirPath, dict, node);
+            implement(nonConstDir, dict, node);
+            
+        foreach (var extraFile in this.ExtraFiles)
+        {
+            var path = Path.Combine(
+                extraFile.Constant ? ConstDir : nonConstDir, 
+                extraFile.FileName
+            );
+
+            if (extraFile.Constant && File.Exists(path))
+                continue;
+            var content = extraFile.Get();
+
+            if (dict.ContainsKey(path) && dict[path] == content.ToHash())
+                continue;
+            File.WriteAllText(path, content);
+        }
         
         File.WriteAllLines(
             cachePath,
