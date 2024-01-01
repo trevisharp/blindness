@@ -23,11 +23,12 @@ dotnet add package Blindness # Install Blindness
 
 # Versions
 
-### Blindness v1.1.0 (Coming soon)
+### Blindness v2.0.0 (Coming soon)
 
  - ![](https://img.shields.io/badge/update-blue) Comments and documentation improvements. 
  - ![](https://img.shields.io/badge/update-blue) Improvement in customization of Code Generation System.
-  - ![](https://img.shields.io/badge/update-blue) Geral improvements in HotReload System.
+ - ![](https://img.shields.io/badge/update-blue) Geral improvements in HotReload System.
+ - ![](https://img.shields.io/badge/update-blue) Customization system for general App.
 
 ### Blindness v1.0.0 (Coming soon)
 
@@ -62,11 +63,8 @@ dotnet add package Blindness # Install Blindness
 
 # TODO (For the developer team)
 
-- Melhorar abstração do App para possibilitar customizações (crítico)
 - Criar documentação da tecnologia
 - Melhorar gerenciamento de memória e estruturas de dados internos
-- Flexibilizar geração de código
-- Melhorar validação 'needImplement'
 - Permitir geração de nós concretos em profundidade (a discutir)
 - Melhorar estrutura de Biding
   - Permitir binding functions (Bind |= x => operação(y))
