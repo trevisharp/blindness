@@ -39,20 +39,18 @@ public static class App
             var loopApp = new LoopNodeAppElement<T> {
                 Model = model
             };
+            
+            var chain = new ReloadLoopElement {
+                Model = model,
+                First = new HotReload(),
+                Second = loopApp
+            };
 
-            if (Debug)
-            {
-                var chain = new ReloadLoopElement {
-                    Model = model,
-                    First = new HotReload(),
-                    Second = loopApp
-                };
-                model.Run(chain);
-            }
-            else
-            {
-                model.Run(loopApp);
-            }
+            model.Run(
+                Debug ?
+                chain :
+                loopApp
+            );
             
             model.OnError += (el, er) =>
             {

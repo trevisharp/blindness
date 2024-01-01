@@ -52,7 +52,7 @@ public class ClassBuilder
         return this;
     }
 
-    public ClassBuilder AddCode(string code)
+    public ClassBuilder AddLineCode(string code)
     {
         if (code is null)
             return this;

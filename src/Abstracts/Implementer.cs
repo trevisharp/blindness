@@ -4,9 +4,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Reflection;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace Blindness.Abstracts;
@@ -49,142 +47,22 @@ public abstract class Implementer
         File.WriteAllText(filePath, nodeCode);
     }
 
-    private string getCode(Type type, string fileName)
+    private string getCode(Type baseInterface, string fileName)
     {
         ClassBuilder builder = new ClassBuilder();
+        var properties = getInterfaceProperties(baseInterface);
+        var methods = getIntefaceMethods(baseInterface);
 
-        StringBuilder fieldsMapCode = new();
-        StringBuilder fieldsCode = new();
-        StringBuilder methodsCode = new();
-
-        var props = getInterfaceProperties(type);
-        int fieldCount = props.Count;
-
-        var methods = getIntefaceMethods(type);
-
-        var deps = methods
-            .FirstOrDefault(m => m.Name == "Deps");
-        if (deps is not null)
+        foreach (var implementation in this.Implementations)
         {
-            var parameters = deps.GetParameters();
-            methodsCode.AppendLine("public void Deps(");
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                var parameter = parameters[i];
-                methodsCode.Append(
-                    $"\t{parameter.ParameterType.Name} {parameter.Name}"
-                );
-                if (i < parameters.Length - 1)
-                    methodsCode.Append(",");
-                methodsCode.AppendLine();
-            }
-            methodsCode.AppendLine(")");
-            methodsCode.AppendLine("{");
-            
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                var parameter = parameters[i];
-                methodsCode.AppendLine(
-                    $"this.{parameter.Name} = {parameter.Name};"
-                );
-            }
-            methodsCode.AppendLine("}");
-
-            methods.Remove(deps);
-        }
-        
-        var onLoad = methods
-            .FirstOrDefault(m => m.Name == "OnLoad");
-        if (onLoad is not null)
-        {
-            methodsCode.AppendLine(
-                $$"""
-                protected override void OnLoad()
-                {
-                    (({{type.Name}})this).OnLoad();
-                }
-                """
+            implementation.ImplementType(
+                builder,
+                fileName, baseInterface,
+                properties, methods
             );
-            methods.Remove(onLoad);
-        }
-        
-        var onRun = methods
-            .FirstOrDefault(m => m.Name == "OnRun");
-        if (onRun is not null)
-        {
-            methodsCode.AppendLine(
-                $$"""
-                protected override void OnRun()
-                {
-                    (({{type.Name}})this).OnRun();
-                }
-                """
-            );
-            methods.Remove(onRun);
         }
 
-        for (int i = 0; i < props.Count; i++)
-        {
-            var prop = props[i];
-            fieldsMapCode.AppendLine(
-                $"\t\t\t\t\"{prop.Name}\" => {i},"
-            );
-
-            var typeName = arrangeTypeName(prop.PropertyType);
-            fieldsCode.AppendLine(
-                $"\tpublic {typeName} {prop.Name}"
-            );
-            fieldsCode.AppendLine("\t{");
-            fieldsCode.AppendLine(
-                $"\t\tget => Bind.Get<{typeName}>({i});"
-            );
-            fieldsCode.AppendLine(
-                $"\t\tset => Bind.Set({i}, value);"
-            );
-            fieldsCode.AppendLine("\t}");
-        }
-        fieldsMapCode.Append("\t\t\t\t_ => -1");
-        
-        return
-        $$"""
-        using System;
-        using System.Reflection;
-        using System.Collections.Generic;
-
-        using Blindness;
-        using Blindness.States;
-
-        [Concrete]
-        public class {{type.Name}}Concrete : {{BaseConcreteType.Name}}, {{type.Name}}
-        {
-            public {{type.Name}}Concrete() =>
-                this.Bind = new Binding(
-                    this, {{fieldCount}}, typeof({{type.Name}}),
-                    s => s switch
-                    {
-        {{fieldsMapCode}}
-                    }
-                );
-
-        {{fieldsCode}}
-
-        {{methodsCode}}
-        }
-        """;
-    }
-
-    private string arrangeTypeName(Type type)
-    {
-        var genericParams = type.GetGenericArguments();
-        if (genericParams.Length == 0)
-            return type.Name;
-
-        var name = type.GetGenericTypeDefinition().Name;
-
-        return type.Name.Replace("`1", "") 
-            + "<" + string.Join(",",
-                genericParams.Select(p => p.Name)
-            ) + ">";
+        return builder.Build();
     }
 
     private List<MethodInfo> getIntefaceMethods(Type type)

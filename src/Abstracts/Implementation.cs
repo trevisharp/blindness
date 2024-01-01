@@ -2,7 +2,7 @@
  * Date:    01/01/2024
  */
 using System;
-using System.Text;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -14,9 +14,23 @@ namespace Blindness.Abstracts;
 public abstract class Implementation
 {
     public abstract void ImplementType(
+        ClassBuilder builder,
         string fileName, Type baseInterface,
-        IEnumerable<PropertyInfo> properties,
-        IEnumerable<MethodInfo> methods,
-        StringBuilder a
+        List<PropertyInfo> properties,
+        List<MethodInfo> methods
     );
+
+    protected string ArrangeTypeName(Type type)
+    {
+        var genericParams = type.GetGenericArguments();
+        if (genericParams.Length == 0)
+            return type.Name;
+
+        var name = type.GetGenericTypeDefinition().Name;
+
+        return type.Name.Replace("`1", "") 
+            + "<" + string.Join(",",
+                genericParams.Select(p => p.Name)
+            ) + ">";
+    }
 }
