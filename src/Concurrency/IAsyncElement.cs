@@ -16,7 +16,7 @@ public interface IAsyncElement
     /// <summary>
     /// Stop current thread to wait the element complete a operation step.
     /// </summary>
-    void Await();
+    void Wait();
 
     /// <summary>
     /// Stop the element.

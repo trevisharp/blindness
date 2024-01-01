@@ -67,7 +67,7 @@ public abstract class Node : IAsyncElement
         signal.Set();
     }
 
-    public void Await()
+    public void Wait()
     {
         signalCount++;
         signal.WaitOne();

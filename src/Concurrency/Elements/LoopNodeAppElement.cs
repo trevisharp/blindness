@@ -20,7 +20,7 @@ public class LoopNodeAppElement<T> : IAsyncElement
     bool running = false;
     AutoResetEvent signal = new(false);
 
-    public void Await()
+    public void Wait()
         => signal.WaitOne();
 
     public void Finish()

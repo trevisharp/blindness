@@ -150,7 +150,7 @@ public class HotReload : IAsyncElement
         }
     }
 
-    public void Await()
+    public void Wait()
         => signal.WaitOne();
 
     public void Finish()

@@ -33,7 +33,7 @@ public class EventElement : IAsyncElement
     public void Awake()
         => signal.Set();
 
-    public void Await()
+    public void Wait()
         => signal.WaitOne();
 
     public void Finish()

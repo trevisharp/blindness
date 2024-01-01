@@ -18,7 +18,7 @@ public class ReloadLoopElement : IAsyncElement
     public IAsyncElement First { get; set; }
     public IAsyncElement Second { get; set; }
 
-    public void Await() { }
+    public void Wait() { }
 
     public void Finish()
         => signal.Set();
@@ -30,7 +30,7 @@ public class ReloadLoopElement : IAsyncElement
             if (el != Second)
                 return;
             
-            First.Await();
+            First.Wait();
             Model.Run(Second);
         };
 
