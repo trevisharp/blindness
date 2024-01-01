@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <None Include="buildTransitive\*.*" PackagePath="buildTransitive" Pack="true" />
-    <None Include="buildTransitive\**\*.*" PackagePath="buildTransitive" Pack="true" />
   </ItemGroup>
 
   <ItemGroup>
