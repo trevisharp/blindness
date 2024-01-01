@@ -23,7 +23,7 @@ dotnet add package Blindness # Install Blindness
 
 # Versions
 
-### Blindness v2.0.0 (Coming soon)
+### Blindness v2.0.0
 
  - ![](https://img.shields.io/badge/update-blue) Comments and documentation improvements. 
  - ![](https://img.shields.io/badge/update-blue) Improvement in customization of Code Generation System.
