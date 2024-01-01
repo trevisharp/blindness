@@ -20,7 +20,8 @@ public static class App
 
     public static void StartWith<T>(
         IAsyncModel model = null,
-        IMemoryBehaviour memory = null
+        IMemoryBehaviour memory = null,
+        Implementer implementer = null
     ) where T : INode
     {
         try
@@ -30,12 +31,10 @@ public static class App
 
             memory ??= new DefaultMemory();
             Memory.Reset(memory);
-            
+
+            implementer ??= new DefaultImplementer();
             if (Debug)
-            {
-                var implementer = new Implementer();
                 implementer.Implement();
-            }
             
             var loopApp = new LoopNodeAppElement<T> {
                 Model = model

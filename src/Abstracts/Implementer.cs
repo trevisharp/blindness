@@ -11,26 +11,18 @@ using System.Collections.Generic;
 
 namespace Blindness.Abstracts;
 
-using Internal;
-
 /// <summary>
 /// Code generator used to implement concrete nodes automatically.
 /// </summary>
-public class Implementer
+public abstract class Implementer
 {
+    public Type BaseConcreteType { get; set; }
+    public List<Implementation> Implementations { get; private set; } = new();
+
+    /// <summary>
+    /// Try implement if needed.
+    /// </summary>
     public void Implement()
-    {
-        if (needImplement())
-            implements();
-    }
-
-    private bool needImplement()
-    {
-        // Primary Strategy: Always implement on Debug
-        return true;
-    }
-
-    private void implements()
     {
         Verbose.Info("Implementing Concrete Nodes...");
         var nodeTypes = getNodeType();
@@ -38,7 +30,7 @@ public class Implementer
         foreach (var node in nodeTypes)
             implement(node);
     }
-    
+
     private void implement(Type type)
     {
         var dirPath = Path.Combine(
@@ -59,7 +51,8 @@ public class Implementer
 
     private string getCode(Type type, string fileName)
     {
-        var code = fileName.ToHash();
+        ClassBuilder builder = new ClassBuilder();
+
         StringBuilder fieldsMapCode = new();
         StringBuilder fieldsCode = new();
         StringBuilder methodsCode = new();
@@ -162,7 +155,7 @@ public class Implementer
         using Blindness.States;
 
         [Concrete]
-        public class {{type.Name}}Concrete : Node, {{type.Name}}
+        public class {{type.Name}}Concrete : {{BaseConcreteType.Name}}, {{type.Name}}
         {
             public {{type.Name}}Concrete() =>
                 this.Bind = new Binding(
@@ -292,31 +285,5 @@ public class Implementer
         }
         
         return interfaces;
-    }
-
-    private void execute(string filename, string args = "")
-    {
-        var info = new ProcessStartInfo {
-            FileName = filename,
-            Arguments = args,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = false
-        };
-
-        var process = new Process {
-            StartInfo = info
-        };
-
-        process.ErrorDataReceived += (o, e) =>
-            Verbose.Error(e.Data, 1);
-        process.OutputDataReceived += (o, e) =>
-            Verbose.Content(e.Data, 1);
-
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        process.WaitForExit();
     }
 }
