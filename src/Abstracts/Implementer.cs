@@ -69,10 +69,11 @@ public abstract class Implementer
         var nodeCode = getCode(type, filePath);
 
         var codeHash = nodeCode.ToHash();
-        if (cache.ContainsKey(filePath) && cache[filePath] == codeHash)
+        bool hasKey = cache.ContainsKey(filePath);
+        if (hasKey && cache[filePath] == codeHash)
             return;
         
-        cache.Add(filePath, codeHash);
+        cache[filePath] = codeHash;
         File.WriteAllText(filePath, nodeCode);
     }
 

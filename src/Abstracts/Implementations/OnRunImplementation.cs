@@ -28,9 +28,7 @@ public class OnRunImplementation : Implementation
         builder.AddLineCode(
             $$"""
             protected override void OnRun()
-            {
-                (({{baseInterface.Name}})this).OnRun();
-            }
+                => (({{baseInterface.Name}})this).OnRun();
             """
         );
         methods.Remove(onRun);

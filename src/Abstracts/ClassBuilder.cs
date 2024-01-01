@@ -57,7 +57,8 @@ public class ClassBuilder
         if (code is null)
             return this;
         
-        code = code.Replace("\r", "")
+        code = tabInfo + code
+            .Replace("\r", "")
             .Replace("\n", "\n" + tabInfo);
         classCode.AppendLine(code);
         return this;
@@ -74,7 +75,7 @@ public class ClassBuilder
         if (tabInfo.Length == 0)
             return this;
         
-        tabInfo = tabInfo.Remove(0);
+        tabInfo = tabInfo.Remove(0, 1);
         return this;
     }
 
@@ -92,7 +93,7 @@ public class ClassBuilder
             basesCode.Append(baseTypes[i]);
             basesCode.Append(", ");
         }
-        basesCode.Append(basesCode[^1]);
+        basesCode.Append(baseTypes[^1]);
 
         StringBuilder attributeCode = new();
         foreach (var attribute in attributes)
@@ -101,9 +102,7 @@ public class ClassBuilder
         return
         $$"""
         {{usingsCode}}
-
-        {{attributeCode}}
-        public class {{className}}{{basesCode}}
+        {{attributeCode}}public class {{className}}{{basesCode}}
         {
         {{classCode}}
         }

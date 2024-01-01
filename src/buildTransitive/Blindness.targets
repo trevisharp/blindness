@@ -1,10 +1,16 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" InitialTargets="AnalyzeNodes">
-    <ItemGroup>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<!-- <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" InitialTargets="AnalyzeNodes"> -->
+    <!-- <ItemGroup>
         <MeuGeradorDeCodigoExecutable Include="$(MSBuildThisFileDirectory)tools\CodeGenerator.exe" />
     </ItemGroup>
 
     <Target Name="AnalyzeNodes">
         <Message Text="Running Blindness Node Analyzer..." Importance="High"/>
         <Exec Command="@(MeuGeradorDeCodigoExecutable)" />
-    </Target>
+    </Target> -->
+
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+        <Compile Remove="ConcreteNodes\**\*" />
+    </ItemGroup>
+
 </Project>

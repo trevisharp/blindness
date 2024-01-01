@@ -19,9 +19,9 @@ public class DefaultPropertyImplementation : Implementation
         List<MethodInfo> methods
     )
     {
-        for (int i = 0; i < properties.Count; i++)
+        for (int i = 0; properties.Count > 0; i++)
         {
-            var prop = properties[i];
+            var prop = properties[0];
             var typeName = ArrangeTypeName(prop.PropertyType);
             builder
                 .AddLineCode($"public {typeName} {prop.Name}")
