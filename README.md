@@ -8,7 +8,13 @@ Blindness is a framework for you to build your frameworks without seeing the det
 
  - [Overview](#overview)
  - [How to install](#how-to-install)
+ - [Features](#features)
  - [Versions](#versions)
+ - [Next Features](#next-features)
+
+# Features
+
+Coming soon...
 
 # Overview
 
@@ -50,23 +56,23 @@ dotnet add package Blindness # Install Blindness
 
  - ![](https://img.shields.io/badge/new-green) Basic flow control system.
  - ![](https://img.shields.io/badge/new-green) Verbose and exception system.
- - ![](https://img.shields.io/badge/bug%20solved-red) Many Bugs solved in field initialization.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Many Bugs solved in field initialization.
 
 ### Blindness v0.2.0
 
  - ![](https://img.shields.io/badge/update-blue) Node creation systax changed to use interfaces.
  - ![](https://img.shields.io/badge/new-green) Dependency Injection System added.
- - ![](https://img.shields.io/badge/bug%20solved-red) Many Bugs solved in Binding System.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Many Bugs solved in Binding System.
 
 ### Blindness v0.1.0
 
  - ![](https://img.shields.io/badge/new-green) Binding System added.
 
-# TODO (For the developer team)
+# Next Features
 
-- Criar documentação da tecnologia
-- Melhorar gerenciamento de memória e estruturas de dados internos
-- Permitir geração de nós concretos em profundidade (a discutir)
-- Melhorar estrutura de Biding
-  - Permitir binding functions (Bind |= x => operação(y))
-  - Permitir vector binding (Bind |= x => list\[index\])
+- Improve documentation
+- Improve memory management and internal data structures
+- Allow deep concrete node generating(to discuss)
+- Improve binding:
+  - Allow binding functions (Bind |= x => operação(y))
+  - Allow vector binding (Bind |= x => list\[index\])
