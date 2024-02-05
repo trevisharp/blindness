@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace Blindness.States;
 
+using Internal;
 using Exceptions;
 using Concurrency;
 
