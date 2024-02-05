@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Blindness.Internal;
 
-public static class TypeExtension
+internal static class TypeExtension
 {
     public static bool Implements(this Type type, Type baseType)
     {

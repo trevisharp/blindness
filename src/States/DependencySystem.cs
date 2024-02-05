@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness.Internal;
+namespace Blindness.States;
 
 using Exceptions;
 using Concurrency;
