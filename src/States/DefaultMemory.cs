@@ -3,6 +3,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Blindness.States;
 
@@ -10,13 +11,17 @@ namespace Blindness.States;
 /// Default implementation of memory.
 /// </summary>
 public class DefaultMemory : IMemoryBehaviour
-{ 
-    List<object> data = new List<object>();
+{
+    int nextIndex = 0;
+    int nextVectorIndex = vectorLen;
+    const int vectorLen = 64;
+    LinkedList<object[]> data = new();
 
     public int Add(object obj)
     {
-        data.Add(obj);
-        var newIndex = data.Count - 1;
+        add(obj);
+        var newIndex = nextIndex;
+        nextIndex++;
 
         if (obj is Node node)
             node.MemoryLocation = newIndex;
@@ -24,22 +29,33 @@ public class DefaultMemory : IMemoryBehaviour
         return newIndex;
     }
 
-    public object Get(int index)
+    public object Get(int pointer)
     {
-        var obj = data[index];
-        return obj;
+        var bucket = getBucket(ref pointer);
+        return bucket[pointer];
     }
 
-    public void Set(int index, object value)
+    public void Set(int pointer, object value)
     {
-        lock (data[index])
+        var bucket = getBucket(ref pointer);
+        lock (bucket)
         {
-            data[index] = value;
+            bucket[pointer] = value;
         }
     }
 
     public int Find(object value)
     {
+        var it = data.First;
+        int pointer = 0;
+        while (it is not null)
+        {
+            var bucket = it.Value;
+            for (int i = 0; i < vectorLen; i++, pointer++)
+                if (bucket[i] == value)
+                    return pointer;
+        }
+
         return -1;
     }
     
@@ -47,8 +63,49 @@ public class DefaultMemory : IMemoryBehaviour
     {
         lock (data)
         {
-            for (int i = 0; i < data.Count; i++)
-                data[i] = func(data[i]);
+            var it = data.First;
+            var bucket = it.Value;
+            for (int i = 0; i < nextIndex; i++)
+            {
+                int index = i % vectorLen;
+                bucket[index] = func(bucket[index]);
+
+                if (i % vectorLen < vectorLen - 1)
+                    continue;
+                
+                it = it.Next;
+                bucket = it.Value;
+            }
         }
+    }
+
+    void add(object obj)
+    {
+        var bucket = getCurrentBucket();
+        bucket[nextVectorIndex] = obj;
+        nextVectorIndex++;
+    }
+
+    object[] getCurrentBucket()
+    {
+        if (nextVectorIndex < vectorLen)
+            return data.Last.Value;
+        
+        nextVectorIndex = 0;
+        var newArray = new object[vectorLen];
+        data.AddLast(newArray);
+        return newArray;
+    }
+
+    object[] getBucket(ref int pointer)
+    {
+        var node = data.First;
+        while (pointer > vectorLen)
+        {
+            node = node.Next;
+            pointer -= vectorLen;
+        }
+        
+        return node.Value;
     }
 }

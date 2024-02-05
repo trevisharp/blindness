@@ -21,7 +21,7 @@ public interface IMemoryBehaviour
     object Get(int address);
 
     /// <summary>
-    /// Find the pointer of 
+    /// Find the pointer of a object.
     /// </summary>
     int Find(object obj);
 
