@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    05/02/2024
  */
 using System;
 using System.Collections.Generic;
@@ -36,6 +36,11 @@ public class DefaultMemory : IMemoryBehaviour
         {
             data[index] = value;
         }
+    }
+
+    public int Find(object value)
+    {
+        return -1;
     }
     
     public void Reload(Func<object, object> func)

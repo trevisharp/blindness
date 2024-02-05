@@ -21,6 +21,11 @@ public interface IMemoryBehaviour
     object Get(int address);
 
     /// <summary>
+    /// Find the pointer of 
+    /// </summary>
+    int Find(object obj);
+
+    /// <summary>
     /// Set an object at a memory address.
     /// </summary>
     void Set(int address, object value);

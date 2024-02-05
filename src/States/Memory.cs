@@ -96,6 +96,14 @@ public class Memory
     /// </summary>
     public T Get<T>(int pointer)
         => (T)GetObject(pointer);
+    
+    public int Find(object obj)
+    {
+        if (this.behaviour is null)
+            throw new MemoryBehaviourNotDefined();
+        
+        return this.behaviour.Find(obj);
+    }
 
     /// <summary>
     /// Get an object at a memory address.
