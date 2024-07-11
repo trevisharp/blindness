@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
 using System;
 using System.Linq;
@@ -19,8 +19,8 @@ public abstract class Implementation
         List<PropertyInfo> properties,
         List<MethodInfo> methods
     );
-
-    protected string ArrangeTypeName(Type type)
+    
+    protected static string ArrangeGenericTypeName(Type type)
     {
         var genericParams = type.GetGenericArguments();
         if (genericParams.Length == 0)

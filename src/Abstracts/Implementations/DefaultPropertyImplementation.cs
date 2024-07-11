@@ -22,7 +22,7 @@ public class DefaultPropertyImplementation : Implementation
         for (int i = 0; properties.Count > 0; i++)
         {
             var prop = properties[0];
-            var typeName = ArrangeTypeName(prop.PropertyType);
+            var typeName = ArrangeGenericTypeName(prop.PropertyType);
             builder
                 .AddLineCode($"public {typeName} {prop.Name}")
                 .AddLineCode("{")

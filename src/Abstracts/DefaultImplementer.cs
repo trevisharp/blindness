@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
 namespace Blindness.Abstracts;
 
@@ -12,13 +12,15 @@ public class DefaultImplementer : Implementer
 {
     public DefaultImplementer()
     {
-        this.BaseConcreteType = typeof(Node);
-        this.Implementations.Add(new ConstructorImplementation());
-        this.Implementations.Add(new ConcreteImplementation());
-        this.Implementations.Add(new DefaultUsingsImplementation());
-        this.Implementations.Add(new DepsImplementation());
-        this.Implementations.Add(new OnLoadImplementation());
-        this.Implementations.Add(new OnRunImplementation());
-        this.Implementations.Add(new DefaultPropertyImplementation());
+        BaseConcreteType = typeof(Node);
+        Implementations = [
+            new ConstructorImplementation(),
+            new ConcreteImplementation(),
+            new DefaultUsingsImplementation(),
+            new DepsImplementation(),
+            new OnLoadImplementation(),
+            new OnRunImplementation(),
+            new DefaultPropertyImplementation()
+        ];
     }
 }

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
 using System;
 using System.IO;
@@ -17,8 +17,8 @@ using Internal;
 public abstract class Implementer
 {
     public Type BaseConcreteType { get; set; }
-    public List<Implementation> Implementations { get; private set; } = new();
-    public List<ExtraFile> ExtraFiles { get; private set; } = new();
+    public List<Implementation> Implementations { get; set; }
+    public List<ExtraFile> ExtraFiles { get; set; }
 
     /// <summary>
     /// Try implement if needed.
@@ -26,7 +26,8 @@ public abstract class Implementer
     public void Implement()
     {
         Verbose.Info("Generating Files...");
-        var nodeTypes = getNodeType();
+        var assembly = Assembly.GetEntryAssembly();
+        var nodeTypes = FindValidNodeType(assembly);
         var nonConstDir = Path.Combine(
             Environment.CurrentDirectory,
             "NonConstantGeneratedFiles"
@@ -42,12 +43,11 @@ public abstract class Implementer
         if (!Directory.Exists(nonConstDir))
             Directory.CreateDirectory(nonConstDir);
         
-        if (!Directory.Exists(ConstDir) && ExtraFiles.Exists(e => e.Constant))
+        if (!Directory.Exists(ConstDir) && (ExtraFiles?.Exists(e => e.Constant) ?? false))
             Directory.CreateDirectory(ConstDir);
         
         var dict = 
-            !File.Exists(cachePath) ?
-            new Dictionary<string, string>() :
+            !File.Exists(cachePath) ? [] :
             File.ReadAllLines(cachePath)
                 .Select(line => line.Split(' '))
                 .ToDictionary(
@@ -56,9 +56,9 @@ public abstract class Implementer
                 );
 
         foreach (var node in nodeTypes)
-            implement(nonConstDir, dict, node);
+            Implement(nonConstDir, node, dict);
             
-        foreach (var extraFile in this.ExtraFiles)
+        foreach (var extraFile in ExtraFiles ?? [])
         {
             var path = Path.Combine(
                 extraFile.Constant ? ConstDir : nonConstDir, 
@@ -69,7 +69,7 @@ public abstract class Implementer
                 continue;
             var content = extraFile.Get();
 
-            if (dict.ContainsKey(path) && dict[path] == content.ToHash())
+            if (dict.TryGetValue(path, out string value) && value == content.ToHash())
                 continue;
             File.WriteAllText(path, content);
         }
@@ -80,17 +80,13 @@ public abstract class Implementer
         );
     }
 
-    private void implement(
-        string dirPath,
-        Dictionary<string, string> cache,
-        Type type
-    )
+    void Implement(string dirPath, Type type, Dictionary<string, string> cache)
     {
         var filePath = Path.Combine(
             dirPath,
             $"{type.Name}Concrete.g.cs"
         );
-        var nodeCode = getCode(type, filePath);
+        var nodeCode = GetCode(type, filePath);
 
         var codeHash = nodeCode.ToHash();
         bool hasKey = cache.ContainsKey(filePath);
@@ -101,13 +97,13 @@ public abstract class Implementer
         File.WriteAllText(filePath, nodeCode);
     }
 
-    private string getCode(Type baseInterface, string fileName)
+    string GetCode(Type baseInterface, string fileName)
     {
-        ClassBuilder builder = new ClassBuilder();
-        var properties = getInterfaceProperties(baseInterface);
-        var methods = getIntefaceMethods(baseInterface);
+        var builder = new ClassBuilder();
+        var properties = GetInterfaceProperties(baseInterface);
+        var methods = GetIntefaceMethods(baseInterface);
 
-        foreach (var implementation in this.Implementations)
+        foreach (var implementation in Implementations ?? [])
         {
             implementation.ImplementType(
                 builder,
@@ -119,19 +115,18 @@ public abstract class Implementer
         return builder.Build();
     }
 
-    private List<MethodInfo> getIntefaceMethods(Type type)
+    static List<MethodInfo> GetIntefaceMethods(Type type)
     {
-        var types = getAllBaseInterfaces(type);
+        var types = GetAllBaseInterfaces(type);
         return types
             .Append(type)
             .SelectMany(t => t.GetMethods())
             .ToList();
-
     }
 
-    private List<PropertyInfo> getInterfaceProperties(Type type)
+    static List<PropertyInfo> GetInterfaceProperties(Type type)
     {
-        var types = getAllBaseInterfaces(type);
+        var types = GetAllBaseInterfaces(type);
         return types
             .Append(type)
             .SelectMany(t => t.GetProperties())
@@ -139,27 +134,22 @@ public abstract class Implementer
             .ToList();
     }
 
-    private List<Type> getAllBaseInterfaces(Type type)
+    static List<Type> GetAllBaseInterfaces(Type type)
     {
-        List<Type> types = type
-            .GetInterfaces()
-            .ToList();
+        List<Type> types = [.. type.GetInterfaces()];
         
         for (int i = 0; i < types.Count; i++)
             types.AddRange(
-                getAllBaseInterfaces(types[i])
+                GetAllBaseInterfaces(types[i])
             );
         
         return types;
     }
 
-    private Type[] getNodeType()
+    static Type[] FindValidNodeType(Assembly assembly)
     {
-        var assembly = Assembly.GetEntryAssembly();
-        var interfaces = getAllInterfaces(assembly);
-
-        List<Type> nodeTypes = new List<Type>();
-        nodeTypes.Add(typeof(INode));
+        var interfaces = GetAllDependentInterfaces(assembly);
+        List<Type> nodeTypes = [ typeof(INode) ];
         bool needContinue = true;
 
         while (needContinue)
@@ -167,19 +157,8 @@ public abstract class Implementer
             needContinue = false;
             for (int i = 0; i < interfaces.Count; i++)
             {
-                bool isNodeType = false;
                 var type = interfaces[i];
-                var baseTypes = type.GetInterfaces();
-                
-                foreach (var baseType in baseTypes)
-                {
-                    if (!nodeTypes.Contains(baseType))
-                        continue;
-
-                    isNodeType = true;
-                    break;
-                }
-                if (!isNodeType)
+                if (!IsNodeType(type, nodeTypes))
                     continue;
                 
                 interfaces.Remove(type);
@@ -189,19 +168,25 @@ public abstract class Implementer
             }
         }
 
-        return nodeTypes
-            .Where(node => node.Assembly == assembly)
-            .Where(node => node.GetCustomAttribute<IgnoreAttribute>() is null)
-            .ToArray();
+        return [ 
+            ..from node in nodeTypes
+            where node.Assembly == assembly
+            where node.GetCustomAttribute<IgnoreAttribute>() is null
+            select node
+        ];
     }
 
-    private List<Type> getAllInterfaces(Assembly assembly)
+    static bool IsNodeType(Type type, List<Type> nodeTypes)
+    {
+        var baseTypes = type.GetInterfaces();
+        return baseTypes.Any(nodeTypes.Contains);
+    }
+
+    static List<Type> GetAllDependentInterfaces(Assembly assembly)
     {
         var types = assembly.GetTypes();
-        var queue = new Queue<Type>(
-            types.Where(type => type.IsInterface)
-        );
-        var interfaces = new List<Type>();
+        Queue<Type> queue = new(types.Where(type => type.IsInterface));
+        List<Type> interfaces = [];
 
         while (queue.Count > 0)
         {
