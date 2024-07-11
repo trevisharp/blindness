@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
 using System;
 using System.IO;
@@ -23,11 +23,11 @@ using Concurrency;
 public class HotReload(IAsyncModel model) : IAsyncElement
 {
     public IAsyncModel Model => model;
+    public event Action<IAsyncElement, SignalArgs> OnSignal;
     private FileSystemWatcher watcher;
     private int updates = 1;
     private bool running = false;
     private AutoResetEvent signal = new(false);
-
     public void Start()
     {
         running = true;

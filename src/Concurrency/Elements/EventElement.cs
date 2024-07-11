@@ -21,6 +21,7 @@ public class EventElement(
     AutoResetEvent signal = new(false);
 
     public IAsyncModel Model => model;
+    public event Action<IAsyncElement, SignalArgs> OnSignal;
 
     public void Awake()
         => signal.Set();

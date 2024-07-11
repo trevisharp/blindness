@@ -19,7 +19,7 @@ public interface IAsyncElement
     /// A event launched on every characteristic operation step
     /// executed by the AsyncElement.
     /// </summary>
-    event Action<IAsyncElement> OnSignal;
+    event Action<IAsyncElement, SignalArgs> OnSignal;
 
     /// <summary>
     /// Run code from the element.

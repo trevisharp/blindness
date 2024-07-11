@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
+using System;
 using System.Threading;
 
 namespace Blindness.Concurrency.Elements;
@@ -15,6 +16,7 @@ using Exceptions;
 public class LoopNodeAppElement<T> : IAsyncElement
 {
     public IAsyncModel Model { get; set; }
+    public event Action<IAsyncElement, SignalArgs> OnSignal;
     public int ElementPointer { get; set; }
 
     bool running = false;

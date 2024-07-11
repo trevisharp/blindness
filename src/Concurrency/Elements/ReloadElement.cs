@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
+using System;
 using System.Threading;
 
 namespace Blindness.Concurrency.Elements;
@@ -20,6 +21,7 @@ public class ReloadElement(
     public IAsyncModel Model => model;
     public IAsyncElement Header => header;
     public IAsyncElement Follower => follower;
+    public event Action<IAsyncElement, SignalArgs> OnSignal;
 
     public void Wait() { }
 
