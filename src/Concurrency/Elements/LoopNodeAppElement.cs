@@ -25,7 +25,7 @@ public class LoopNodeAppElement<T> : IAsyncElement
     public void Wait()
         => signal.WaitOne();
 
-    public void Finish()
+    public void Stop()
         => running = false;
 
     public void Start()

@@ -27,12 +27,13 @@ public interface IAsyncElement
     void Start();
 
     /// <summary>
-    /// Stop current thread to wait the element complete a operation step.
+    /// Stop current thread to wait the element complete his
+    /// characteristic operation step.
     /// </summary>
     void Wait();
 
     /// <summary>
     /// Stop the element.
     /// </summary>
-    void Finish();
+    void Stop();
 }

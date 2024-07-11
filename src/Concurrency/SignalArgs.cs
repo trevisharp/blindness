@@ -7,4 +7,8 @@ namespace Blindness.Concurrency;
 /// Represents a base class for all Signal Events that contains all
 /// arguments on event call.
 /// </summary>
-public class SignalArgs;
+public record SignalArgs(bool Success)
+{
+    public readonly static SignalArgs True = new(true);
+    public readonly static SignalArgs False = new(false);
+}

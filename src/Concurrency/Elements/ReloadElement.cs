@@ -11,35 +11,66 @@ namespace Blindness.Concurrency.Elements;
 /// that first element make a step operation.
 /// </summary>
 public class ReloadElement(
-    IAsyncModel model,
-    IAsyncElement header,
-    IAsyncElement follower
+        IAsyncModel model,
+        IAsyncElement reloader,
+        IAsyncElement main
     ) : IAsyncElement
 {
-    private AutoResetEvent signal = new(false);
-
     public IAsyncModel Model => model;
-    public IAsyncElement Header => header;
-    public IAsyncElement Follower => follower;
+    public IAsyncElement Reloader => reloader;
+    public IAsyncElement Main => main;
     public event Action<IAsyncElement, SignalArgs> OnSignal;
 
-    public void Wait() { }
+    readonly AutoResetEvent signal = new(false);
 
-    public void Finish()
-        => signal.Set();
+    public void Wait()
+        => signal.WaitOne();
+    
+    public void Stop()
+    {
+        Model.OnError -= OnModelError;
+        Reloader.OnSignal -= OnReloaderSignal;
+    }
 
     public void Start()
     {
-        Model.OnError += (el, ex) =>
-        {
-            if (el != Follower)
-                return;
-            
-            Header.Wait();
-            Model.Run(Follower);
-        };
+        Model.OnError += OnModelError;
+        Reloader.OnSignal += OnReloaderSignal;
 
-        Model.Run(Header);
-        Model.Run(Follower);
+        Model.Run(Reloader);
+        Model.Run(Main);
+    }
+
+    /// <summary>
+    /// Reset Main Async Element.
+    /// </summary>
+    public void ResetMain()
+    {
+        Main.Stop();
+        Reloader.Wait();
+    }
+
+    void OnModelError(IAsyncElement el, Exception ex)
+    {
+        if (el != Main)
+            return;
+        
+        Main.Stop();
+    }
+
+    void SendSignal()
+    {
+        signal.Set();
+        if (OnSignal is not null)
+            OnSignal(this, SignalArgs.True);
+    }
+
+    void OnReloaderSignal(IAsyncElement e, SignalArgs s)
+    {
+        if (s == SignalArgs.False)
+            return;
+        
+        SendSignal();
+        ResetMain();
     }
 }

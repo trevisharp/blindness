@@ -29,7 +29,7 @@ public class EventElement(
     public void Wait()
         => signal.WaitOne();
 
-    public void Finish()
+    public void Stop()
     {
         isRunning = false;
         signal.Set();

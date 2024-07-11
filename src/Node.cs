@@ -77,7 +77,7 @@ public abstract class Node : IAsyncElement
         signalCount--;
     }
 
-    public void Finish()
+    public void Stop()
         => Running = false;
     
     public void When(

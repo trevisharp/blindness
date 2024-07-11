@@ -14,25 +14,26 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Blindness.Abstracts;
 
 using States;
-using Internal;
 using Concurrency;
 
 /// <summary>
-/// HotReload system.
+/// HotReload system with the check updates as characterisc operations.
 /// </summary>
 public class HotReload(IAsyncModel model) : IAsyncElement
 {
     public IAsyncModel Model => model;
     public event Action<IAsyncElement, SignalArgs> OnSignal;
-    private FileSystemWatcher watcher;
-    private int updates = 1;
-    private bool running = false;
-    private AutoResetEvent signal = new(false);
+    
+    FileSystemWatcher watcher;
+    int updates = 0;
+    bool running = false;
+    readonly AutoResetEvent signal = new(false);
+
     public void Start()
     {
         running = true;
 
-        initWatcher();
+        InitWatcher();
         int lastUpdates = 0;
 
         while (running)
@@ -40,7 +41,7 @@ public class HotReload(IAsyncModel model) : IAsyncElement
             if (updates == 0)
             {
                 Thread.Sleep(500);
-                signal.Set();
+                SendSignal(SignalArgs.False);
                 continue;
             }
             
@@ -48,38 +49,95 @@ public class HotReload(IAsyncModel model) : IAsyncElement
             {
                 lastUpdates = updates;
                 Thread.Sleep(500);
-                signal.Set();
+                SendSignal(SignalArgs.False);
                 continue;
             }
             
             updates = lastUpdates = 0;
-            updateObjects();
-            signal.Set();
+            var newAssembly = GetNewAssembly();
+            if (newAssembly is not null)
+                UpdateObjects(newAssembly);
+            SendSignal(SignalArgs.True);
         }
     }
 
     public void Wait()
-        => signal.WaitOne();
+        => signal?.WaitOne();
 
-    public void Finish()
+    public void Stop()
         => running = false;
-    
-    void updateObjects()
+
+    void SendSignal(SignalArgs args)
     {
-        var assembly = updateAssembly();
+        signal.Set();
+        if (OnSignal is not null)
+            OnSignal(this, args);
+    }
+
+    void InitWatcher()
+    {
+        watcher = new() {
+            Path = Environment.CurrentDirectory,
+            IncludeSubdirectories = true
+        };
+        watcher.Filters.Add("*.cs");
+
+        void onChange(object sender, FileSystemEventArgs e)
+            => updates++;
+
+        watcher.Created += onChange;
+        watcher.Changed += onChange;
+        watcher.EnableRaisingEvents = true;
+    }
+
+    /// <summary>
+    /// Update Current Assembly Code.
+    /// </summary>
+    public static void UpdateObjects(Assembly assembly)
+    {
         if (assembly is null)
-            return;
+            throw new ArgumentNullException(nameof(assembly));
         
         DependencySystem.Current.UpdateAssembly(assembly);
         Memory.Current.Reload();
     }
-
-    Assembly updateAssembly()
+    
+    static IEnumerable<string> FindAllCSharpFiles(string directory)
     {
-        var sourceFiles = findCSharpFiles(Environment.CurrentDirectory);
+        var files = Directory.GetFiles(
+            directory, "*.cs", 
+            SearchOption.AllDirectories
+        );
+        
+        var codeFiles = 
+            from file in files
+            where !file.Contains("/bin/")
+            where !file.Contains("/obj/")
+            select file;
+        
+        foreach (var file in codeFiles)
+            yield return file;
+    }
 
-        var syntaxTrees = sourceFiles
-            .Select(file => CSharpSyntaxTree.ParseText(File.ReadAllText(file)));
+    static IEnumerable<MetadataReference> GetReferences()
+    {
+        var assembly = Assembly.GetEntryAssembly();
+        var assemblies = assembly
+            .GetReferencedAssemblies()
+            .Select(Assembly.Load)
+            .Append(assembly)
+            .Append(Assembly.Load("System.Private.CoreLib"));
+        
+        return assemblies
+            .Select(a => MetadataReference.CreateFromFile(a.Location));
+    }
+
+    static Assembly GetNewAssembly()
+    {
+        var syntaxTrees = 
+            FindAllCSharpFiles(Environment.CurrentDirectory)
+            .Select(File.ReadAllText)
+            .Select(text => CSharpSyntaxTree.ParseText(text));
 
         var compilationOptions = new CSharpCompilationOptions(
             OutputKind.ConsoleApplication
@@ -88,7 +146,7 @@ public class HotReload(IAsyncModel model) : IAsyncElement
         var compilation = CSharpCompilation.Create(
             "HotReloadAppend",
             syntaxTrees: syntaxTrees,
-            references: getReferences(),
+            references: GetReferences(),
             options: compilationOptions
         );
 
@@ -103,60 +161,7 @@ public class HotReload(IAsyncModel model) : IAsyncElement
         
         foreach (var diagnostic in result.Diagnostics)
             Verbose.Error(diagnostic);
+        
         return null;
     }
-
-    IEnumerable<MetadataReference> getReferences()
-    {
-        var assembly = Assembly.GetEntryAssembly();
-        var assemblies = assembly
-            .GetReferencedAssemblies()
-            .Select(r => Assembly.Load(r))
-            .Append(assembly)
-            .Append(Assembly.Load("System.Private.CoreLib"));
-        
-        return assemblies
-            .Select(r => MetadataReference.CreateFromFile(r.Location));
-    }
-
-    void initWatcher()
-    {
-        watcher = new FileSystemWatcher(
-            Environment.CurrentDirectory
-        );
-        watcher.IncludeSubdirectories = true;
-        watcher.Filters.Add("*.cs");
-        watcher.Filters.Add("*.g.cs");
-
-        FileSystemEventHandler onChange = (sender, e) 
-            => updates++;
-
-        watcher.Created += onChange;
-        watcher.Changed += onChange;
-        watcher.EnableRaisingEvents = true;
-    }
-
-    IEnumerable<string> findCSharpFiles(string directory)
-    {
-        var files =
-            Directory.GetFiles(directory)
-            .Where(file => file.EndsWith(".cs"));
-        
-        foreach (var file in files)
-            yield return file;
-        
-        var directories = Directory
-            .GetDirectories(directory);
-
-        foreach (var dir in directories)
-        {
-            if (dir.EndsWith("obj") || dir.EndsWith("bin"))
-                continue;
-
-            files = findCSharpFiles(dir);
-            foreach (var file in files)
-                yield return file;
-        }
-    }
-
 }
