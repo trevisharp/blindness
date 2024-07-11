@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
 using System;
 
@@ -8,18 +8,8 @@ namespace Blindness.Exceptions;
 /// <summary>
 /// Represents a error that occurs on use of a non-initialized node.
 /// </summary>
-public class NonInitializatedNodeException : Exception
+public class NonInitializatedNodeException(Type nodeType, Type parentType) : Exception
 {
-    Type nodeType;
-    Type parentType;
-    public NonInitializatedNodeException(
-        Type nodeType, Type parentType
-    )
-    {
-        this.nodeType = nodeType;
-        this.parentType = parentType;
-    }
-
     public override string Message =>
     $$"""
     The field of node type '{{nodeType}}' in the node '{{parentType}}'

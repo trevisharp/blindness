@@ -8,16 +8,8 @@ namespace Blindness.Exceptions;
 /// <summary>
 /// Represents error that occurs during instantiation of a Node.
 /// </summary>
-public class ActivatorException : Exception
+public class ActivatorException(Exception inner, Type type) : Exception
 {
-    Exception inner;
-    Type type;
-    public ActivatorException(Exception inner, Type type)
-    {
-        this.inner = inner;
-        this.type = type;
-    }
-
     public override string StackTrace =>
         $"{inner.StackTrace}\n{base.StackTrace}";
 
