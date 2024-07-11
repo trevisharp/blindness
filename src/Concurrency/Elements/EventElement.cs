@@ -16,9 +16,8 @@ public class EventElement(
     ) : IAsyncElement
 {
     bool value;
-
     bool isRunning = false;
-    AutoResetEvent signal = new(false);
+    readonly AutoResetEvent signal = new(false);
 
     public IAsyncModel Model => model;
     public event Action<IAsyncElement, SignalArgs> OnSignal;
@@ -35,7 +34,7 @@ public class EventElement(
         signal.Set();
     }
 
-    public void Start()
+    public void Run()
     {
         isRunning = true;
         value = predicate();

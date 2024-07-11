@@ -86,7 +86,7 @@ public class DefaultModel : IAsyncModel
             try
             {
                 activeCount++;
-                node.Start();
+                node.Run();
             }
             catch (Exception ex)
             {

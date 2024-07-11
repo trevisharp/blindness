@@ -24,7 +24,7 @@ public interface IAsyncElement
     /// <summary>
     /// Run code from the element.
     /// </summary>
-    void Start();
+    void Run();
 
     /// <summary>
     /// Stop current thread to wait the element complete his

@@ -57,9 +57,9 @@ public abstract class Node : IAsyncElement
     protected internal virtual void OnRun() { }
 
     public void Run()
-        => Start();
+        => Run();
     
-    public void Start()
+    public void Run()
     {
         this.Running = true;
         OnRun();

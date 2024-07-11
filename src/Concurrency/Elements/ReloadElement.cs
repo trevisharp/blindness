@@ -14,25 +14,20 @@ public class ReloadElement(
         IAsyncModel model,
         IAsyncElement reloader,
         IAsyncElement main
-    ) : IAsyncElement
+    ) : BaseAsyncElement(model)
 {
-    public IAsyncModel Model => model;
     public IAsyncElement Reloader => reloader;
     public IAsyncElement Main => main;
-    public event Action<IAsyncElement, SignalArgs> OnSignal;
 
     readonly AutoResetEvent signal = new(false);
-
-    public void Wait()
-        => signal.WaitOne();
     
-    public void Stop()
+    public override void Stop()
     {
         Model.OnError -= OnModelError;
         Reloader.OnSignal -= OnReloaderSignal;
     }
 
-    public void Start()
+    public override void Run()
     {
         Model.OnError += OnModelError;
         Reloader.OnSignal += OnReloaderSignal;
@@ -48,6 +43,7 @@ public class ReloadElement(
     {
         Main.Stop();
         Reloader.Wait();
+        SendSignal(SignalArgs.True);
     }
 
     void OnModelError(IAsyncElement el, Exception ex)
@@ -55,14 +51,7 @@ public class ReloadElement(
         if (el != Main)
             return;
         
-        Main.Stop();
-    }
-
-    void SendSignal()
-    {
-        signal.Set();
-        if (OnSignal is not null)
-            OnSignal(this, SignalArgs.True);
+        ResetMain();
     }
 
     void OnReloaderSignal(IAsyncElement e, SignalArgs s)
@@ -70,7 +59,6 @@ public class ReloadElement(
         if (s == SignalArgs.False)
             return;
         
-        SendSignal();
         ResetMain();
     }
 }

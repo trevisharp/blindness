@@ -19,17 +19,13 @@ using Concurrency;
 /// <summary>
 /// HotReload system with the check updates as characterisc operations.
 /// </summary>
-public class HotReload(IAsyncModel model) : IAsyncElement
-{
-    public IAsyncModel Model => model;
-    public event Action<IAsyncElement, SignalArgs> OnSignal;
-    
-    FileSystemWatcher watcher;
+public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
+{   
     int updates = 0;
     bool running = false;
-    readonly AutoResetEvent signal = new(false);
-
-    public void Start()
+    FileSystemWatcher watcher;
+    
+    public override void Run()
     {
         running = true;
 
@@ -61,18 +57,8 @@ public class HotReload(IAsyncModel model) : IAsyncElement
         }
     }
 
-    public void Wait()
-        => signal?.WaitOne();
-
-    public void Stop()
+    public override void Stop()
         => running = false;
-
-    void SendSignal(SignalArgs args)
-    {
-        signal.Set();
-        if (OnSignal is not null)
-            OnSignal(this, args);
-    }
 
     void InitWatcher()
     {
