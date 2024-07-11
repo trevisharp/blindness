@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
+using System;
 using System.Text;
 using System.Collections.Generic;
 
@@ -12,10 +13,10 @@ namespace Blindness.Abstracts;
 public class ClassBuilder
 {
     string className = "MyClass";
-    List<string> usings = new();
-    List<string> baseTypes = new();
-    List<string> attributes = new();
-    StringBuilder classCode = new();
+    readonly List<string> usings = [];
+    readonly List<string> baseTypes = [];
+    readonly List<string> attributes = [];
+    readonly StringBuilder classCode = new();
     string tabInfo = "\t";
     const char tab = '\t';
 
@@ -27,6 +28,9 @@ public class ClassBuilder
 
     public ClassBuilder AddBaseType(string type)
     {
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
+        
         if (baseTypes.Contains(type))
             return this;
         
@@ -36,6 +40,9 @@ public class ClassBuilder
 
     public ClassBuilder AddUsing(string reference)
     {
+        if (reference is null)
+            throw new ArgumentNullException(nameof(reference));
+        
         if (usings.Contains(reference))
             return this;
         
@@ -45,6 +52,9 @@ public class ClassBuilder
 
     public ClassBuilder AddAttribute(string attribute)
     {
+        if (attribute is null)
+            throw new ArgumentNullException(nameof(attribute));
+        
         if (attributes.Contains(attribute))
             return this;
         
@@ -55,6 +65,9 @@ public class ClassBuilder
     public ClassBuilder AddLineCode(string code)
     {
         if (code is null)
+            throw new ArgumentNullException(nameof(code));
+        
+        if (code is null)
             return this;
         
         code = tabInfo + code
@@ -63,6 +76,11 @@ public class ClassBuilder
         classCode.AppendLine(code);
         return this;
     }
+
+    // public ClassBuilder AddProperty(string type, string name, string get, string set)
+    // {
+    //     AddLineCode($"public {type} {name} ")
+    // }
 
     public ClassBuilder AddScope()
     {
@@ -75,10 +93,13 @@ public class ClassBuilder
         if (tabInfo.Length == 0)
             return this;
         
-        tabInfo = tabInfo.Remove(0, 1);
+        tabInfo = tabInfo[1..];
         return this;
     }
 
+    /// <summary>
+    /// Build and get the C# code.
+    /// </summary>
     public string Build()
     {
         StringBuilder usingsCode = new();
@@ -111,7 +132,7 @@ public class ClassBuilder
         //------------------------------------------------------------------------------
 
         {{usingsCode}}
-        {{attributeCode}}public class {{className}}{{basesCode}}
+        {{attributeCode}}public partial class {{className}}{{basesCode}}
         {
         {{classCode}}
         }
