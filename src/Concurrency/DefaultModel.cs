@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
 using System;
 using System.Threading;
@@ -15,71 +15,59 @@ public class DefaultModel : IAsyncModel
 {
     bool isRunning = false;
     int activeCount = 0;
-    AutoResetEvent stopSignal;
     AutoResetEvent queueSignal;
     ConcurrentQueue<IAsyncElement> queue = new();
 
     public event Action<IAsyncElement, Exception> OnError;
 
+    /// <summary>
+    /// The number of Elements running by Core to wait run a new Element.
+    /// </summary>
+    public int HighPressureLimit { get; set; } = 4;
+
     public void Start()
     {
-        this.isRunning = true;
-        this.stopSignal = new(false);
-        this.queueSignal = new(false);
+        isRunning = true;
+        queueSignal = new(false);
 
-        Task.Run(() => {
-            while (isRunning)
-            {
-                if (queue.Count == 0)
-                    queueSignal.WaitOne();
-                
-                bool dequeued = queue.TryDequeue(out IAsyncElement node);
-                if (!dequeued)
-                    continue;
-                
-                executeAsync(node);
-            }
-        });
+        while (isRunning)
+        {
+            var pressureLimit = HighPressureLimit * Environment.ProcessorCount;
+            var highPressure = activeCount > pressureLimit;
+            var emptyQueue = queue.IsEmpty;
+            var inactive = activeCount == 0;
 
-        stopSignal.WaitOne();
+            if (emptyQueue && inactive)
+                break;
+
+            if (emptyQueue || highPressure)
+                queueSignal.WaitOne();
+            
+            if (!queue.TryDequeue(out IAsyncElement node))
+                continue;
+            
+            executeAsync(node);
+        }
     }
 
     public void Stop()
-    {
-        this.isRunning = false;
-        stopSignal.Set();
-    }
+        => isRunning = false;
 
     public void Run(IAsyncElement node)
     {
-        int coreCount = Environment.ProcessorCount;
+        if (node is null)
+            throw new ArgumentNullException(nameof(node));
+        
+        var pressureLimit = HighPressureLimit * Environment.ProcessorCount;
+        var highPressure = activeCount > pressureLimit;
 
-        if (!isRunning || activeCount > 4 * coreCount)
+        if (!isRunning || highPressure)
         {
             queue.Enqueue(node);
             return;
         }
-
-        if (activeCount < 2 * coreCount && !queue.IsEmpty)
-            queueSignal.Set();
         
         executeAsync(node);
-    }
-
-    void executeAsync(IAsyncElement node)
-    {
-        Task.Run(() => {
-            try
-            {
-                activeCount++;
-                node.Start();
-                activeCount--;
-            }
-            catch (Exception ex)
-            {
-                SendError(node, ex);
-            }
-        });
     }
 
     public void SendError(IAsyncElement el, Exception ex)
@@ -88,5 +76,27 @@ public class DefaultModel : IAsyncModel
             return;
         
         OnError(el, ex);
+    }
+
+    void executeAsync(IAsyncElement node)
+    {
+        if (node is null)
+            return;
+        Task.Run(() => {
+            try
+            {
+                activeCount++;
+                node.Start();
+            }
+            catch (Exception ex)
+            {
+                SendError(node, ex);
+            }
+            finally
+            {
+                activeCount--;
+                queueSignal.Set();
+            }
+        });
     }
 }

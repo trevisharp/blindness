@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
 using System;
 using System.Threading;
@@ -9,26 +9,18 @@ namespace Blindness.Concurrency.Elements;
 /// <summary>
 /// Represents a event used to listen memory addresses.
 /// </summary>
-public class EventElement : IAsyncElement
+public class EventElement(
+    IAsyncModel model,
+    Action<bool> action,
+    Func<bool> predicate
+    ) : IAsyncElement
 {
     bool value;
 
-    bool isRunning;
-    AutoResetEvent signal;
-    
-    Action<bool> action;
-    Func<bool> predicate;
-    
-    public EventElement(
-        Func<bool> predicate,
-        Action<bool> action
-    )
-    {
-        this.isRunning = false;
-        this.signal = new AutoResetEvent(false);    
-        this.predicate = predicate;
-        this.action = action;
-    }
+    bool isRunning = false;
+    AutoResetEvent signal = new(false);
+
+    public IAsyncModel Model => model;
 
     public void Awake()
         => signal.Set();

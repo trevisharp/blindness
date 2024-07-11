@@ -34,11 +34,11 @@ public class DefaultAppBehaviour : AppBehaviour
                 Model = model
             };
             
-            var chain = new ReloadLoopElement {
-                Model = model,
-                First = new HotReload(),
-                Second = loopApp
-            };
+            var chain = new ReloadElement(
+                model,
+                new HotReload(model),
+                loopApp
+            );
 
             model.Run(debug ? chain : loopApp);
             

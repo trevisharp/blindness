@@ -11,17 +11,18 @@ namespace Blindness.Concurrency;
 public interface IAsyncModel
 {
     /// <summary>
-    /// Start running the model.
+    /// Start to running the model.
+    /// Autostop when the model has no elementos to Run.
     /// </summary>
     void Start();
 
     /// <summary>
-    /// Run a element.
+    /// Run a element on AsyncModel.
     /// </summary>
     void Run(IAsyncElement node);
 
     /// <summary>
-    /// Stop running the model.
+    /// Stop the AsyncModel.
     /// </summary>
     void Stop();
 

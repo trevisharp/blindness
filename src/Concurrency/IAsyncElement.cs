@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    11/07/2024
  */
+using System;
+
 namespace Blindness.Concurrency;
 
 /// <summary>
@@ -8,6 +10,17 @@ namespace Blindness.Concurrency;
 /// </summary>
 public interface IAsyncElement
 {
+    /// <summary>
+    /// Get the current element model.
+    /// </summary>
+    IAsyncModel Model { get; }
+
+    /// <summary>
+    /// A event launched on every characteristic operation step
+    /// executed by the AsyncElement.
+    /// </summary>
+    event Action<IAsyncElement> OnSignal;
+
     /// <summary>
     /// Run code from the element.
     /// </summary>

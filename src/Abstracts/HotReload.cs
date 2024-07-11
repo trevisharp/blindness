@@ -20,8 +20,9 @@ using Concurrency;
 /// <summary>
 /// HotReload system.
 /// </summary>
-public class HotReload : IAsyncElement
+public class HotReload(IAsyncModel model) : IAsyncElement
 {
+    public IAsyncModel Model => model;
     private FileSystemWatcher watcher;
     private int updates = 1;
     private bool running = false;
