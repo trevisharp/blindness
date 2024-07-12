@@ -77,10 +77,22 @@ public class ClassBuilder
         return this;
     }
 
-    // public ClassBuilder AddProperty(string type, string name, string get, string set)
-    // {
-    //     AddLineCode($"public {type} {name} ")
-    // }
+    public ClassBuilder AddProperty(string type, string name, string get = null, string set = null)
+    {
+        if (get is null && set is null)
+            AddLineCode($"public {type} {name} {{ get; set; }}");
+        
+        AddLineCode($"public {type} {name}");
+        AddScope();
+
+        AddLineCode("{");
+        AddLineCode(get);
+        AddLineCode(set);
+        AddLineCode("}");
+        
+        RemoveScope();
+        return this;
+    }
 
     public ClassBuilder AddScope()
     {

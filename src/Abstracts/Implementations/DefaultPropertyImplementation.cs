@@ -24,13 +24,10 @@ public class DefaultPropertyImplementation : Implementation
             var prop = properties[0];
             var typeName = ArrangeGenericTypeName(prop.PropertyType);
             builder
-                .AddLineCode($"public {typeName} {prop.Name}")
-                .AddLineCode("{")
-                .AddScope()
-                .AddLineCode($"get => Bind.Get<{typeName}>({i});")
-                .AddLineCode($"set => Bind.Set({i}, value);")
-                .RemoveScope()
-                .AddLineCode("}");
+                .AddProperty(typeName, prop.Name, 
+                    $"get => Bind.Get<{typeName}>({i});",
+                    $"set => Bind.Set({i}, value);"
+                );
             
             properties.Remove(prop);
         }
