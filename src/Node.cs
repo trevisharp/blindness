@@ -25,6 +25,8 @@ public abstract class Node : IAsyncElement
     private AutoResetEvent signal = new(false);
     private List<(Func<bool> pred, Action act)> whenList = new();
 
+    public event Action<IAsyncElement, SignalArgs> OnSignal;
+
     public Binding Bind { get; set; }
     public IAsyncModel Model { get; set; }
     public int MemoryLocation { get; set; } = -1;
@@ -55,9 +57,6 @@ public abstract class Node : IAsyncElement
     protected bool Running { get; set; } = true;
     protected internal virtual void OnLoad() { }
     protected internal virtual void OnRun() { }
-
-    public void Run()
-        => Run();
     
     public void Run()
     {
@@ -96,8 +95,9 @@ public abstract class Node : IAsyncElement
         Action<bool> action
     )
     {
+        // TODO: Get the Async model
         EventElement eventElement = new EventElement(
-            condition.Compile(), action
+            null, action, condition.Compile()
         );
 
         addEvents(condition, eventElement);
