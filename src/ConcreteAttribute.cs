@@ -8,4 +8,4 @@ namespace Blindness;
 /// <summary>
 /// Attribute used to denote concrete nodes
 /// </summary>
-public class ConcreteAttribute : Attribute { }
+public class ConcreteAttribute : Attribute;

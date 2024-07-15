@@ -1,7 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    15/07/2024
  */
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections.Generic;
@@ -15,27 +16,14 @@ using Concurrency.Elements;
 /// <summary>
 /// Binding object no manage states.
 /// </summary>
-public class Binding
+public class Binding(
+    Node node, int fieldCount, Type parentType,
+    Func<string, int> fieldMap)
 {
-    Node node;
-    int[] pointerMap;
-    Func<string, int> fieldMap;
-    Type parentType;
-    List<EventElement>[] eventMap;
-
-    public Binding(
-        Node node, int fieldCount, Type parentType,
-        Func<string, int> fieldMap
-    )
-    {
-        this.node = node;
-        this.pointerMap = new int[fieldCount];
-        this.eventMap = new List<EventElement>[fieldCount];
-        for (int i = 0; i < fieldCount; i++)
-            pointerMap[i] = -1;
-        this.fieldMap = fieldMap;
-        this.parentType = parentType;
-    }
+    readonly Node node = node;
+    readonly Func<string, int> fieldMap = fieldMap;
+    readonly int[] pointerMap = Enumerable.Range(-1, fieldCount).ToArray();
+    readonly List<EventElement>[] eventMap = new List<EventElement>[fieldCount];
     
     /// <summary>
     /// Get a value based on the code of the field.

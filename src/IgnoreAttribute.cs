@@ -8,4 +8,4 @@ namespace Blindness;
 /// <summary>
 /// Attribute used to ignore interfaces in code generation step.
 /// </summary>
-public class IgnoreAttribute : Attribute { }
+public class IgnoreAttribute : Attribute;

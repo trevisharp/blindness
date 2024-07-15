@@ -8,10 +8,10 @@ namespace Blindness;
 
 using States;
 
-[Ignore]
 /// <summary>
 /// A base class for all nodes.
 /// </summary>
+[Ignore]
 public interface INode
 {
     /// <summary>

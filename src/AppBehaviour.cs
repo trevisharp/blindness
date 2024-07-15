@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    15/07/2024
  */
 using System;
 
@@ -16,7 +16,7 @@ public abstract class AppBehaviour
     public abstract void Run<T>(bool debug)
         where T : INode;
     
-    protected void showError(Exception ex)
+    protected static void ShowError(Exception ex)
     {
         Verbose.Error(ex.Message, -1);
 
