@@ -139,13 +139,21 @@ public class Memory(IMemoryBehaviour behaviour)
         {
             if (obj is null)
                 return null;
+            
             var type = obj.GetType();
-
             if (!type.Implements("INode"))
                 return obj;
             
-            return DependencySystem.Current
-                .GetConcrete(type);
+            var node = obj as Node;
+            var nodeCopy = DependencySystem
+                .Current.GetConcrete(type);
+            
+            nodeCopy.MemoryLocation = node.MemoryLocation;
+            nodeCopy.Model = node.Model;
+            // TODO: Remove this and update all data to don't restart app
+            node.LoadDependencies();
+            node.OnLoad();
+            return nodeCopy;
         });
     }
 

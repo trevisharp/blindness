@@ -21,6 +21,23 @@ using Concurrency.Elements;
 /// </summary>
 public abstract class Node : IAsyncElement
 {
+    /// <summary>
+    /// Create a new node of a specified type and using a
+    /// specified async model. The node is created from
+    /// Dependecy Injection System and is added to memory.
+    /// The dependencies of Node are loaded and OnLoad
+    /// is caled.
+    /// </summary>
+    public static Node New(Type type, IAsyncModel model)
+    {
+        var node = DependencySystem.Current.GetConcrete(type);
+        node.MemoryLocation = Memory.Current.Add(node);
+        node.Model = model;
+        node.LoadDependencies();
+        node.OnLoad();
+        return node;
+    }
+
     int signalCount = 0;
     readonly AutoResetEvent signal = new(false);
     readonly List<(Func<bool> pred, Action act)> whenList = [];
@@ -44,8 +61,7 @@ public abstract class Node : IAsyncElement
         {
             var param = parameters[i];
             var type = param.ParameterType;
-            objs[i] = DependencySystem
-                .Current.GetConcrete(type);
+            objs[i] = New(type, Model);
         }
 
         deps.Invoke(this, objs);

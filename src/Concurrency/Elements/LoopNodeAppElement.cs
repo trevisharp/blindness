@@ -19,9 +19,8 @@ public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
 
     public override void Run()
     {
-        var app = DependencySystem
-            .Current.GetConcrete(typeof(T));
-        ElementPointer = Memory.Current.Add(app);
+        var app = Node.New(typeof(T), Model);
+        ElementPointer = app.MemoryLocation;
 
         running = true;
         while (running)
