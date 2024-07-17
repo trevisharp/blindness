@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/07/2024
+ * Date:    17/07/2024
  */
 using System;
 using System.Linq;
@@ -35,7 +35,7 @@ public class Binding(
         var pointer = GetBind(fieldCode);
 
         if (pointer == Memory.Null)
-            pointer = tryInitField(typeof(T), fieldCode);
+            pointer = TryInitField(typeof(T), fieldCode);
 
         return Memory.Current.Get<T>(pointer);
     }
@@ -45,9 +45,10 @@ public class Binding(
     /// </summary>
     public void Set<T>(int fieldCode, T value)
     {
+        // TODO: Consider validate if value already is in Memory
         if (fieldCode < 0 || fieldCode >= pointerMap.Length)
             throw new ArgumentOutOfRangeException(nameof(fieldCode));
-        var pointer = this.pointerMap[fieldCode];
+        var pointer = pointerMap[fieldCode];
 
         if (pointer != Memory.Null)
         {
@@ -55,15 +56,15 @@ public class Binding(
             return;
         }
 
-        initFieldWithValue(fieldCode, value);
+        InitFieldWithValue(fieldCode, value);
     }
     
     internal void AddEvent(PropertyInfo prop, EventElement eventObj)
     {
         var index = fieldMap(prop.Name);
         var pointer = pointerMap[index];
-        if (pointer == -1)
-            pointer = tryInitField(prop.PropertyType, index);
+        if (pointer == Memory.Null)
+            pointer = TryInitField(prop.PropertyType, index);
 
         if (eventMap[index] is null)
             eventMap[index] = new();
@@ -76,7 +77,7 @@ public class Binding(
     {
         if (fieldCode < 0 || fieldCode >= pointerMap.Length)
             throw new ArgumentOutOfRangeException(nameof(fieldCode));
-        var pointer = this.pointerMap[fieldCode];
+        var pointer = pointerMap[fieldCode];
 
         return pointer;
     }
@@ -86,8 +87,8 @@ public class Binding(
         if (fieldCode < 0 || fieldCode >= pointerMap.Length)
             throw new ArgumentOutOfRangeException(nameof(fieldCode));
         
-        var oldPointer = this.pointerMap[fieldCode];
-        this.pointerMap[fieldCode] = pointer;
+        var oldPointer = pointerMap[fieldCode];
+        pointerMap[fieldCode] = pointer;
 
         var events = eventMap[fieldCode];
         if (events is null)
@@ -100,19 +101,19 @@ public class Binding(
     }
 
     public static Binding operator |(Binding binding, 
-        Expression<Func<object, object>> bindExpression
-    )
+        Expression<Func<object, object>> bindExpression)
     {
         if (binding is null)
             throw new ArgumentNullException(nameof(binding));
+        
         if (bindExpression is null)
             throw new ArgumentNullException(nameof(bindExpression));
         
-        binding.bind(bindExpression);
+        binding.Bind(bindExpression);
         return binding;
     }
 
-    private MethodInfo findMethod(string name, Type type = null)
+    MethodInfo FindMethod(string name, Type type = null)
     {
         type ??= this.GetType();
         foreach (var method in type.GetRuntimeMethods())
@@ -125,7 +126,7 @@ public class Binding(
         return null;
     }
 
-    private int tryInitField(Type fieldType, int fieldCode)
+    int TryInitField(Type fieldType, int fieldCode)
     {
         if (fieldType.GetInterface(nameof(INode)) == typeof(INode))
             throw new NonInitializatedNodeException(
@@ -145,21 +146,22 @@ public class Binding(
         return newDataIndex;
     }
     
-    private void bind(Expression<Func<object, object>> binding)
+    void Bind(Expression<Func<object, object>> binding)
     {
+        // TODO: Improve Bind sintaxes possibilities.
         if (binding.Parameters.Count != 1)
             throw new InvalidBindingFormatException(
                 "The number of parameters may be 1."
             );
         
-        bool isBasic = tryBasicBind(binding);
+        bool isBasic = TryBasicBind(binding);
         if (isBasic)
             return;
         
         throw new InvalidBindingFormatException();
     }
 
-    private bool tryBasicBind(Expression<Func<object, object>> binding)
+    bool TryBasicBind(Expression<Func<object, object>> binding)
     {
         var bindInfo = FromToExpression
             .FromExpression(binding, node, parentType);
@@ -167,7 +169,7 @@ public class Binding(
         if (bindInfo is null)
             return false;
 
-        var toBinding = getBinding(
+        var toBinding = GetBinding(
             bindInfo.To.ObjectValue
         );
 
@@ -175,8 +177,8 @@ public class Binding(
             bindInfo.From.MemberInfo.Name
         );
         var pointer = this.GetBind(fmFieldCode);
-        if (pointer == -1)
-            pointer = tryInitField(
+        if (pointer == Memory.Null)
+            pointer = TryInitField(
                 bindInfo.From.MemberInfo is PropertyInfo prop ? prop.PropertyType :
                 bindInfo.From.MemberInfo is FieldInfo field ? field.FieldType :
                 throw new InvalidBindingFormatException(),
@@ -191,17 +193,16 @@ public class Binding(
         return true;
     }
 
-    private Binding getBinding(object obj)
+    static Binding GetBinding(object obj)
     {
         var type = obj.GetType();
-        var prop = type.GetProperty("Bind");
-        if (prop is null)
+
+        var prop = type.GetProperty("Bind") ?? 
             throw new InvalidBindingFormatException(
                 "The binding object need has a Binding Property with name 'Bind'"
             );
         
-        var value = prop.GetValue(obj) as Binding;
-        if (value is null)
+        var value = prop.GetValue(obj) as Binding ?? 
             throw new InvalidBindingFormatException(
                 "The binding object need has a Binding Property with name 'Bind'"
             );
@@ -209,9 +210,9 @@ public class Binding(
         return value;
     }
 
-    private void initFieldWithValue<T>(int fieldCode, T value)
+    void InitFieldWithValue<T>(int fieldCode, T value)
     {
         var newIndexData = Memory.Current.Add(value);
-        this.pointerMap[fieldCode] = newIndexData;
+        pointerMap[fieldCode] = newIndexData;
     }
 }
