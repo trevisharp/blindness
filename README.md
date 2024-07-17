@@ -8,13 +8,9 @@ Blindness is a framework for you to build your frameworks without seeing the det
 
  - [Overview](#overview)
  - [How to install](#how-to-install)
- - [Features](#features)
+ - [Learn by examples](#learn-by-examples)
  - [Versions](#versions)
  - [Next Features](#next-features)
-
-# Features
-
-Coming soon...
 
 # Overview
 
@@ -27,7 +23,16 @@ dotnet new classlib # Create your library
 dotnet add package Blindness # Install Blindness
 ```
 
+# Learn by examples
+
+Coming soon...
+
 # Versions
+
+### Blindness v3.0.0
+
+ - ![](https://img.shields.io/badge/update-blue) Refactor all API to be more consistent and improve legibility.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Several Bug fix in all systems.
 
 ### Blindness v2.0.0
 
@@ -67,12 +72,3 @@ dotnet add package Blindness # Install Blindness
 ### Blindness v0.1.0
 
  - ![](https://img.shields.io/badge/new-green) Binding System added.
-
-# Next Features
-
-- Improve documentation
-- Improve memory management and internal data structures
-- Allow deep concrete node generating(to discuss)
-- Improve binding:
-  - Allow binding functions (Bind |= x => operação(y))
-  - Allow vector binding (Bind |= x => list\[index\])
