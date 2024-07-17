@@ -36,4 +36,14 @@ public interface IAsyncElement
     /// Stop the element.
     /// </summary>
     void Stop();
+
+    /// <summary>
+    /// Pause temporary the element.
+    /// </summary>
+    void Pause();
+
+    /// <summary>
+    /// Resume a paused element.
+    /// </summary>
+    void Resume();
 }

@@ -30,4 +30,8 @@ public abstract class BaseAsyncElement(IAsyncModel model) : IAsyncElement
         if (OnSignal is not null)
             OnSignal(this, args);
     }
+
+    public abstract void Pause();
+
+    public abstract void Resume();
 }

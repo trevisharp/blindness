@@ -23,6 +23,7 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
 {   
     int updates = 0;
     bool running = false;
+    bool paused = false;
     FileSystemWatcher watcher;
     
     public override void Run()
@@ -34,6 +35,9 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
 
         while (running)
         {
+            while (paused)
+                Thread.Sleep(500);
+
             if (updates == 0)
             {
                 Thread.Sleep(500);
@@ -103,7 +107,7 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
             where !file.Contains("/obj/")
             select file;
         
-        foreach (var file in codeFiles)
+        foreach (var file in codeFiles.Distinct())
             yield return file;
     }
 
@@ -122,8 +126,8 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
 
     static Assembly GetNewAssembly()
     {
-        var syntaxTrees = 
-            FindAllCSharpFiles(Environment.CurrentDirectory)
+        var files = FindAllCSharpFiles(Environment.CurrentDirectory);
+        var syntaxTrees = files
             .Select(File.ReadAllText)
             .Select(text => CSharpSyntaxTree.ParseText(text));
 
@@ -152,4 +156,10 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
         
         return null;
     }
+
+    public override void Pause()
+        => paused = true;
+
+    public override void Resume()
+        => paused = false;
 }

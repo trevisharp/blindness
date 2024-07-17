@@ -16,10 +16,10 @@ public class ReloadElement(
         IAsyncElement main
     ) : BaseAsyncElement(model)
 {
+    bool paused = false;
+
     public IAsyncElement Reloader => reloader;
     public IAsyncElement Main => main;
-
-    readonly AutoResetEvent signal = new(false);
     
     public override void Stop()
     {
@@ -41,8 +41,12 @@ public class ReloadElement(
     /// </summary>
     public void ResetMain()
     {
-        Main.Stop();
+        while (paused)
+            Thread.Sleep(500);
+        
+        Main.Pause();
         Reloader.Wait();
+        Main.Run();
         SendSignal(SignalArgs.True);
     }
 
@@ -61,4 +65,10 @@ public class ReloadElement(
         
         ResetMain();
     }
+
+    public override void Pause()
+        => paused = true;
+
+    public override void Resume()
+        => paused = false;
 }

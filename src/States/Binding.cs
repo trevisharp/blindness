@@ -24,9 +24,14 @@ public class Binding(
 {
     readonly Node node = node;
     readonly Func<string, int> fieldMap = fieldMap;
-    readonly int[] pointerMap = Enumerable.Repeat(-1, fieldCount).ToArray();
+    int[] pointerMap = Enumerable.Repeat(-1, fieldCount).ToArray();
     readonly List<EventElement>[] eventMap = new List<EventElement>[fieldCount];
-    
+
+    public void Copy(Binding other)
+    {
+        this.pointerMap = other.pointerMap;
+    }
+
     /// <summary>
     /// Get a value based on the code of the field.
     /// </summary>
@@ -115,7 +120,7 @@ public class Binding(
 
     MethodInfo FindMethod(string name, Type type = null)
     {
-        type ??= this.GetType();
+        type ??= GetType();
         foreach (var method in type.GetRuntimeMethods())
         {
             if (method.Name != name)
@@ -130,7 +135,7 @@ public class Binding(
     {
         if (fieldType.GetInterface(nameof(INode)) == typeof(INode))
             throw new NonInitializatedNodeException(
-                fieldType, this.node.GetType()
+                fieldType, node.GetType()
             );
         var isNullable = 
             fieldType.IsGenericType &&

@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/07/2024
+ * Date:    17/07/2024
  */
+using System.Threading;
+
 namespace Blindness.Concurrency.Elements;
 
 using States;
@@ -13,6 +15,7 @@ public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
 {
     public int ElementPointer { get; set; }
     bool running = false;
+    bool paused = false;
 
     public override void Stop()
         => running = false;
@@ -25,6 +28,9 @@ public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
         running = true;
         while (running)
         {
+            while (paused)
+                Thread.Sleep(500);
+            
             var data = Memory.Current.GetObject(ElementPointer);
             if (data is not IAsyncElement element)
                 throw new NonAsyncElementException(typeof(T));
@@ -33,4 +39,10 @@ public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
             SendSignal(SignalArgs.True);
         }
     }
+
+    public override void Pause()
+        => paused = true;
+
+    public override void Resume()
+        => paused = false;
 }

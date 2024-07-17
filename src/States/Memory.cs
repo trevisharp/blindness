@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    16/07/2024
+ * Date:    17/07/2024
  */
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Blindness.States;
@@ -144,15 +145,18 @@ public class Memory(IMemoryBehaviour behaviour)
             if (!type.Implements("INode"))
                 return obj;
             
+            var baseType = type.GetInterfaces()
+                .FirstOrDefault(i => i.Name != "INode");
+            
             var node = obj as Node;
             var nodeCopy = DependencySystem
-                .Current.GetConcrete(type);
-            
+                .Current.GetConcrete(baseType);
+
+            Current.Set(node.MemoryLocation, nodeCopy);
             nodeCopy.MemoryLocation = node.MemoryLocation;
+            nodeCopy.Bind.Copy(node.Bind);
             nodeCopy.Model = node.Model;
-            // TODO: Remove this and update all data to don't restart app
-            node.LoadDependencies();
-            node.OnLoad();
+
             return nodeCopy;
         });
     }
