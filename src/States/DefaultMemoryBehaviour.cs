@@ -55,7 +55,7 @@ public class DefaultMemoryBehaviour : IMemoryBehaviour
                     return pointer;
         }
 
-        return -1;
+        return Memory.Null;
     }
     
     public void Reload(Func<object, object> func)

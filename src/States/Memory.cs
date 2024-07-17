@@ -1,7 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/02/2024
+ * Date:    16/07/2024
  */
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Blindness.States;
@@ -13,27 +12,29 @@ using Concurrency.Elements;
 /// <summary>
 /// A memory abstraction to provide binding features.
 /// </summary>
-public class Memory
+public class Memory(IMemoryBehaviour behaviour)
 {
-    private IMemoryBehaviour behaviour;
-    private Memory(IMemoryBehaviour behaviour)
-        => this.behaviour = behaviour;
     private static Memory crr = null;
     public static Memory Current => crr;
-    
-    Dictionary<int, List<PointerListner>> eventDict = new();
+
+    public const int Null = -1;
+
+    readonly Dictionary<int, List<PointerListner>> eventDict = [];
 
     /// <summary>
     /// Add a event to listen a specific memory address.
     /// </summary>
     public void AddPointerListner(int pointer, EventElement element)
     {
+        if (pointer == Null)
+            return;
+
         if (!eventDict.ContainsKey(pointer))
-            eventDict.Add(pointer, new());
+            eventDict.Add(pointer, []);
         var events = eventDict[pointer];
         
         var repeatitionElement = events
-            .FirstOrDefault(el => el.EventObject == element);
+            .Find(el => el.EventObject == element);
         
         if (repeatitionElement is not null)
         {
@@ -52,24 +53,22 @@ public class Memory
     /// </summary>
     public void RemovePointerListner(int pointer, EventElement element)
     {
-        if (pointer == -1)
+        if (pointer == Null)
             return;
 
-        if (!eventDict.ContainsKey(pointer))
+        if (!eventDict.TryGetValue(pointer, out var events))
             return;
-        var events = eventDict[pointer];
         
         var repeatitionElement = events
-            .FirstOrDefault(el => el.EventObject == element);
-        
+            .Find(el => el.EventObject == element);
         if (repeatitionElement is null)
             return;
+
         repeatitionElement.Counter--;
-        
         if (repeatitionElement.Counter > 0)
             return;
+        
         events.Remove(repeatitionElement);
-
         if (events.Count == 0)
             eventDict.Remove(pointer);
     }
@@ -85,10 +84,10 @@ public class Memory
     /// </summary>
     public int Add(object obj)
     {
-        if (this.behaviour is null)
+        if (behaviour is null)
             throw new MemoryBehaviourNotDefined();
 
-        return this.behaviour.Add(obj);
+        return behaviour.Add(obj);
     }
 
     /// <summary>
@@ -99,10 +98,10 @@ public class Memory
     
     public int Find(object obj)
     {
-        if (this.behaviour is null)
+        if (behaviour is null)
             throw new MemoryBehaviourNotDefined();
         
-        return this.behaviour.Find(obj);
+        return behaviour.Find(obj);
     }
 
     /// <summary>
@@ -110,10 +109,10 @@ public class Memory
     /// </summary>
     public object GetObject(int pointer)
     {
-        if (this.behaviour is null)
+        if (behaviour is null)
             throw new MemoryBehaviourNotDefined();
 
-        return this.behaviour.Get(pointer);
+        return behaviour.Get(pointer);
     }
 
     /// <summary>
@@ -121,21 +120,11 @@ public class Memory
     /// </summary>
     public void Set<T>(int pointer, T value)
     {
-        if (this.behaviour is null)
+        if (behaviour is null)
             throw new MemoryBehaviourNotDefined();
         
-        this.behaviour.Set(pointer, value);
-        callEvents(pointer);
-    }
-
-    void callEvents(int pointer)
-    {
-        if (!eventDict.ContainsKey(pointer))
-            return;
-        
-        var list = eventDict[pointer];
-        foreach (var item in list)
-            item?.EventObject?.Awake();
+        behaviour.Set(pointer, value);
+        CallEvents(pointer);
     }
 
     /// <summary>
@@ -143,7 +132,10 @@ public class Memory
     /// </summary>
     public void Reload()
     {
-        this.behaviour.Reload(obj =>
+        if (behaviour is null)
+            throw new MemoryBehaviourNotDefined();
+
+        behaviour.Reload(obj =>
         {
             if (obj is null)
                 return null;
@@ -155,5 +147,14 @@ public class Memory
             return DependencySystem.Current
                 .GetConcrete(type);
         });
+    }
+
+    void CallEvents(int pointer)
+    {
+        if (!eventDict.TryGetValue(pointer, out var events))
+            return;
+        
+        foreach (var item in events)
+            item?.EventObject?.Awake();
     }
 }
