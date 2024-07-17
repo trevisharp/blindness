@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    16/07/2024
+ * Date:    17/07/2024
  */
 using System;
 using System.Reflection;
@@ -9,12 +9,11 @@ namespace Blindness.States;
 
 using Internal;
 using Exceptions;
-using Concurrency;
 
 /// <summary>
 /// Dependency injection system.
 /// </summary>
-public class DependencySystem(IAsyncModel model)
+public class DependencySystem
 {
     private static DependencySystem crr = null;
     public static DependencySystem Current => crr;
@@ -22,8 +21,8 @@ public class DependencySystem(IAsyncModel model)
     /// <summary>
     /// Reset a Dependency system sending a model used to init all nodes.
     /// </summary>
-    public static void Reset(IAsyncModel model)
-        => crr = new(model);
+    public static void Reset()
+        => crr = new();
     
     private Assembly crrAssembly = null;
     private Dictionary<Type, Type> typeMap = [];
@@ -49,12 +48,6 @@ public class DependencySystem(IAsyncModel model)
 
             if (obj is not Node node)
                 return null;
-            
-            node.MemoryLocation =
-                Memory.Current.Add(obj);
-            node.Model = model;
-            node.LoadDependencies();
-            node.OnLoad();
 
             return node;
         }

@@ -20,7 +20,7 @@ public class DefaultAppBehaviour : AppBehaviour
         try
         {
             var model = new DefaultModel();
-            DependencySystem.Reset(model);
+            DependencySystem.Reset();
 
             var memory = new DefaultMemoryBehaviour();
             Memory.Reset(memory);
