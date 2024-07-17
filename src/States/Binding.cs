@@ -17,7 +17,9 @@ using Concurrency.Elements;
 /// Binding object no manage states.
 /// </summary>
 public class Binding(
-    Node node, int fieldCount, Type parentType,
+    Node node,
+    int fieldCount,
+    Type parentType,
     Func<string, int> fieldMap)
 {
     readonly Node node = node;
@@ -32,7 +34,7 @@ public class Binding(
     {
         var pointer = GetBind(fieldCode);
 
-        if (pointer == -1)
+        if (pointer == Memory.Null)
             pointer = tryInitField(typeof(T), fieldCode);
 
         return Memory.Current.Get<T>(pointer);
@@ -47,13 +49,13 @@ public class Binding(
             throw new ArgumentOutOfRangeException(nameof(fieldCode));
         var pointer = this.pointerMap[fieldCode];
 
-        if (pointer != -1)
+        if (pointer != Memory.Null)
         {
-            Memory.Current.Set<T>(pointer, value);
+            Memory.Current.Set(pointer, value);
             return;
         }
 
-        initFieldWithValue<T>(fieldCode, value);
+        initFieldWithValue(fieldCode, value);
     }
     
     internal void AddEvent(PropertyInfo prop, EventElement eventObj)

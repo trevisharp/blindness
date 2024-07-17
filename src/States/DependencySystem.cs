@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    16/07/2024
  */
 using System;
 using System.Reflection;
@@ -14,10 +14,8 @@ using Concurrency;
 /// <summary>
 /// Dependency injection system.
 /// </summary>
-public class DependencySystem
+public class DependencySystem(IAsyncModel model)
 {
-    private DependencySystem(IAsyncModel model)
-        => this.model = model;
     private static DependencySystem crr = null;
     public static DependencySystem Current => crr;
 
@@ -27,17 +25,16 @@ public class DependencySystem
     public static void Reset(IAsyncModel model)
         => crr = new(model);
     
-    private IAsyncModel model;
     private Assembly crrAssembly = null;
-    private Dictionary<Type, Type> typeMap = new();
+    private Dictionary<Type, Type> typeMap = [];
     
     /// <summary>
     /// Update assembly type used to find concrete types.
     /// </summary>
     public void UpdateAssembly(Assembly assembly)
     {
-        this.crrAssembly = assembly;
-        this.typeMap = new();
+        crrAssembly = assembly;
+        typeMap = [];
     }
 
     /// <summary>
@@ -47,14 +44,13 @@ public class DependencySystem
     {
         try
         {
-            var concreteType = findConcrete(type);
+            var concreteType = FindConcrete(type);
             var obj = Activator.CreateInstance(concreteType);
 
-            var node = obj as Node;
-            if (node is null)
+            if (obj is not Node node)
                 return null;
-            
-            node.Model = this.model;
+
+            node.Model = model;
             node.LoadDependencies();
             node.OnLoad();
 
@@ -74,42 +70,30 @@ public class DependencySystem
         }
     }
 
-    private Type findConcrete(Type inputType)
+    Type FindConcrete(Type inputType)
     {
-        if (this.crrAssembly is not null)
-            return findConcreteByAssembly(inputType);
+        if (typeMap.TryGetValue(inputType, out Type type))
+            return type;
+        
+        if (crrAssembly is not null)
+            return FindAndMapType(inputType, crrAssembly);
         
         if (!inputType.IsAbstract && !inputType.IsInterface)
             return inputType;
-
-        if (typeMap.ContainsKey(inputType))
-            return typeMap[inputType];
-
-        var assembly = inputType.Assembly;
-        var types = assembly.GetTypes();
-
-        foreach (var type in types)
-        {
-            if (!type.Implements(inputType))
-                continue;
-            
-            if (type.GetCustomAttribute<ConcreteAttribute>() is null)
-                continue;
-            
-            this.typeMap.Add(inputType, type);
-            return type;
-        }
-
-        throw new MissingConcreteTypeException(inputType);
+        
+        return FindAndMapType(inputType, inputType.Assembly);;
     }
 
-    private Type findConcreteByAssembly(Type inputType)
+    Type FindAndMapType(Type inputType, Assembly assembly)
     {
-        if (typeMap.ContainsKey(inputType))
-            return typeMap[inputType];
+        var findedType = FindConcreteByAssembly(inputType, assembly);
+        typeMap.Add(inputType, findedType);
+        return findedType;
+    }
 
-        var types = crrAssembly.GetTypes();
-
+    static Type FindConcreteByAssembly(Type inputType, Assembly assembly)
+    {
+        var types = assembly.GetTypes();
         foreach (var type in types)
         {
             if (!type.Implements(inputType.Name))
@@ -118,7 +102,6 @@ public class DependencySystem
             if (type.GetCustomAttribute<ConcreteAttribute>() is null)
                 continue;
             
-            this.typeMap.Add(inputType, type);
             return type;
         }
 
