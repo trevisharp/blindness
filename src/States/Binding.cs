@@ -24,7 +24,7 @@ public class Binding(
 {
     readonly Node node = node;
     readonly Func<string, int> fieldMap = fieldMap;
-    readonly int[] pointerMap = Enumerable.Range(-1, fieldCount).ToArray();
+    readonly int[] pointerMap = Enumerable.Repeat(-1, fieldCount).ToArray();
     readonly List<EventElement>[] eventMap = new List<EventElement>[fieldCount];
     
     /// <summary>
