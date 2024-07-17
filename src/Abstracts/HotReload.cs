@@ -97,9 +97,14 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
         
         var codeFiles = 
             from file in files
+            where !file.Contains("\\bin\\")
+            where !file.Contains("\\obj\\")
             where !file.Contains("/bin/")
             where !file.Contains("/obj/")
             select file;
+        
+        foreach (var x in codeFiles)
+            System.Console.WriteLine(x);
         
         foreach (var file in codeFiles)
             yield return file;
