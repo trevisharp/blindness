@@ -116,8 +116,8 @@ public class ClassBuilder
         if (set is not null)
             AddLineCode(set);
         
-        AddLineCode("}");
         RemoveScope();
+        AddLineCode("}");
 
         return this;
     }

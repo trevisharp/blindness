@@ -46,7 +46,7 @@ public class DefaultModel : IAsyncModel
             if (!queue.TryDequeue(out IAsyncElement node))
                 continue;
             
-            executeAsync(node);
+            ExecuteAsync(node);
         }
     }
 
@@ -67,7 +67,7 @@ public class DefaultModel : IAsyncModel
             return;
         }
         
-        executeAsync(node);
+        ExecuteAsync(node);
     }
 
     public void SendError(IAsyncElement el, Exception ex)
@@ -78,14 +78,15 @@ public class DefaultModel : IAsyncModel
         OnError(el, ex);
     }
 
-    void executeAsync(IAsyncElement node)
+    void ExecuteAsync(IAsyncElement node)
     {
         if (node is null)
             return;
+        
+        activeCount++;
         Task.Run(() => {
             try
             {
-                activeCount++;
                 node.Run();
             }
             catch (Exception ex)
