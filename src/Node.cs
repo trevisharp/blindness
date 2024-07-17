@@ -39,6 +39,7 @@ public abstract class Node : IAsyncElement
     }
 
     int signalCount = 0;
+    bool paused = false;
     readonly AutoResetEvent signal = new(false);
     readonly List<(Func<bool> pred, Action act)> whenList = [];
 
@@ -76,6 +77,9 @@ public abstract class Node : IAsyncElement
     
     public void Run()
     {
+        while (paused)
+            Thread.Sleep(100);
+        
         this.Running = true;
         OnRun();
         RunWhenList();
@@ -94,6 +98,11 @@ public abstract class Node : IAsyncElement
 
     public void Stop()
         => Running = false;
+    
+    public void Pause()
+        => paused = true;
+    public void Resume()
+        => paused = false;
     
     public void When(
         Func<bool> condition,

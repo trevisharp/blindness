@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/07/2024
+ * Date:    17/07/2024
  */
 using System;
 using System.Threading;
@@ -16,6 +16,7 @@ public class EventElement(
     ) : IAsyncElement
 {
     bool value;
+    bool paused = false;
     bool isRunning = false;
     readonly AutoResetEvent signal = new(false);
 
@@ -42,6 +43,9 @@ public class EventElement(
 
         while (isRunning)
         {
+            while (paused)
+                Thread.Sleep(100);
+
             signal.WaitOne();
 
             var newValue = predicate();
@@ -52,4 +56,10 @@ public class EventElement(
             action(value);
         }
     }
+
+    public void Pause()
+        => paused = true;
+
+    public void Resume()
+        => paused = false;
 }

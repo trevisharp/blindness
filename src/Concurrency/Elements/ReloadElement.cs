@@ -46,7 +46,7 @@ public class ReloadElement(
         
         Main.Pause();
         Reloader.Wait();
-        Main.Run();
+        Main.Resume();
         SendSignal(SignalArgs.True);
     }
 
