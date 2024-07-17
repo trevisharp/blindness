@@ -22,7 +22,7 @@ public class DefaultAppBehaviour : AppBehaviour
             var model = new DefaultModel();
             DependencySystem.Reset(model);
 
-            var memory = new DefaultMemory();
+            var memory = new DefaultMemoryBehaviour();
             Memory.Reset(memory);
 
             var implementer = new DefaultImplementer();

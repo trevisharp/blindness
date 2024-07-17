@@ -1,25 +1,24 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/02/2024
+ * Date:    16/07/2024
  */
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Blindness.States;
 
 /// <summary>
 /// Default implementation of memory.
 /// </summary>
-public class DefaultMemory : IMemoryBehaviour
+public class DefaultMemoryBehaviour : IMemoryBehaviour
 {
     int nextIndex = 0;
-    int nextVectorIndex = vectorLen;
+    int currentBucketIndex = vectorLen;
     const int vectorLen = 64;
-    LinkedList<object[]> data = new();
+    readonly LinkedList<object[]> data = [];
 
     public int Add(object obj)
     {
-        add(obj);
+        AddToBucket(obj);
         var newIndex = nextIndex;
         nextIndex++;
 
@@ -31,13 +30,13 @@ public class DefaultMemory : IMemoryBehaviour
 
     public object Get(int pointer)
     {
-        var bucket = getBucket(ref pointer);
+        var bucket = GetBucket(ref pointer);
         return bucket[pointer];
     }
 
     public void Set(int pointer, object value)
     {
-        var bucket = getBucket(ref pointer);
+        var bucket = GetBucket(ref pointer);
         lock (bucket)
         {
             bucket[pointer] = value;
@@ -70,7 +69,7 @@ public class DefaultMemory : IMemoryBehaviour
                 int index = i % vectorLen;
                 bucket[index] = func(bucket[index]);
 
-                if (i % vectorLen < vectorLen - 1)
+                if (index < vectorLen - 1)
                     continue;
                 
                 it = it.Next;
@@ -79,25 +78,38 @@ public class DefaultMemory : IMemoryBehaviour
         }
     }
 
-    void add(object obj)
+    /// <summary>
+    /// Add element to last position on the last bucket.
+    /// Create bucket if list is full.
+    /// </summary>
+    void AddToBucket(object obj)
     {
-        var bucket = getCurrentBucket();
-        bucket[nextVectorIndex] = obj;
-        nextVectorIndex++;
+        var bucket = GetLastBucket();
+        bucket[currentBucketIndex] = obj;
+        currentBucketIndex++;
     }
 
-    object[] getCurrentBucket()
+    /// <summary>
+    /// Get Last Bucket. If the last bucket is full, create a
+    /// new bucket and return it.
+    /// </summary>
+    /// <returns></returns>
+    object[] GetLastBucket()
     {
-        if (nextVectorIndex < vectorLen)
+        if (currentBucketIndex < vectorLen)
             return data.Last.Value;
         
-        nextVectorIndex = 0;
-        var newArray = new object[vectorLen];
-        data.AddLast(newArray);
-        return newArray;
+        currentBucketIndex = 0;
+        var newBucket = new object[vectorLen];
+        data.AddLast(newBucket);
+        return newBucket;
     }
 
-    object[] getBucket(ref int pointer)
+    /// <summary>
+    /// Get bucket that contains a pointer and set the
+    /// pointer to a index in bucket referential.
+    /// </summary>
+    object[] GetBucket(ref int pointer)
     {
         var node = data.First;
         while (pointer > vectorLen)
