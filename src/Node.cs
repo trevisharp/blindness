@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    17/07/2024
  */
 using System;
 using System.Linq;
@@ -17,28 +17,28 @@ using Concurrency.Elements;
 
 /// <summary>
 /// A base class for all concrete nodes.
-/// Used by code generator
+/// Used by code generator.
 /// </summary>
 public abstract class Node : IAsyncElement
 {
-    private int signalCount = 0;
-    private AutoResetEvent signal = new(false);
-    private List<(Func<bool> pred, Action act)> whenList = new();
-
-    public event Action<IAsyncElement, SignalArgs> OnSignal;
+    int signalCount = 0;
+    readonly AutoResetEvent signal = new(false);
+    readonly List<(Func<bool> pred, Action act)> whenList = [];
 
     public Binding Bind { get; set; }
     public IAsyncModel Model { get; set; }
-    public int MemoryLocation { get; set; } = -1;
+    public int MemoryLocation { get; set; } = Memory.Null;
+
+    public event Action<IAsyncElement, SignalArgs> OnSignal;
 
     internal void LoadDependencies()
     {
-        var deps = findDeps();
+        var deps = FindDeps();
         if (deps is null)
             return;
         
         var parameters = deps.GetParameters();
-        object[] objs = new object[parameters.Length];
+        var objs = new object[parameters.Length];
         
         for (int i = 0; i < objs.Length; i++)
         {
@@ -62,7 +62,7 @@ public abstract class Node : IAsyncElement
     {
         this.Running = true;
         OnRun();
-        runWhenList();
+        RunWhenList();
 
         if (signalCount == 0)
             return;
@@ -95,33 +95,87 @@ public abstract class Node : IAsyncElement
         Action<bool> action
     )
     {
-        // TODO: Get the Async model
-        EventElement eventElement = new EventElement(
-            null, action, condition.Compile()
+        EventElement eventElement = new(
+            Model, action, condition.Compile()
         );
 
-        addEvents(condition, eventElement);
+        AddEvents(condition, eventElement);
 
         Model.Run(eventElement);
     }
 
-    void addEvents(
+    void AddEvents(
         Expression exp,
         EventElement eventObj
     )
     {
         List<EventMatch> matches = new();
-        addEvents(exp, eventObj, matches);
+        AddEvents(exp, eventObj, matches);
 
         var uniqueMatches = matches
             .Where(m => m.Field is not null)
             .DistinctBy(m => m.Field);
         
         foreach (var match in uniqueMatches)
-            addEvent(match);
+            AddEvent(match);
     }
 
-    void addEvents(
+    void AddEvent(
+        EventMatch match
+    )
+    {
+        var binding = GetBinding(match.Parent);
+
+        binding.AddEvent(
+            match.Field,
+            match.EventObject
+        );
+    }
+
+    void RunWhenList()
+    {
+        foreach (var (pred, act) in whenList)
+        {
+            if (pred())
+                act();
+        }
+    }
+
+    MethodInfo FindDeps()
+        => FindMethod("Deps");
+
+    MethodInfo FindMethod(string name, Type type = null)
+    {
+        type ??= GetType();
+
+        var method = type.GetRuntimeMethods()
+            .FirstOrDefault(p => p.Name == name);
+        
+        return method;
+    }
+
+    PropertyInfo FindProperty(string name, Type type = null)
+    {
+        type ??= GetType();
+        
+        var prop = type.GetRuntimeProperties()
+            .FirstOrDefault(p => p.Name == name);
+        
+        return prop;
+    }
+
+    static Binding GetBinding(object type)
+    {
+        if (type is null)
+            return null;
+
+        if (type is not Node node)
+            return null;
+
+        return node.Bind;
+    }
+    
+    static void AddEvents(
         Expression exp,
         EventElement eventObj,
         List<EventMatch> capturedEvents
@@ -131,7 +185,7 @@ public abstract class Node : IAsyncElement
         {
             case ExpressionType.Lambda:
                 var lambdaExp = exp as LambdaExpression;
-                addEvents(lambdaExp.Body, eventObj, capturedEvents);
+                AddEvents(lambdaExp.Body, eventObj, capturedEvents);
                 break;
             
             case ExpressionType.AndAlso:
@@ -148,8 +202,8 @@ public abstract class Node : IAsyncElement
             case ExpressionType.LessThan:
             case ExpressionType.LessThanOrEqual:
                 var binExp = exp as BinaryExpression;
-                addEvents(binExp.Left, eventObj, capturedEvents);
-                addEvents(binExp.Right, eventObj, capturedEvents);
+                AddEvents(binExp.Left, eventObj, capturedEvents);
+                AddEvents(binExp.Right, eventObj, capturedEvents);
                 break;
 
             case ExpressionType.MemberAccess:
@@ -161,65 +215,9 @@ public abstract class Node : IAsyncElement
                     capturedEvents.Add(new(propExp.Value, memberExp.Member as PropertyInfo, eventObj));
                     break;
                 }
-                
-                addEvents(memberExp.Expression, eventObj, capturedEvents);
+
+                AddEvents(memberExp.Expression, eventObj, capturedEvents);
                 break;
         }
-    }
-
-    void addEvent(
-        EventMatch match
-    )
-    {
-        var binding = getBinding(match.Parent);
-
-        binding.AddEvent(
-            match.Field,
-            match.EventObject
-        );
-    }
-
-    private void runWhenList()
-    {
-        foreach (var item in whenList)
-        {
-            if (item.pred())
-                item.act();
-        }
-    }
-
-    private MethodInfo findDeps()
-        => findMethod("Deps");
-
-    private Binding getBinding(object type)
-    {
-        if (type is null)
-            return null;
-        
-        var node = type as Node;
-        if (node is null)
-            return null;
-        
-        return node.Bind;
-    }
-    
-    private MethodInfo findMethod(string name, Type type = null)
-    {
-        type ??= this.GetType();
-
-        var method =  type.GetRuntimeMethods()
-            .FirstOrDefault(p => p.Name == name);
-        
-        return method;
-    }
-
-    private PropertyInfo findProperty(string name, Type type = null)
-    {
-        type ??= this.GetType();
-        
-        var prop = type.GetRuntimeProperties()
-            .FirstOrDefault(p => p.Name == name);
-        
-        return prop;
     }
 }
