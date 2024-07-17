@@ -49,7 +49,9 @@ public class DependencySystem(IAsyncModel model)
 
             if (obj is not Node node)
                 return null;
-
+            
+            node.MemoryLocation =
+                Memory.Current.Add(obj);
             node.Model = model;
             node.LoadDependencies();
             node.OnLoad();

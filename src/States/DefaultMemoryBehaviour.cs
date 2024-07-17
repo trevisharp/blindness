@@ -21,10 +21,6 @@ public class DefaultMemoryBehaviour : IMemoryBehaviour
         AddToBucket(obj);
         var newIndex = nextIndex;
         nextIndex++;
-
-        if (obj is Node node)
-            node.MemoryLocation = newIndex;
-        
         return newIndex;
     }
 
