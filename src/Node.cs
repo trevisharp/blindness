@@ -12,6 +12,7 @@ namespace Blindness;
 
 using States;
 using Internal;
+using Injection;
 using Concurrency;
 
 /// <summary>
@@ -29,7 +30,7 @@ public abstract class Node : IAsyncElement
     /// </summary>
     public static Node New(Type type, IAsyncModel model)
     {
-        var node = DependencySystem.Current.GetConcrete(type);
+        var node = DependencySystem.Shared.GetConcrete<Node>(type);
         node.MemoryLocation = Memory.Current.Add(node);
         node.Model = model;
         node.LoadDependencies();

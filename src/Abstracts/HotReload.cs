@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Blindness.Abstracts;
 
 using States;
+using Injection;
 using Concurrency;
 
 /// <summary>
@@ -88,7 +89,7 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
         if (assembly is null)
             throw new ArgumentNullException(nameof(assembly));
         
-        DependencySystem.Current.UpdateAssembly(assembly);
+        DependencySystem.Shared.UpdateAssembly(assembly);
         Memory.Current.Reload();
     }
     

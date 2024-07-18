@@ -1,14 +1,23 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    18/07/2024
+ */
 using System;
 using System.Linq;
+using System.Reflection;
 
-namespace Blindness.Internal;
+namespace Blindness.Injection;
 
-internal static class TypeExtension
+using Exceptions;
+
+/// <summary>
+/// A class contains many useful methods for Type objects.
+/// </summary>
+public static class TypeExtension
 {
     public static bool Implements(this Type type, Type baseType)
     {
-        if (type is null)
-            return false;
+        ArgumentNullException.ThrowIfNull(type, nameof(type));
+        ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
         
         if (type == baseType)
             return true;
@@ -32,8 +41,8 @@ internal static class TypeExtension
     
     public static bool Implements(this Type type, string baseType)
     {
-        if (type is null)
-            return false;
+        ArgumentNullException.ThrowIfNull(type, nameof(type));
+        ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
         
         var nonGeneratedName = type.Name
             .Replace("<>c", "")
@@ -55,5 +64,25 @@ internal static class TypeExtension
                 return true;
 
         return false;
+    }
+
+    public static Type FindConcreteByAssembly(this Type inputType, Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(inputType, nameof(inputType));
+        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+
+        var types = assembly.GetTypes();
+        foreach (var type in types)
+        {
+            if (!type.Implements(inputType.Name))
+                continue;
+            
+            if (type.GetCustomAttribute<ConcreteAttribute>() is null)
+                continue;
+            
+            return type;
+        }
+
+        throw new MissingConcreteTypeException(inputType);
     }
 }

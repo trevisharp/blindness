@@ -56,6 +56,8 @@ public class EventElement(
 
             value = newValue;
             action(value);
+            if (OnSignal is not null)
+                OnSignal(this, SignalArgs.True);
         }
     }
 

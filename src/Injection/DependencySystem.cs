@@ -1,13 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/07/2024
+ * Date:    18/07/2024
  */
 using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness.States;
+namespace Blindness.Injection;
 
-using Internal;
 using Exceptions;
 
 /// <summary>
@@ -15,14 +14,18 @@ using Exceptions;
 /// </summary>
 public class DependencySystem
 {
-    private static DependencySystem crr = null;
-    public static DependencySystem Current => crr;
+    private static DependencySystem shared = null;
+
+    /// <summary>
+    /// Get a global DependencySystem reference.
+    /// </summary>
+    public static DependencySystem Shared => shared;
 
     /// <summary>
     /// Reset a Dependency system sending a model used to init all nodes.
     /// </summary>
     public static void Reset()
-        => crr = new();
+        => shared = new();
     
     private Assembly crrAssembly = null;
     private Dictionary<Type, Type> typeMap = [];
@@ -39,17 +42,13 @@ public class DependencySystem
     /// <summary>
     /// Get a concrete object of a Node based on your type.
     /// </summary>
-    public Node GetConcrete(Type type)
+    public T GetConcrete<T>(Type type)
     {
         try
         {
             var concreteType = FindConcrete(type);
             var obj = Activator.CreateInstance(concreteType);
-
-            if (obj is not Node node)
-                return null;
-
-            return node;
+            return (T)obj;
         }
         catch (MissingConcreteTypeException)
         {
@@ -76,30 +75,13 @@ public class DependencySystem
         if (!inputType.IsAbstract && !inputType.IsInterface)
             return inputType;
         
-        return FindAndMapType(inputType, inputType.Assembly);;
+        return FindAndMapType(inputType, inputType.Assembly);
     }
 
     Type FindAndMapType(Type inputType, Assembly assembly)
     {
-        var findedType = FindConcreteByAssembly(inputType, assembly);
+        var findedType = inputType.FindConcreteByAssembly(assembly);
         typeMap.Add(inputType, findedType);
         return findedType;
-    }
-
-    static Type FindConcreteByAssembly(Type inputType, Assembly assembly)
-    {
-        var types = assembly.GetTypes();
-        foreach (var type in types)
-        {
-            if (!type.Implements(inputType.Name))
-                continue;
-            
-            if (type.GetCustomAttribute<ConcreteAttribute>() is null)
-                continue;
-            
-            return type;
-        }
-
-        throw new MissingConcreteTypeException(inputType);
     }
 }

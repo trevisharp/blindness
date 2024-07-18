@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Blindness.States;
 
 using Internal;
-using Blindness;
+using Injection;
 using Exceptions;
 
 /// <summary>
@@ -150,7 +150,7 @@ public class Memory(IMemoryBehaviour behaviour)
             
             var node = obj as Node;
             var nodeCopy = DependencySystem
-                .Current.GetConcrete(baseType);
+                .Shared.GetConcrete<Node>(baseType);
 
             Current.Set(node.MemoryLocation, nodeCopy);
             nodeCopy.MemoryLocation = node.MemoryLocation;
