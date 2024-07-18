@@ -14,7 +14,7 @@ using Blindness;
 using Blindness.States;
 
 [Concrete]
-public class TextBoxConcrete : Node, TextBox
+public partial class TextBoxConcrete : Node, TextBox
 {
 	public TextBoxConcrete()
 		=> this.Bind = new Binding(

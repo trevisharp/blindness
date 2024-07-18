@@ -25,7 +25,134 @@ dotnet add package Blindness # Install Blindness
 
 # Learn by examples
 
-Coming soon...
+### Using Blindness.Concurrency
+
+```cs
+using System;
+using System.Threading;
+using System.Collections.Concurrent;
+
+using Blindness;
+using Blindness.Concurrency;
+
+// Create and start a default model
+// You can create your own model
+var model = new DefaultModel();
+model.Run(new Consumer(model));
+model.Start();
+
+// Use BaseAsyncElement to create your async elements...
+public class Consumer(IAsyncModel model) : BaseAsyncElement(model) 
+{
+    bool isRunning = false;
+    public override void Pause() { /* ... */ }
+
+    public override void Resume() { /* ... */ }
+
+    public override void Run()
+    {
+        int sum = 0;
+        int count = 0;
+        var queue = new ConcurrentQueue<int>();
+
+        var generator = new DataGenerator(queue);
+        Model.Run(generator);
+
+        isRunning = true;
+        while (isRunning)
+        {
+            if (queue.TryDequeue(out var value))
+            {
+                sum += value;
+                count++;
+                Console.WriteLine(count);
+            }
+
+            if (queue.IsEmpty)
+            {
+                Console.WriteLine("Waiting...");
+                // wait a signal from another element
+                generator.Wait();
+                Console.WriteLine("Running again!");
+            }
+        }
+    }
+
+    public override void Stop() { /* ... */ }
+}
+
+// ...or implements AsyncElement from scratch
+public class DataGenerator(ConcurrentQueue<int> queue) : IAsyncElement
+{
+    public IAsyncModel Model => throw new NotImplementedException();
+    readonly AutoResetEvent signal = new(false);
+    public event Action<IAsyncElement, SignalArgs> OnSignal;
+    public void Pause() { /* ... */ }
+    public void Resume() { /* ... */ }
+    public void Run() {
+        while (true)
+        {
+            for (int i = 0; i < Random.Shared.Next(10); i++)
+                queue.Enqueue(Random.Shared.Next());
+            signal.Set();
+            Thread.Sleep(Random.Shared.Next(400, 1000));
+        }
+    }
+    public void Stop() { /* ... */ }
+    public void Wait()
+        => signal.WaitOne();
+}
+```
+
+### Using LoopAsyncElement and other built-in elements
+
+```cs
+using System;
+using System.Threading;
+
+using Blindness;
+using Blindness.Concurrency;
+using Blindness.Concurrency.Elements;
+
+var model = new DefaultModel();
+
+var component = new MyComponent(model);
+model.Run(component);
+
+var myDelay = new DelayAsyncElement(model, 2, component.Stop);
+model.Run(myDelay);
+
+// Stop myDelay for 2 seconds extending MyComponent lifetime
+model.Run(new DelayAsyncElement(model, 1, myDelay.Pause));
+model.Run(new DelayAsyncElement(model, 3, myDelay.Resume));
+
+model.Start(); // App running for 4 seconds
+
+public class MyComponent(IAsyncModel model) : LoopAsyncElement(model)
+{
+    DateTime start;
+    protected override void OnInit()
+    {
+        start = DateTime.Now;
+    }
+
+    // Run in loop
+    protected override void OnRun()
+    {
+        var time = DateTime.Now - start;
+        string message = time.TotalSeconds.ToString();
+        Thread.Sleep(40);
+        Console.Clear();
+        Console.WriteLine(message);
+    }
+
+    protected override void OnStop()
+    {
+        Console.WriteLine("Goodbye!");
+    }
+}
+
+```
 
 # Versions
 

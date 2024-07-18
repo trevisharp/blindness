@@ -14,7 +14,7 @@ using Blindness;
 using Blindness.States;
 
 [Concrete]
-public class PanelConcrete : Node, Panel
+public partial class PanelConcrete : Node, Panel
 {
 	public PanelConcrete()
 		=> this.Bind = new Binding(

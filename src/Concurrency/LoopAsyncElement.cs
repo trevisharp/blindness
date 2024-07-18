@@ -62,7 +62,7 @@ public abstract class LoopAsyncElement(IAsyncModel model) : BaseAsyncElement(mod
     {
         OnInit();
         IsRunning = true;
-        while (IsWaitingToStop)
+        while (!IsWaitingToStop)
         {
             if (IsWaitingToPause)
             {

@@ -1,11 +1,13 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Collections.Generic;
 
-using Blindness;
+using System;
+using System.Threading;
 
-Verbose.VerboseLevel = 1000;
-App.StartWith<LoginScreen>();
+using Blindness;
+using Blindness.Concurrency;
+using Blindness.Concurrency.Elements;
+using System.Collections.Concurrent;
 
 public interface LoginScreen : INode
 {
@@ -27,11 +29,9 @@ public interface LoginScreen : INode
 
     void OnLoad()
     {
-        Panel.Title = "Login Page";
+        Panel.Title = "Login Page!!";
         Panel.Width = 60;
-        Panel.Children = new() {
-            Login, Password, Repeat
-        };
+        Panel.Children = [ Login, Password, Repeat ];
 
         Login.Title = "login";
         Login.Size = 40;

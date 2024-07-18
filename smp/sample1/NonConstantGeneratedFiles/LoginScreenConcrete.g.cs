@@ -14,7 +14,7 @@ using Blindness;
 using Blindness.States;
 
 [Concrete]
-public class LoginScreenConcrete : Node, LoginScreen
+public partial class LoginScreenConcrete : Node, LoginScreen
 {
 	public LoginScreenConcrete()
 		=> this.Bind = new Binding(
