@@ -14,7 +14,7 @@ using Exceptions;
 /// </summary>
 public class DependencySystem
 {
-    private static DependencySystem shared = null;
+    private static DependencySystem shared = new();
 
     /// <summary>
     /// Get a global DependencySystem reference.
@@ -27,7 +27,7 @@ public class DependencySystem
     public static void Reset()
         => shared = new();
     
-    private Assembly crrAssembly = null;
+    private Assembly crrAssembly = Assembly.GetEntryAssembly();
     private Dictionary<Type, Type> typeMap = [];
     
     /// <summary>
@@ -43,12 +43,29 @@ public class DependencySystem
     /// Get a concrete object of a Node based on your type.
     /// </summary>
     public T GetConcrete<T>(Type type)
+        => (T)GetConcrete(type);
+    
+    /// <summary>
+    /// Get a concrete object of a Node based on your type.
+    /// </summary>
+    public T GetConcrete<T>()
     {
+        var type = typeof(T);
+        return (T)GetConcrete(type);
+    }
+
+    /// <summary>
+    /// Get a concrete object of a Node based on your type.
+    /// </summary>
+    public object GetConcrete(Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type, nameof(type));
+
         try
         {
             var concreteType = FindConcrete(type);
             var obj = Activator.CreateInstance(concreteType);
-            return (T)obj;
+            return obj;
         }
         catch (MissingConcreteTypeException)
         {

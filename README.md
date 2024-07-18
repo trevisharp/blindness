@@ -10,7 +10,6 @@ Blindness is a framework for you to build your frameworks without seeing the det
  - [How to install](#how-to-install)
  - [Learn by examples](#learn-by-examples)
  - [Versions](#versions)
- - [Next Features](#next-features)
 
 # Overview
 
@@ -19,7 +18,7 @@ Blidness will control your dependency injection system, your state management, y
 # How to install
 
 ```bash
-dotnet new classlib # Create your library
+dotnet new classlib # Create your library (can be a console or other option too)
 dotnet add package Blindness # Install Blindness
 ```
 
@@ -153,6 +152,25 @@ public class MyComponent(IAsyncModel model) : LoopAsyncElement(model)
 }
 
 ```
+
+### Using Dependency Injection System with Blindness.Injection
+
+```cs
+using Blindness;
+using Blindness.Injection;
+
+var obj = DependencySystem.Shared.GetConcrete<List<string>>();
+obj.Add("Hello");
+obj.Add("Blindness");
+Console.WriteLine(obj); // [ Hello, Blindness ]
+
+// Update current assembly any time
+DependencySystem.Shared.UpdateAssembly(typeof(List<string>).Assembly);
+// Missing a subtype of System.Collections.Generic.List`1[System.String] with concrete attribute.
+var obj2 = DependencySystem.Shared.GetConcrete<List<string>>();
+```
+
+### 
 
 # Versions
 
