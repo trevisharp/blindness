@@ -39,6 +39,10 @@ public class DependencySystem
         typeMap = [];
     }
 
+    // TODO: Add Get<T>() functions to get types independent
+    // of Concrete Attribute.
+    // TODO: Analizes generic types construction.
+
     /// <summary>
     /// Get a concrete object of a Node based on your type.
     /// </summary>

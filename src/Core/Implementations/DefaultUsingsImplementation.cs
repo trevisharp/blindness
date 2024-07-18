@@ -5,12 +5,14 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness.Factory.Implementations;
+namespace Blindness.Core.Implementations;
+
+using Factory;
 
 /// <summary>
 /// Add default usings.
 /// </summary>
-public class ConcreteImplementation : Implementation
+public class DefaultUsingsImplementation : Implementation
 {
     public override void ImplementType(
         ClassBuilder builder,
@@ -20,9 +22,10 @@ public class ConcreteImplementation : Implementation
     )
     {
         builder
-            .SetClassName($"{baseInterface}Concrete")
-            .AddBaseType("Node")
-            .AddBaseType(baseInterface.Name)
-            .AddAttribute("Concrete");
+            .AddUsing("System")
+            .AddUsing("System.Reflection")
+            .AddUsing("System.Collections.Generic")
+            .AddUsing("Blindness")
+            .AddUsing("Blindness.States");
     }
 }

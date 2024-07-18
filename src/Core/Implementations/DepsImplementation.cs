@@ -6,7 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness.Factory.Implementations;
+namespace Blindness.Core.Implementations;
+
+using Factory;
 
 /// <summary>
 /// Generate Deps Function code.

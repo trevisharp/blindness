@@ -1,8 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    11/07/2024
  */
-namespace Blindness.Factory;
+namespace Blindness.Core;
 
+using Factory;
 using Implementations;
 
 /// <summary>
