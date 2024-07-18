@@ -6,12 +6,12 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness.Abstracts.Implementations;
+namespace Blindness.Factory.Implementations;
 
 /// <summary>
-/// Generate OnLoad Function code.
+/// Generate OnRun Function code.
 /// </summary>
-public class OnLoadImplementation : Implementation
+public class OnRunImplementation : Implementation
 {
     public override void ImplementType(
         ClassBuilder builder,
@@ -20,18 +20,17 @@ public class OnLoadImplementation : Implementation
         List<MethodInfo> methods
     )
     {
-        var onLoad = methods
-            .FirstOrDefault(m => m.Name == "OnLoad");
-        if (onLoad is null)
+        var onRun = methods
+            .FirstOrDefault(m => m.Name == "OnRun");
+        if (onRun is null)
             return;
         
         builder.AddLineCode(
             $$"""
-            protected override void OnLoad()
-                => (({{baseInterface.Name}})this).OnLoad();
+            protected override void OnRun()
+                => (({{baseInterface.Name}})this).OnRun();
             """
         );
-        methods.Remove(onLoad);
-        
+        methods.Remove(onRun);
     }
 }

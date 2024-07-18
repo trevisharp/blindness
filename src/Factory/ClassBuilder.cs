@@ -1,11 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/07/2024
+ * Date:    18/07/2024
  */
 using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace Blindness.Abstracts;
+namespace Blindness.Factory;
 
 /// <summary>
 /// A builder to generate a CSharp class file.
@@ -34,8 +34,7 @@ public class ClassBuilder
     /// </summary>
     public ClassBuilder AddBaseType(string type)
     {
-        if (type is null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(nameof(type));
         
         if (baseTypes.Contains(type))
             return this;
@@ -49,8 +48,7 @@ public class ClassBuilder
     /// </summary>
     public ClassBuilder AddUsing(string reference)
     {
-        if (reference is null)
-            throw new ArgumentNullException(nameof(reference));
+        ArgumentNullException.ThrowIfNull(nameof(reference));
         
         if (usings.Contains(reference))
             return this;
@@ -64,8 +62,7 @@ public class ClassBuilder
     /// </summary>
     public ClassBuilder AddAttribute(string attribute)
     {
-        if (attribute is null)
-            throw new ArgumentNullException(nameof(attribute));
+        ArgumentNullException.ThrowIfNull(nameof(attribute));
         
         if (attributes.Contains(attribute))
             return this;
@@ -80,8 +77,7 @@ public class ClassBuilder
     /// </summary>
     public ClassBuilder AddLineCode(string code)
     {
-        if (code is null)
-            throw new ArgumentNullException(nameof(code));
+        ArgumentNullException.ThrowIfNull(nameof(code));
         
         if (code is null)
             return this;

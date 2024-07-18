@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness.Abstracts.Implementations;
+namespace Blindness.Factory.Implementations;
 
 /// <summary>
 /// Generate constructor with binding by default behavior.

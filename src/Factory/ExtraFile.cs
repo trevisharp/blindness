@@ -1,8 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    18/07/2024
  */
-namespace Blindness.Abstracts;
+namespace Blindness.Factory;
 
+/// <summary>
+/// Represents a generic extra code file.
+/// </summary>
 public abstract class ExtraFile
 {
     public string FileName { get; set; }

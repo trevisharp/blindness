@@ -7,16 +7,16 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness.Abstracts;
+namespace Blindness.Factory;
 
-using Internal;
+using Utils;
 
 /// <summary>
 /// Code generator used to implement concrete nodes automatically.
 /// </summary>
 public abstract class Implementer
 {
-    public Type BaseConcreteType { get; protected set; }
+    public Type BaseInterface { get; protected set; }
     public List<Implementation> Implementations { get; protected set; }
     public List<ExtraFile> ExtraFiles { get; protected set; }
 
@@ -183,11 +183,11 @@ public abstract class Implementer
     /// Find all interface types that implments/inherits
     /// INode and not has Ignore attribute in a assembly.
     /// </summary>
-    protected static Type[] FindValidNodeType(Assembly assembly)
+    protected Type[] FindValidNodeType(Assembly assembly)
     {
         var types = assembly.GetTypes();
         var interfaces = GetAllDependentInterfaces(types);
-        List<Type> nodeTypes = [ typeof(INode) ];
+        List<Type> nodeTypes = [ BaseInterface ];
         bool needContinue = true;
 
         while (needContinue)

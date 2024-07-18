@@ -6,7 +6,7 @@ using System;
 namespace Blindness;
 
 using States;
-using Abstracts;
+using Factory;
 using Injection;
 using Concurrency;
 

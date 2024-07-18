@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    11/07/2024
  */
-namespace Blindness.Abstracts;
+namespace Blindness.Factory;
 
 using Implementations;
 
@@ -12,7 +12,7 @@ public class DefaultImplementer : Implementer
 {
     public DefaultImplementer()
     {
-        BaseConcreteType = typeof(Node);
+        BaseInterface = typeof(INode);
         Implementations = [
             new ConstructorImplementation(),
             new ConcreteImplementation(),

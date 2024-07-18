@@ -5,9 +5,9 @@ using System;
 using System.Text;
 using System.Security.Cryptography;
 
-namespace Blindness.Internal;
+namespace Blindness.Utils;
 
-internal static class HashExtensions
+public static class HashExtensions
 {
     /// <summary>
     /// Get Sha256 base64 encoded hash from a string.

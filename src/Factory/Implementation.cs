@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Blindness.Abstracts;
+namespace Blindness.Factory;
 
 /// <summary>
 /// Represents a logic to generate code.
@@ -15,7 +15,8 @@ public abstract class Implementation
 {
     public abstract void ImplementType(
         ClassBuilder builder,
-        string fileName, Type baseInterface,
+        string fileName, 
+        Type implementedType,
         List<PropertyInfo> properties,
         List<MethodInfo> methods
     );
@@ -28,6 +29,8 @@ public abstract class Implementation
 
         var name = type.GetGenericTypeDefinition().Name;
 
+        // TODO: Update to arrange types with more than 1
+        // generic parameter
         return type.Name.Replace("`1", "") 
             + "<" + string.Join(",",
                 genericParams.Select(p => p.Name)
