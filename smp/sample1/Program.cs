@@ -5,59 +5,14 @@ using System;
 using System.Threading;
 
 using Blindness;
-using Blindness.Factory;
-using System.Reflection;
 
-var implmenter = new MyImplementer();
-implmenter.Implement();
-
-public class MyImplementer : Implementer
+[Concrete]
+public class MyList : List<string>
 {
-    public MyImplementer()
-    {
-        BaseInterface = typeof(IBase);
-        Implementations = [ new MyImplementation() ];
-    }
+    public override string ToString()
+        => $"[ {string.Join(' ', this)} ]";
 }
 
-public class MyImplementation : Implementation
-{
-    public override void ImplementType(
-        ClassBuilder builder,
-        string fileName,
-        Type implementedType, 
-        List<PropertyInfo> properties,
-        List<MethodInfo> methods)
-    {
-        builder
-            .SetClassName($"{implementedType}Concrete")
-            .AddBaseType(implementedType.Name)
-            .AddUsing("System")
-            .AddLineCode(
-                """
-                public void OnShow()
-                    => ((MyRealCode)this).OnShow();
-                
-                public void Show()
-                {
-                    Console.WriteLine("Starting the show...");
-                    OnShow();
-                }
-                """
-            );
-    }
-}
-
-public interface MyRealCode : IBase
-{
-    void OnShow()
-        => Console.WriteLine("Blindness is cool!");
-}
-
-public interface IBase
-{
-    void Show();
-}
 
 public interface LoginScreen : INode
 {

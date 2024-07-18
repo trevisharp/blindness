@@ -168,6 +168,12 @@ Console.WriteLine(obj); // [ Hello, Blindness ]
 DependencySystem.Shared.UpdateAssembly(typeof(List<string>).Assembly);
 // Missing a subtype of System.Collections.Generic.List`1[System.String] with concrete attribute.
 var obj2 = DependencySystem.Shared.GetConcrete<List<string>>();
+
+public class MyList : List<string>
+{
+    public override string ToString()
+        => $"[ {string.Join(' ', this)} ]";
+}
 ```
 
 ### Generate code easily with Blindness.Factory
@@ -271,7 +277,7 @@ public partial class MyRealCodeConcrete : MyRealCode
 }
 ```
 
-###
+### 
 
 # Versions
 
