@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace Blindness.Internal;
 
-using Concurrency.Elements;
+using Blindness;
 
 internal record EventMatch(
     object Parent,

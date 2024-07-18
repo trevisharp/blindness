@@ -8,7 +8,6 @@ namespace Blindness;
 using States;
 using Abstracts;
 using Concurrency;
-using Concurrency.Elements;
 
 /// <summary>
 /// The default structure to a Blindness app.

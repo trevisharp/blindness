@@ -10,8 +10,8 @@ using System.Collections.Generic;
 namespace Blindness.States;
 
 using Internal;
+using Blindness;
 using Exceptions;
-using Concurrency.Elements;
 
 /// <summary>
 /// Binding object no manage states.

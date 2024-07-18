@@ -3,7 +3,7 @@
  */
 namespace Blindness.Internal;
 
-using Concurrency.Elements;
+using Blindness;
 
 internal class PointerListner
 {

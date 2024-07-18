@@ -7,8 +7,8 @@ using System.Collections.Generic;
 namespace Blindness.States;
 
 using Internal;
+using Blindness;
 using Exceptions;
-using Concurrency.Elements;
 
 /// <summary>
 /// A memory abstraction to provide binding features.

@@ -1,10 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/07/2024
+ * Date:    18/07/2024
  */
 using System;
 using System.Threading;
 
-namespace Blindness.Concurrency.Elements;
+namespace Blindness;
+
+using Concurrency;
 
 /// <summary>
 /// Represents a event used to listen memory addresses.
@@ -51,7 +53,7 @@ public class EventElement(
             var newValue = predicate();
             if (newValue == value)
                 continue;
-            
+
             value = newValue;
             action(value);
         }

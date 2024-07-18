@@ -1,12 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/07/2024
+ * Date:    18/07/2024
  */
 using System.Threading;
 
-namespace Blindness.Concurrency.Elements;
+namespace Blindness;
 
 using States;
 using Exceptions;
+using Concurrency;
 
 /// <summary>
 /// Loop a specific node.

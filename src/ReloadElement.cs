@@ -1,10 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/07/2024
+ * Date:    18/07/2024
  */
 using System;
 using System.Threading;
 
-namespace Blindness.Concurrency.Elements;
+namespace Blindness;
+
+using Concurrency;
 
 /// <summary>
 /// Run a first header and restart the second element every time
