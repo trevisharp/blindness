@@ -54,6 +54,14 @@ public abstract class Node : IAsyncElement
 
     public event Action<IAsyncElement, SignalArgs> OnSignal;
 
+    protected void Signal(SignalArgs args)
+    {
+        if (OnSignal is null)
+            return;
+        
+        OnSignal(this, args);
+    }
+
     internal void LoadDependencies()
     {
         var deps = FindDeps();
