@@ -26,7 +26,7 @@ public class DefaultPropertyImplementation : Implementation
             var prop = properties[0];
             var typeName = ArrangeGenericTypeName(prop.PropertyType);
             builder
-                .AddProperty()
+                .CreateProperty()
                     .SetType(typeName)
                     .SetName(prop.Name)
                     .SetGetCode($"Bind.Get<{typeName}>({i})")

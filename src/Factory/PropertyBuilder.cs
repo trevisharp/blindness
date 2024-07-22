@@ -47,7 +47,7 @@ public class PropertyBuilder(ClassBuilder parent) : MemberBuilder(parent)
     protected override void Build()
     {
         if (getCode is null && setCode is null) {
-            parent.AddCodeLine($"{parent.TabInfo}{accessModifier} {type} {name} {{ get; set; }}");
+            parent.AddCodeLine($"{accessModifier} {type} {name} {{ get; set; }}");
             return;
         }
 

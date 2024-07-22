@@ -14,7 +14,6 @@ public class ClassBuilder : CodeBuilder
 {
     protected const char tab = '\t';
     protected string tabInfo = "\t";
-    public string TabInfo => tabInfo;
 
     string className = "MyClass";
     readonly List<string> usings = [];
@@ -89,7 +88,7 @@ public class ClassBuilder : CodeBuilder
     /// <summary>
     /// Get a Property Builder to add a property on ClassBuilder.
     /// </summary>
-    public PropertyBuilder AddProperty()
+    public PropertyBuilder CreateProperty()
         => new(this);
 
     /// <summary>
@@ -116,7 +115,7 @@ public class ClassBuilder : CodeBuilder
     /// <summary>
     /// Build and get the C# code.
     /// </summary>
-    public string Build()
+    public virtual string Build()
     {
         StringBuilder usingsCode = new();
         foreach (var reference in usings)
