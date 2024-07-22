@@ -27,7 +27,7 @@ public class OnRunImplementation : Implementation
         if (onRun is null)
             return;
         
-        builder.AddLineCode(
+        builder.AddCodeLine(
             $$"""
             protected override void OnRun()
                 => (({{baseInterface.Name}})this).OnRun();

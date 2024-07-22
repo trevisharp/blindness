@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    22/07/2024
  */
 using System;
 using System.Reflection;
@@ -26,11 +26,12 @@ public class DefaultPropertyImplementation : Implementation
             var prop = properties[0];
             var typeName = ArrangeGenericTypeName(prop.PropertyType);
             builder
-                .AddProperty(typeName, prop.Name, 
-                    $"get => Bind.Get<{typeName}>({i});",
-                    $"set => Bind.Set({i}, value);"
-                );
-            
+                .AddProperty()
+                    .SetType(typeName)
+                    .SetName(prop.Name)
+                    .SetGetCode($"Bind.Get<{typeName}>({i})")
+                    .SetSetCode($"Bind.Set({i}, value)")
+                .AppendMember();
             properties.Remove(prop);
         }
     }

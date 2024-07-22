@@ -27,14 +27,14 @@ public class DepsImplementation : Implementation
         if (deps is null)
             return;
         
-        builder.AddLineCode("public void Deps(");
+        builder.AddCodeLine("public void Deps(");
 
         var parameters = deps.GetParameters();
         builder.AddScope();
         for (int i = 0; i < parameters.Length; i++)
         {
             var parameter = parameters[i];
-            builder.AddLineCode(
+            builder.AddCodeLine(
                 i < parameters.Length - 1 ?
                 $"{parameter.ParameterType.Name} {parameter.Name}," :
                 $"{parameter.ParameterType.Name} {parameter.Name}"
@@ -42,20 +42,20 @@ public class DepsImplementation : Implementation
         }
         builder
             .RemoveScope()
-            .AddLineCode(")")
-            .AddLineCode("{")
+            .AddCodeLine(")")
+            .AddCodeLine("{")
             .AddScope();
         
         for (int i = 0; i < parameters.Length; i++)
         {
             var parameter = parameters[i];
-            builder.AddLineCode(
+            builder.AddCodeLine(
                 $"this.{parameter.Name} = {parameter.Name};"
             );
         }
         builder
             .RemoveScope()
-            .AddLineCode("}");
+            .AddCodeLine("}");
 
         methods.Remove(deps);
     }

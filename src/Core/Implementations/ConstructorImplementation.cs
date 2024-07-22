@@ -22,28 +22,28 @@ public class ConstructorImplementation : Implementation
     )
     {
         builder
-            .AddLineCode($"public {baseInterface.Name}Concrete()")
+            .AddCodeLine($"public {baseInterface.Name}Concrete()")
             .AddScope()
-            .AddLineCode("=> this.Bind = new Binding(")
+            .AddCodeLine("=> this.Bind = new Binding(")
             .AddScope()
-            .AddLineCode($"this, {properties.Count}, typeof({baseInterface.Name}),")
-            .AddLineCode("s => s switch")
-            .AddLineCode("{")
+            .AddCodeLine($"this, {properties.Count}, typeof({baseInterface.Name}),")
+            .AddCodeLine("s => s switch")
+            .AddCodeLine("{")
             .AddScope();
 
         for (int i = 0; i < properties.Count; i++)
         {
             var prop = properties[i];
-            builder.AddLineCode(
+            builder.AddCodeLine(
                 $"\"{prop.Name}\" => {i},"
             );
         }
         builder
-            .AddLineCode("_ => -1")
+            .AddCodeLine("_ => -1")
             .RemoveScope()
-            .AddLineCode("}")
+            .AddCodeLine("}")
             .RemoveScope()
-            .AddLineCode(");")
+            .AddCodeLine(");")
             .RemoveScope();
     }
 }

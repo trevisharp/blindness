@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/07/2024
+ * Date:    22/07/2024
  */
 using System;
 using System.Text;
@@ -10,15 +10,16 @@ namespace Blindness.Factory;
 /// <summary>
 /// A builder to generate a CSharp class file.
 /// </summary>
-public class ClassBuilder
+public class ClassBuilder : CodeBuilder
 {
+    protected const char tab = '\t';
+    protected string tabInfo = "\t";
+    public string TabInfo => tabInfo;
+
     string className = "MyClass";
     readonly List<string> usings = [];
     readonly List<string> baseTypes = [];
     readonly List<string> attributes = [];
-    readonly StringBuilder classCode = new();
-    string tabInfo = "\t";
-    const char tab = '\t';
 
     /// <summary>
     /// Define the name of generated class.
@@ -75,48 +76,21 @@ public class ClassBuilder
     /// Add a line of code inside of the generated class.
     /// If code has many lines, tabulation is correctly applied.
     /// </summary>
-    public ClassBuilder AddLineCode(string code)
+    public ClassBuilder AddCodeLine(string code)
     {
-        ArgumentNullException.ThrowIfNull(nameof(code));
-        
-        if (code is null)
-            return this;
-        
+        code ??= "";
         code = tabInfo + code
             .Replace("\r", "")
             .Replace("\n", "\n" + tabInfo);
-        classCode.AppendLine(code);
+        Builder.AppendLine(code);
         return this;
     }
 
     /// <summary>
-    /// Add a public property with optional get and set.
-    /// If get and set is null, a auto-implemented property is used.
-    /// The get/set parameters need be the complete expression.
+    /// Get a Property Builder to add a property on ClassBuilder.
     /// </summary>
-    public ClassBuilder AddProperty(
-        string type, string name, 
-        string get = null, string set = null)
-    {
-        if (get is null && set is null)
-            AddLineCode($"public {type} {name} {{ get; set; }}");
-        
-        AddLineCode($"public {type} {name}");
-
-        AddLineCode("{");
-        AddScope();
-
-        if (get is not null)
-            AddLineCode(get);
-        
-        if (set is not null)
-            AddLineCode(set);
-        
-        RemoveScope();
-        AddLineCode("}");
-
-        return this;
-    }
+    public PropertyBuilder AddProperty()
+        => new(this);
 
     /// <summary>
     /// Add tabulation for next lines added inside the generated class.
@@ -176,7 +150,7 @@ public class ClassBuilder
         {{usingsCode}}
         {{attributeCode}}public partial class {{className}}{{basesCode}}
         {
-        {{classCode}}
+        {{Builder}}
         }
         """;
     }

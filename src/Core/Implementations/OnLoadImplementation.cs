@@ -27,7 +27,7 @@ public class OnLoadImplementation : Implementation
         if (onLoad is null)
             return;
         
-        builder.AddLineCode(
+        builder.AddCodeLine(
             $$"""
             protected override void OnLoad()
                 => (({{baseInterface.Name}})this).OnLoad();
