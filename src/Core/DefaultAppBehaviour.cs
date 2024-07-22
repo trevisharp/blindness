@@ -1,12 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/07/2024
+ * Date:    22/07/2024
  */
 using System;
 
-namespace Blindness;
+namespace Blindness.Core;
 
 using States;
-using Factory;
+using Reload;
 using Injection;
 using Concurrency;
 

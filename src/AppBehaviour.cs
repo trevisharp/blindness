@@ -13,8 +13,7 @@ public abstract class AppBehaviour
     /// <summary>
     /// Run the application.
     /// </summary>
-    public abstract void Run<T>(bool debug)
-        where T : INode;
+    public abstract void Run<T>(bool debug);
     
     protected static void ShowError(Exception ex)
     {

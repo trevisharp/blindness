@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 
-namespace Blindness;
+namespace Blindness.Core;
 
 using Concurrency;
 

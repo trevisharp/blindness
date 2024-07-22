@@ -11,7 +11,6 @@ using System.Collections.Generic;
 namespace Blindness;
 
 using States;
-using Internal;
 using Injection;
 using Concurrency;
 
@@ -21,6 +20,12 @@ using Concurrency;
 /// </summary>
 public abstract class Node : IAsyncElement
 {
+    internal record EventMatch(
+        object Parent,
+        PropertyInfo Field,
+        EventElement EventObject
+    );
+
     /// <summary>
     /// Create a new node of a specified type and using a
     /// specified async model. The node is created from

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Blindness;
+namespace Blindness.Reload;
 
 using States;
 using Injection;

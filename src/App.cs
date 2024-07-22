@@ -1,7 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/07/2024
+ * Date:    22/07/2024
  */
 namespace Blindness;
+
+using Core;
 
 /// <summary>
 /// Base class for start a application.
@@ -14,6 +16,6 @@ public static class App
     /// <summary>
     /// Start application based on a Node type.
     /// </summary>
-    public static void StartWith<T>() where T : INode
+    public static void StartWith<T>()
         => Behaviour.Run<T>(Debug);
 }

@@ -3,7 +3,7 @@
  */
 using System.Threading;
 
-namespace Blindness;
+namespace Blindness.Core;
 
 using States;
 using Exceptions;
