@@ -11,9 +11,8 @@ using Implementations;
 /// </summary>
 public class DefaultImplementer : Implementer
 {
-    public DefaultImplementer()
+    public DefaultImplementer() : base(typeof(INode))
     {
-        BaseType = typeof(INode);
         BaseTypeImplementations = [
             new ConstructorImplementation(),
             new ConcreteImplementation(),

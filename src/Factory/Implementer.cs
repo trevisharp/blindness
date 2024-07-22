@@ -14,11 +14,10 @@ using Utils;
 /// <summary>
 /// Code generator used to implement concrete types automatically.
 /// </summary>
-public abstract class Implementer
+public abstract class Implementer(Type baseType)
 {
-    public Type BaseType { get; protected set; }
-    public List<BaseTypeImplementation> BaseTypeImplementations { get; protected set; }
-    public List<ExtraFile> ExtraFiles { get; protected set; }
+    public List<BaseTypeImplementation> BaseTypeImplementations { get; set; } = [];
+    public List<ExtraFile> ExtraFiles { get; set; } = [];
 
     /// <summary>
     /// Try implement a type and his cache if needed.
@@ -48,7 +47,7 @@ public abstract class Implementer
         var cache = LoadCache(cachePath);
 
         var assembly = Assembly.GetEntryAssembly();
-        var nodes = FindValidNodes(assembly, BaseType);
+        var nodes = FindValidNodes(assembly, baseType);
         foreach (var node in nodes)
             Implement(nonConstDir, node, cache);
             
