@@ -1,12 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/07/2024
+ * Date:    22/07/2024
  */
 using System.Linq;
 using System.Collections.Generic;
 
 namespace Blindness.States;
 
-using Internal;
 using Injection;
 using Exceptions;
 
@@ -15,6 +14,12 @@ using Exceptions;
 /// </summary>
 public class Memory(IMemoryBehaviour behaviour)
 {
+    internal class PointerListner
+    {
+        public EventElement EventObject { get; set; }
+        public int Counter { get; set; }
+    }
+
     private static Memory crr = null;
     public static Memory Current => crr;
 
