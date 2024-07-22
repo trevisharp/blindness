@@ -13,7 +13,7 @@ using Factory;
 /// <summary>
 /// Generate OnLoad Function code.
 /// </summary>
-public class OnLoadImplementation : Implementation
+public class OnLoadImplementation : BaseTypeImplementation
 {
     public override void ImplementType(
         ClassBuilder builder,

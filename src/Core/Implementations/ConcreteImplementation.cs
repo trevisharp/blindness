@@ -12,7 +12,7 @@ using Factory;
 /// <summary>
 /// Add default usings.
 /// </summary>
-public class ConcreteImplementation : Implementation
+public class ConcreteImplementation : BaseTypeImplementation
 {
     public override void ImplementType(
         ClassBuilder builder,

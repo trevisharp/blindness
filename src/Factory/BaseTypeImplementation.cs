@@ -9,9 +9,9 @@ using System.Collections.Generic;
 namespace Blindness.Factory;
 
 /// <summary>
-/// Represents a logic to generate code.
+/// Represents a logic to generate code for implement a base type.
 /// </summary>
-public abstract class Implementation
+public abstract class BaseTypeImplementation
 {
     public abstract void ImplementType(
         ClassBuilder builder,

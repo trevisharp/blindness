@@ -12,7 +12,7 @@ using Factory;
 /// <summary>
 /// Generate constructor with binding by default behavior.
 /// </summary>
-public class ConstructorImplementation : Implementation
+public class ConstructorImplementation : BaseTypeImplementation
 {
     public override void ImplementType(
         ClassBuilder builder,

@@ -13,8 +13,8 @@ public class DefaultImplementer : Implementer
 {
     public DefaultImplementer()
     {
-        BaseInterface = typeof(INode);
-        Implementations = [
+        BaseType = typeof(INode);
+        BaseTypeImplementations = [
             new ConstructorImplementation(),
             new ConcreteImplementation(),
             new DefaultUsingsImplementation(),

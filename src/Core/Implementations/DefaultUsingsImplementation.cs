@@ -12,7 +12,7 @@ using Factory;
 /// <summary>
 /// Add default usings.
 /// </summary>
-public class DefaultUsingsImplementation : Implementation
+public class DefaultUsingsImplementation : BaseTypeImplementation
 {
     public override void ImplementType(
         ClassBuilder builder,

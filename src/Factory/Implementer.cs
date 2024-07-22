@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/07/2024
+ * Date:    22/07/2024
  */
 using System;
 using System.IO;
@@ -12,12 +12,12 @@ namespace Blindness.Factory;
 using Utils;
 
 /// <summary>
-/// Code generator used to implement concrete nodes automatically.
+/// Code generator used to implement concrete types automatically.
 /// </summary>
 public abstract class Implementer
 {
-    public Type BaseInterface { get; protected set; }
-    public List<Implementation> Implementations { get; protected set; }
+    public Type BaseType { get; protected set; }
+    public List<BaseTypeImplementation> BaseTypeImplementations { get; protected set; }
     public List<ExtraFile> ExtraFiles { get; protected set; }
 
     /// <summary>
@@ -48,8 +48,8 @@ public abstract class Implementer
         var cache = LoadCache(cachePath);
 
         var assembly = Assembly.GetEntryAssembly();
-        var nodeTypes = FindValidNodeType(assembly);
-        foreach (var node in nodeTypes)
+        var nodes = FindValidNodes(assembly, BaseType);
+        foreach (var node in nodes)
             Implement(nonConstDir, node, cache);
             
         foreach (var extraFile in ExtraFiles ?? [])
@@ -74,12 +74,12 @@ public abstract class Implementer
     /// <summary>
     /// Implement a files based on GetCode behavior.
     /// Use the file content to save .cache file.
+    /// The generated file has name type.Name + 'Concrete.g.cs'.
     /// </summary>
     protected virtual void Implement(string dirPath, Type type, Dictionary<string, string> cache)
     {
         var filePath = Path.Combine(
-            dirPath,
-            $"{type.Name}Concrete.g.cs"
+            dirPath, $"{type.Name}Concrete.g.cs"
         );
         var nodeCode = GetCode(type, filePath);
 
@@ -95,17 +95,16 @@ public abstract class Implementer
     /// <summary>
     /// Get code based in all implementations of a type.
     /// </summary>
-    protected virtual string GetCode(Type baseInterface, string fileName)
+    protected virtual string GetCode(Type baseType, string fileName)
     {
         var builder = new ClassBuilder();
-        var properties = GetInterfaceProperties(baseInterface);
-        var methods = GetIntefaceMethods(baseInterface);
+        var properties = GetProperties(baseType);
+        var methods = GetMethods(baseType);
 
-        foreach (var implementation in Implementations ?? [])
+        foreach (var implementation in BaseTypeImplementations ?? [])
         {
             implementation.ImplementType(
-                builder,
-                fileName, baseInterface,
+                builder, fileName, baseType,
                 properties, methods
             );
         }
@@ -142,9 +141,9 @@ public abstract class Implementer
     /// <summary>
     /// Get all methods defined by a type or his base interfaces.
     /// </summary>
-    protected static List<MethodInfo> GetIntefaceMethods(Type type)
+    protected static List<MethodInfo> GetMethods(Type type)
     {
-        var types = GetAllBaseInterfaces(type);
+        var types = GetAllBaseTypes(type);
         return types
             .Append(type)
             .SelectMany(t => t.GetMethods())
@@ -154,97 +153,104 @@ public abstract class Implementer
     /// <summary>
     /// Get all properties defined by a type or his base interfaces.
     /// </summary>
-    protected static List<PropertyInfo> GetInterfaceProperties(Type type)
+    protected static List<PropertyInfo> GetProperties(Type type)
     {
-        var types = GetAllBaseInterfaces(type);
+        var types = GetAllBaseTypes(type);
         return types
             .Append(type)
             .SelectMany(t => t.GetProperties())
-            .Where(p => p.Name != "Bind")
             .ToList();
     }
     
     /// <summary>
-    /// Get all implemented/inherited interface of a type.
+    /// Get all implemented/inherited types.
     /// </summary>
-    protected static List<Type> GetAllBaseInterfaces(Type type)
+    protected static List<Type> GetAllBaseTypes(Type type)
     {
         List<Type> types = [.. type.GetInterfaces()];
+        if (type.BaseType is not null)
+            types.Add(type.BaseType);
         
         for (int i = 0; i < types.Count; i++)
             types.AddRange(
-                GetAllBaseInterfaces(types[i])
+                GetAllBaseTypes(types[i])
             );
         
         return types;
     }
 
     /// <summary>
-    /// Find all interface types that implments/inherits
-    /// INode and not has Ignore attribute in a assembly.
+    /// Find all abstract types that implments/inherits a specific baseType in a assembly.
+    /// Ignore all types marked with Ignore Attribute.
     /// </summary>
-    protected Type[] FindValidNodeType(Assembly assembly)
+    protected static Type[] FindValidNodes(Assembly assembly, Type baseType)
     {
         var types = assembly.GetTypes();
-        var interfaces = GetAllDependentInterfaces(types);
-        List<Type> nodeTypes = [ BaseInterface ];
+        var dependencies = GetAllAbstractDependenies(types);
+        List<Type> validBaseType = [ baseType ];
         bool needContinue = true;
 
         while (needContinue)
         {
             needContinue = false;
-            for (int i = 0; i < interfaces.Count; i++)
+            for (int i = 0; i < dependencies.Count; i++)
             {
-                var type = interfaces[i];
-                if (!ImplementsOrInheritsInterface(type, nodeTypes))
+                var type = dependencies[i];
+                if (!ImplementsOrInherits(type, validBaseType))
                     continue;
                 
-                interfaces.Remove(type);
+                dependencies.Remove(type);
                 needContinue = true;
-                nodeTypes.Add(type);
+                validBaseType.Add(type);
                 i--;
             }
         }
 
         return [ 
-            ..from node in nodeTypes
-            where node.Assembly == assembly
-            where node.GetCustomAttribute<IgnoreAttribute>() is null
-            select node
+            ..from type in validBaseType
+            where type.Assembly == assembly
+            where type.GetCustomAttributes<IgnoreAttribute>() is null
+            select type
         ];
     }
 
     /// <summary>
-    /// Return true if a type implements any interface of a collection of types.
+    /// Return true if a type implements any type of a collection of types.
     /// </summary>
-    protected static bool ImplementsOrInheritsInterface(Type type, IEnumerable<Type> interfaces)
+    protected static bool ImplementsOrInherits(Type type, IEnumerable<Type> baseTypes)
     {
-        var baseTypes = type.GetInterfaces();
-        return baseTypes.Any(interfaces.Contains);
+        var interfaces = type.GetInterfaces();
+        if (interfaces.Any(baseTypes.Contains))
+            return true;
+        
+        return baseTypes.Contains(type.BaseType);
     }
 
     /// <summary>
-    /// Get all interfaces a collection of types implements.
+    /// Get all types are inherited/implemented by any type in a colletion of types.
     /// </summary>
-    protected static List<Type> GetAllDependentInterfaces(IEnumerable<Type> types)
+    protected static List<Type> GetAllAbstractDependenies(IEnumerable<Type> types)
     {
         Queue<Type> typeQueue = new(types);
-        List<Type> interfaces = [];
+        List<Type> dependecies = [];
 
         while (typeQueue.Count > 0)
         {
             var type = typeQueue.Dequeue();
-            if (interfaces.Contains(type))
+            if (types.Contains(type))
                 continue;
             
-            if (type.IsInterface)
-                interfaces.Add(type);
+            if (type.IsAbstract || type.IsInterface)
+                dependecies.Add(type);
             
             var baseInterfaces = type.GetInterfaces();
             foreach (var baseType in baseInterfaces)
                 typeQueue.Enqueue(baseType);
+            
+            if (type.BaseType is not null)
+                typeQueue.Enqueue(type.BaseType);
         }
         
-        return interfaces;
+        return dependecies;
     }
 }

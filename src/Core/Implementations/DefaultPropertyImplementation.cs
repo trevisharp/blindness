@@ -12,7 +12,7 @@ using Factory;
 /// <summary>
 /// Generate properties by default behavior.
 /// </summary>
-public class DefaultPropertyImplementation : Implementation
+public class DefaultPropertyImplementation : BaseTypeImplementation
 {
     public override void ImplementType(
         ClassBuilder builder,

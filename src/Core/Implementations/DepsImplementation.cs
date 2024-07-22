@@ -13,7 +13,7 @@ using Factory;
 /// <summary>
 /// Generate Deps Function code.
 /// </summary>
-public class DepsImplementation : Implementation
+public class DepsImplementation : BaseTypeImplementation
 {
     public override void ImplementType(
         ClassBuilder builder,
