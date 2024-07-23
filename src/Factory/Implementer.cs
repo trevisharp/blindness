@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/07/2024
+ * Date:    23/07/2024
  */
 using System;
 using System.IO;
@@ -208,7 +208,7 @@ public abstract class Implementer(Type baseType)
         return [ 
             ..from type in validBaseType
             where type.Assembly == assembly
-            where type.GetCustomAttributes<IgnoreAttribute>() is null
+            where type.GetCustomAttribute<IgnoreAttribute>() is null
             select type
         ];
     }
@@ -236,7 +236,7 @@ public abstract class Implementer(Type baseType)
         while (typeQueue.Count > 0)
         {
             var type = typeQueue.Dequeue();
-            if (types.Contains(type))
+            if (dependecies.Contains(type))
                 continue;
             
             if (type.IsAbstract || type.IsInterface)

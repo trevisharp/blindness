@@ -11,58 +11,9 @@ using Blindness.Factory;
 using Blindness;
 using Blindness.Factory;
 using System.Reflection;
+using System.Linq;
 
-var implmenter = new MyImplementer();
-implmenter.Implement();
-
-[Ignore]
-public interface IBase
-{
-    void Show();
-}
-
-public interface MyRealCode : IBase
-{
-    void OnShow()
-        => Console.WriteLine("Blindness is cool!");
-}
-
-public class MyImplementation : BaseTypeImplementation
-{
-    public override void ImplementType(
-        ClassBuilder builder,
-        string fileName,
-        Type implementedType, 
-        List<PropertyInfo> properties,
-        List<MethodInfo> methods)
-    {
-        builder
-            .SetClassName($"{implementedType}Concrete")
-            .AddBaseType(implementedType.Name)
-            .AddUsing("System")
-            .AddCodeLine(
-                """
-                public void OnShow()
-                    => ((MyRealCode)this).OnShow();
-                
-                public void Show()
-                {
-                    Console.WriteLine("Starting the show...");
-                    OnShow();
-                }
-                """
-            );
-    }
-}
-
-public class MyImplementer : Implementer
-{
-    public MyImplementer() : base(typeof(IBase))
-    {
-        BaseTypeImplementations = [ new MyImplementation() ];
-    }
-}
-
+System.Console.WriteLine("po");
 
 public interface LoginScreen : INode
 {

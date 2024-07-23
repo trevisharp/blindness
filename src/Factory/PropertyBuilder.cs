@@ -55,7 +55,7 @@ public class PropertyBuilder(ClassBuilder parent) : MemberBuilder(parent)
         parent.AddCodeLine("{");
         parent.AddScope();
 
-        if (getCode.Contains('\n'))
+        if (getCode?.Contains('\n') ?? false)
         {
             parent.AddCodeLine("get {");
             parent.AddScope();
@@ -63,12 +63,12 @@ public class PropertyBuilder(ClassBuilder parent) : MemberBuilder(parent)
             parent.RemoveScope();
             parent.AddCodeLine("}");
         }
-        else
+        else if (getCode is not null)
         {
             parent.AddCodeLine($"get => {getCode};");
         }
 
-        if (setCode.Contains('\n'))
+        if (setCode?.Contains('\n') ?? false)
         {
             parent.AddCodeLine("set {");
             parent.AddScope();
@@ -76,7 +76,7 @@ public class PropertyBuilder(ClassBuilder parent) : MemberBuilder(parent)
             parent.RemoveScope();
             parent.AddCodeLine("}");
         }
-        else
+        else if (setCode is not null)
         {
             parent.AddCodeLine($"set => {setCode};");
         }
