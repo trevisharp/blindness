@@ -58,7 +58,7 @@ public class DependencySystem(Assembly assembly = null)
 
     public object Get(Type baseType)
     {
-
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -103,16 +103,22 @@ public class DependencySystem(Assembly assembly = null)
         }
     }
 
-    object Get(Type baseType, List<Type> parentTypes)
+    object Get(Type baseType, TypeFilterCollection filters, List<Type> parentTypes)
     {
         ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
         ArgumentNullException.ThrowIfNull(parentTypes, nameof(parentTypes));
 
-        var types = GetAllTypes(baseType).ToList();
+        var types = GetAllTypes(baseType)
+            .Where(filters.Filter)
+            .ToList();
+        
         if (types.Count == 0)
             throw new MissingConcreteTypeException(baseType);
         
+        if (types.Count > 1)
+            throw new ManyConcreteTypeException(baseType);
         
+        throw new NotImplementedException();
     }
 
     Type FindConcrete(Type inputType)
