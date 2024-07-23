@@ -14,6 +14,9 @@ using Exceptions;
 /// </summary>
 public static class TypeExtension
 {
+    /// <summary>
+    /// Return if a type implements a baseType.
+    /// </summary>
     public static bool Implements(this Type type, Type baseType)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
@@ -39,6 +42,9 @@ public static class TypeExtension
         return false;
     }
     
+    /// <summary>
+    /// Return if a type implements a baseType.
+    /// </summary>
     public static bool Implements(this Type type, string baseType)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
@@ -66,7 +72,12 @@ public static class TypeExtension
         return false;
     }
 
-    public static Type FindConcreteByAssembly(this Type inputType, Assembly assembly)
+    /// <summary>
+    /// Find a Concrete type that implements inputType and has specified attribute
+    /// in a specified assembly.
+    /// </summary>
+    public static Type FindConcreteByAssembly(this Type inputType, 
+        Type attributeType, Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(inputType, nameof(inputType));
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
@@ -77,7 +88,28 @@ public static class TypeExtension
             if (!type.Implements(inputType.Name))
                 continue;
             
-            if (type.GetCustomAttribute<ConcreteAttribute>() is null)
+            if (type.GetCustomAttribute(attributeType) is null)
+                continue;
+            
+            return type;
+        }
+
+        throw new MissingConcreteTypeException(inputType);
+    }
+    
+    /// <summary>
+    /// Find a Concrete type that implements inputType and has specified attribute
+    /// in a specified assembly.
+    /// </summary>
+    public static Type FindByAssembly(this Type inputType, Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(inputType, nameof(inputType));
+        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+
+        var types = assembly.GetTypes();
+        foreach (var type in types)
+        {
+            if (!type.Implements(inputType.Name))
                 continue;
             
             return type;

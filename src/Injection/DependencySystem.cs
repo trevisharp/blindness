@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/07/2024
+ * Date:    23/07/2024
  */
 using System;
 using System.Reflection;
@@ -7,12 +7,13 @@ using System.Collections.Generic;
 
 namespace Blindness.Injection;
 
+using System.Linq;
 using Exceptions;
 
 /// <summary>
 /// Dependency injection system.
 /// </summary>
-public class DependencySystem
+public class DependencySystem(Assembly assembly = null)
 {
     private static DependencySystem shared = new();
 
@@ -22,35 +23,52 @@ public class DependencySystem
     public static DependencySystem Shared => shared;
 
     /// <summary>
-    /// Reset a Dependency system sending a model used to init all nodes.
+    /// Reset the Shared Dependency system based in a assembly. If assembly
+    /// is null, the entry assembly (Assembly.GetEntryAssembly()) is used.
     /// </summary>
-    public static void Reset()
-        => shared = new();
-    
-    private Assembly crrAssembly = Assembly.GetEntryAssembly();
-    private Dictionary<Type, Type> typeMap = [];
-    
+    public static void Reset(Assembly assembly = null)
+        => shared = new(assembly);
+
+    readonly Assembly currentAssembly = 
+        assembly ?? Assembly.GetEntryAssembly();
+    readonly Dictionary<Type, Type> typeMap = [];
+
     /// <summary>
-    /// Update assembly type used to find concrete types.
+    /// Get all types that implements a baseType.
     /// </summary>
-    public void UpdateAssembly(Assembly assembly)
+    public IEnumerable<Type> GetAllTypes(Type baseType)
     {
-        crrAssembly = assembly;
-        typeMap = [];
+        ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
+
+        var types = assembly.GetTypes();
+        foreach (var type in types)
+        {
+            if (!type.Implements(baseType.Name))
+                continue;
+            
+            yield return type;
+        }
     }
 
-    // TODO: Add Get<T>() functions to get types independent
-    // of Concrete Attribute.
-    // TODO: Analizes generic types construction.
+    /// <summary>
+    /// Get all types that implements a baseType.
+    /// </summary>
+    public IEnumerable<Type> GetAllTypes<T>()
+        => GetAllTypes(typeof(T));
+
+    public object Get(Type baseType)
+    {
+
+    }
 
     /// <summary>
-    /// Get a concrete object of a Node based on your type.
+    /// Get a concrete object of a type marked with ConcreteAttribute.
     /// </summary>
     public T GetConcrete<T>(Type type)
         => (T)GetConcrete(type);
     
     /// <summary>
-    /// Get a concrete object of a Node based on your type.
+    /// Get a concrete object of a type marked with ConcreteAttribute.
     /// </summary>
     public T GetConcrete<T>()
     {
@@ -59,7 +77,7 @@ public class DependencySystem
     }
 
     /// <summary>
-    /// Get a concrete object of a Node based on your type.
+    /// Get a concrete object of a type marked with ConcreteAttribute.
     /// </summary>
     public object GetConcrete(Type type)
     {
@@ -85,13 +103,25 @@ public class DependencySystem
         }
     }
 
+    object Get(Type baseType, List<Type> parentTypes)
+    {
+        ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
+        ArgumentNullException.ThrowIfNull(parentTypes, nameof(parentTypes));
+
+        var types = GetAllTypes(baseType).ToList();
+        if (types.Count == 0)
+            throw new MissingConcreteTypeException(baseType);
+        
+        
+    }
+
     Type FindConcrete(Type inputType)
     {
         if (typeMap.TryGetValue(inputType, out Type type))
             return type;
         
-        if (crrAssembly is not null)
-            return FindAndMapType(inputType, crrAssembly);
+        if (currentAssembly is not null)
+            return FindAndMapType(inputType, currentAssembly);
         
         if (!inputType.IsAbstract && !inputType.IsInterface)
             return inputType;
@@ -101,7 +131,7 @@ public class DependencySystem
 
     Type FindAndMapType(Type inputType, Assembly assembly)
     {
-        var findedType = inputType.FindConcreteByAssembly(assembly);
+        var findedType = inputType.FindConcreteByAssembly(typeof(ConcreteAttribute), assembly);
         typeMap.Add(inputType, findedType);
         return findedType;
     }

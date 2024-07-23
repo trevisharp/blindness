@@ -6,12 +6,12 @@ using System;
 namespace Blindness.Exceptions;
 
 /// <summary>
-/// Represents a error that occurs when do not exist a concrete type for a specific type.
+/// Represents a error that occurs when do many constructors for a specific type.
 /// </summary>
-public class MissingConcreteTypeException(Type baseType) : Exception
+public class ManyConstructorsException(Type type) : Exception
 {
     public override string Message =>
         $"""
-        Missing a subtype of {baseType}. 
+        The type {type} has many avaliable constructors..
         """;
 }
