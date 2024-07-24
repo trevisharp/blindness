@@ -13,6 +13,9 @@ public abstract class TypeFilter
 {
     public abstract bool Filter(Type type);
 
+    public static TypeFilter All
+        => new LambdaTypeFilter(t => true);
+
     public static TypeFilter ByAttribute(Type attributeType)
     {
         ArgumentNullException.ThrowIfNull(attributeType, nameof(attributeType));

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace Blindness.Injection;
 
+using System.IO;
 using System.Linq;
 using Exceptions;
 
@@ -103,20 +104,21 @@ public class DependencySystem(Assembly assembly = null)
         }
     }
 
-    object Get(Type baseType, TypeFilterCollection filters, List<Type> parentTypes)
+    object Get(
+        Type dep,
+        TypeFilterCollection filters,
+        TypeList parents,
+        TypeNode last)
     {
-        ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
-        ArgumentNullException.ThrowIfNull(parentTypes, nameof(parentTypes));
-
-        var types = GetAllTypes(baseType)
+        var types = GetAllTypes(dep)
             .Where(filters.Filter)
             .ToList();
         
         if (types.Count == 0)
-            throw new MissingConcreteTypeException(baseType);
+            throw new MissingConcreteTypeException(dep);
         
         if (types.Count > 1)
-            throw new ManyConcreteTypeException(baseType);
+            throw new ManyConcreteTypeException(dep);
         
         throw new NotImplementedException();
     }
@@ -141,4 +143,36 @@ public class DependencySystem(Assembly assembly = null)
         typeMap.Add(inputType, findedType);
         return findedType;
     }
+}
+
+file class TypeList
+{
+    TypeNode first = null;
+    TypeNode last = null;
+
+    public TypeNode Add(Type type)
+    {
+        TypeNode node = new(type);
+        if (first is null)
+            return first = last = node;
+
+        node.Previous = last;
+        last.Next = node;
+        last = last.Next;
+        return node;
+    }
+
+    public void Cut(TypeNode node)
+    {
+        last = node.Previous;
+        node.Previous = null;
+        last.Next = null;
+    }
+} 
+
+file class TypeNode(Type value)
+{
+    public Type Value => value;
+    public TypeNode Next { get; set; }
+    public TypeNode Previous { get; set; }
 }
