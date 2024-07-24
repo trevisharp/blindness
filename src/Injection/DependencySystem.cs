@@ -1,14 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/07/2024
+ * Date:    24/07/2024
  */
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
 namespace Blindness.Injection;
 
-using System.IO;
-using System.Linq;
 using Exceptions;
 
 /// <summary>
@@ -44,7 +43,7 @@ public class DependencySystem(Assembly assembly = null)
         var types = assembly.GetTypes();
         foreach (var type in types)
         {
-            if (!type.Implements(baseType.Name))
+            if (!type.IsAssignableTo(baseType))
                 continue;
             
             yield return type;
@@ -106,11 +105,11 @@ public class DependencySystem(Assembly assembly = null)
 
     object Get(
         Type dep,
-        TypeFilterCollection filters,
-        TypeList parents,
-        TypeNode last)
+        TypeFilterCollection filters)
     {
         var types = GetAllTypes(dep)
+            .Where(t => !t.IsAbstract)
+            .Where(t => !t.IsInterface)
             .Where(filters.Filter)
             .ToList();
         
@@ -120,6 +119,23 @@ public class DependencySystem(Assembly assembly = null)
         if (types.Count > 1)
             throw new ManyConcreteTypeException(dep);
         
+        var list = new TypeList();
+        return Get(types[0], list, null);
+    }
+
+    object Get(
+        Type type,
+        TypeList parents,
+        TypeNode last)
+    {
+        var constructors = type.GetConstructors();
+        var defaultConstructor = constructors
+            .FirstOrDefault(c => c.GetParameters().Length == 0);
+        if (constructors.Length > 1 && defaultConstructor is null)
+            throw new ManyConcreteTypeException(type);
+        
+        var constructor = defaultConstructor ?? constructors[0];
+
         throw new NotImplementedException();
     }
 
@@ -143,36 +159,36 @@ public class DependencySystem(Assembly assembly = null)
         typeMap.Add(inputType, findedType);
         return findedType;
     }
-}
 
-file class TypeList
-{
-    TypeNode first = null;
-    TypeNode last = null;
-
-    public TypeNode Add(Type type)
+    class TypeList
     {
-        TypeNode node = new(type);
-        if (first is null)
-            return first = last = node;
+        TypeNode first = null;
+        TypeNode last = null;
 
-        node.Previous = last;
-        last.Next = node;
-        last = last.Next;
-        return node;
-    }
+        public TypeNode Add(Type type)
+        {
+            TypeNode node = new(type);
+            if (first is null)
+                return first = last = node;
 
-    public void Cut(TypeNode node)
+            node.Previous = last;
+            last.Next = node;
+            last = last.Next;
+            return node;
+        }
+
+        public void Cut(TypeNode node)
+        {
+            last = node.Previous;
+            node.Previous = null;
+            last.Next = null;
+        }
+    } 
+
+    class TypeNode(Type value)
     {
-        last = node.Previous;
-        node.Previous = null;
-        last.Next = null;
+        public Type Value => value;
+        public TypeNode Next { get; set; }
+        public TypeNode Previous { get; set; }
     }
-} 
-
-file class TypeNode(Type value)
-{
-    public Type Value => value;
-    public TypeNode Next { get; set; }
-    public TypeNode Previous { get; set; }
 }

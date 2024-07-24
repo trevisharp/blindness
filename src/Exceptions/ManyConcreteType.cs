@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/07/2024
+ * Date:    24/07/2024
  */
 using System;
 
@@ -12,6 +12,7 @@ public class ManyConcreteTypeException(Type baseType) : Exception
 {
     public override string Message =>
         $"""
-        Cannot choose one of many subtypes of {baseType} type.
+        Cannot choose one of many subtypes of {baseType} type and has not
+        a empty constructor to default object instatiation.
         """;
 }
