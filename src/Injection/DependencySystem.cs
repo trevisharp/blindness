@@ -13,7 +13,7 @@ using Exceptions;
 /// <summary>
 /// Dependency injection system.
 /// </summary>
-public class DependencySystem(Assembly assembly = null)
+public class DependencySystem
 {
     private static DependencySystem shared = new();
 
@@ -23,31 +23,55 @@ public class DependencySystem(Assembly assembly = null)
     public static DependencySystem Shared => shared;
 
     /// <summary>
-    /// Reset the Shared Dependency system based in a assembly. If assembly
-    /// is null, the entry assembly (Assembly.GetEntryAssembly()) is used.
+    /// Reset the Shared Dependency system.
     /// </summary>
-    public static void Reset(Assembly assembly = null)
-        => shared = new(assembly);
+    public static void Reset()
+        => shared = new();
 
-    readonly Assembly currentAssembly = 
-        assembly ?? Assembly.GetEntryAssembly();
+    List<Assembly> assemblies = [ Assembly.GetEntryAssembly() ];
     readonly Dictionary<Type, Type> typeMap = [];
 
     /// <summary>
-    /// Get all types that implements a baseType.
+    /// Add a assembly to search types.
+    /// </summary>
+    public void AddAssembly(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+        assemblies.Add(assembly);
+    }
+    
+    /// <summary>
+    /// Remove a assembly to search types.
+    /// </summary>
+    public void RemoveAssembly(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+        assemblies.Remove(assembly);
+    }
+    
+    /// <summary>
+    /// Update or Add a Assembly by another with same name.
+    /// </summary>
+    public void UpdateAssembly(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+
+        var removedName = assembly.GetName().Name;
+        assemblies.RemoveAll(a => a.GetName().Name == removedName);
+
+        assemblies.Add(assembly);
+    }
+
+    /// <summary>
+    /// Get all types in the assembly that implements a baseType.
     /// </summary>
     public IEnumerable<Type> GetAllTypes(Type baseType)
     {
         ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
 
-        var types = assembly.GetTypes();
-        foreach (var type in types)
-        {
-            if (!type.IsAssignableTo(baseType))
-                continue;
-            
-            yield return type;
-        }
+        return assemblies
+            .SelectMany(a => a.GetTypes())
+            .Where(type => type.IsAssignableFrom(baseType));
     }
 
     /// <summary>
@@ -105,8 +129,11 @@ public class DependencySystem(Assembly assembly = null)
 
     object Get(
         Type dep,
-        TypeFilterCollection filters)
+        TypeFilterCollection filters = null)
     {
+        ArgumentNullException.ThrowIfNull(dep, nameof(dep));
+        filters ??= [];
+        
         var types = GetAllTypes(dep)
             .Where(t => !t.IsAbstract)
             .Where(t => !t.IsInterface)

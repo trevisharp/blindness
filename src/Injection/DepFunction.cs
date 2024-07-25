@@ -1,12 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    24/07/2024
+ * Date:    25/07/2024
  */
+using System;
+
 namespace Blindness.Injection;
 
 /// <summary>
 /// Represents a type of dependency loading function.
 /// </summary>
-public class DepFunction
+public abstract class DepFunction
 {
-
+    public abstract object Call(Type type, DependencySystem depSys);
 }
