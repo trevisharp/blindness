@@ -16,4 +16,5 @@ public class InjectionArgs(DepFunction function)
     
     public DepFunction DepFunction { get; set; } = function;
     public Stack<Type> DependencyGraph { get; set; } = [];
+    public TypeFilterCollection Filters { get; set; } = [];
 }

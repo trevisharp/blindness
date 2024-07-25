@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/07/2024
+ * Date:    25/07/2024
  */
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -153,16 +154,17 @@ public class Memory(IMemoryBehaviour behaviour)
             var baseType = type.GetInterfaces()
                 .FirstOrDefault(i => i.Name != "INode");
             
-            var node = obj as Node;
-            var nodeCopy = DependencySystem
-                .Shared.GetConcrete<Node>(baseType);
+            throw new NotImplementedException();
+            // var node = obj as Node;
+            // var nodeCopy = DependencySystem
+            //     .Shared.FindConcreteType<Node>(baseType);
 
-            Current.Set(node.MemoryLocation, nodeCopy);
-            nodeCopy.MemoryLocation = node.MemoryLocation;
-            nodeCopy.Bind.Copy(node.Bind);
-            nodeCopy.Model = node.Model;
+            // Current.Set(node.MemoryLocation, nodeCopy);
+            // nodeCopy.MemoryLocation = node.MemoryLocation;
+            // nodeCopy.Bind.Copy(node.Bind);
+            // nodeCopy.Model = node.Model;
 
-            return nodeCopy;
+            // return nodeCopy;
         });
     }
 

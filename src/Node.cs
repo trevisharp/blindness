@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/07/2024
+ * Date:    25/07/2024
  */
 using System;
 using System.Linq;
@@ -35,12 +35,13 @@ public abstract class Node : IAsyncElement
     /// </summary>
     public static Node New(Type type, IAsyncModel model)
     {
-        var node = DependencySystem.Shared.GetConcrete<Node>(type);
-        node.MemoryLocation = Memory.Current.Add(node);
-        node.Model = model;
-        node.LoadDependencies();
-        node.OnLoad();
-        return node;
+        throw new NotImplementedException();
+        // var node = DependencySystem.Shared.FindConcreteType<Node>(type);
+        // node.MemoryLocation = Memory.Current.Add(node);
+        // node.Model = model;
+        // node.LoadDependencies();
+        // node.OnLoad();
+        // return node;
     }
 
     int signalCount = 0;
