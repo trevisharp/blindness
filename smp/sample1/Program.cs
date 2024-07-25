@@ -11,17 +11,42 @@ using Blindness.Factory;
 using Blindness;
 using Blindness.Factory;
 using System.Linq;
+
+using System.Reflection;
 using Blindness.Injection;
 
-var obj = DependencySystem.Shared.Get<A>([
-    BaseTypeFilter.ByBaseType(typeof(B))
-]);
-Console.WriteLine(obj);
+var obj = DependencySystem.Shared.Get<Base>([ new MyFilter() ]);
 
-public interface A;
-public abstract class B;
-public class C : B, A;
-public class D : A;
+public class DependencyAttribute : Attribute;
+
+public abstract class Base;
+
+[Dependency]
+public class Concrete
+{
+    public void Deps(List<int> list)
+    {
+        Console.WriteLine("I received a list!");
+    }
+}
+
+public class MyFilter : BaseTypeFilter
+{
+    public override bool Filter(Type type)
+    {
+        return type.GetCustomAttribute(typeof(DependencyAttribute)) is not null;
+    }
+}
+
+public class MyDepFunction : DepFunction
+{
+    public override object Call(Type type,
+        DependencySystem depSys, InjectionArgs args)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 
 public interface LoginScreen : INode
 {

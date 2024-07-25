@@ -177,7 +177,7 @@ public class C
 }
 ```
 
-### Get Concrete types from Abstracts and Filter types with Blindness.Injection
+### Get Concrete types from Abstracts and Filter types
 
 ```cs
 using Blindness.Injection;
@@ -196,6 +196,10 @@ public abstract class B;
 public class C : B, A;
 public class D : A;
 ```
+
+### Customize everything and control dependency injection
+
+
 
 ### Generate code easily with Blindness.Factory
 
