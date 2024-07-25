@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    24/07/2024
+ * Date:    25/07/2024
  */
 using System;
 using System.Linq;
@@ -129,11 +129,13 @@ public class DependencySystem
 
     object Get(
         Type dep,
+        DepFunction function = null,
         TypeFilterCollection filters = null)
     {
         ArgumentNullException.ThrowIfNull(dep, nameof(dep));
+        function ??= DepFunction.Constructor;
         filters ??= [];
-        
+
         var types = GetAllTypes(dep)
             .Where(t => !t.IsAbstract)
             .Where(t => !t.IsInterface)
@@ -155,13 +157,6 @@ public class DependencySystem
         TypeList parents,
         TypeNode last)
     {
-        var constructors = type.GetConstructors();
-        var defaultConstructor = constructors
-            .FirstOrDefault(c => c.GetParameters().Length == 0);
-        if (constructors.Length > 1 && defaultConstructor is null)
-            throw new ManyConcreteTypeException(type);
-        
-        var constructor = defaultConstructor ?? constructors[0];
 
         throw new NotImplementedException();
     }
@@ -187,35 +182,5 @@ public class DependencySystem
         return findedType;
     }
 
-    class TypeList
-    {
-        TypeNode first = null;
-        TypeNode last = null;
 
-        public TypeNode Add(Type type)
-        {
-            TypeNode node = new(type);
-            if (first is null)
-                return first = last = node;
-
-            node.Previous = last;
-            last.Next = node;
-            last = last.Next;
-            return node;
-        }
-
-        public void Cut(TypeNode node)
-        {
-            last = node.Previous;
-            node.Previous = null;
-            last.Next = null;
-        }
-    } 
-
-    class TypeNode(Type value)
-    {
-        public Type Value => value;
-        public TypeNode Next { get; set; }
-        public TypeNode Previous { get; set; }
-    }
 }
