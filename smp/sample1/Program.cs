@@ -13,7 +13,19 @@ using Blindness.Factory;
 using System.Reflection;
 using System.Linq;
 
-System.Console.WriteLine("po");
+using Blindness.Injection;
+var obj = DependencySystem.Shared.Get<List<int>>();
+Console.WriteLine(obj);
+
+public class A(B b);
+
+public class B(C c);
+
+public class C
+{
+    public C()
+        => Console.WriteLine("C Created!");
+}
 
 public interface LoginScreen : INode
 {

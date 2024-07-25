@@ -156,23 +156,24 @@ public class MyComponent(IAsyncModel model) : LoopAsyncElement(model)
 ### Using Dependency Injection System with Blindness.Injection
 
 ```cs
-using Blindness;
 using Blindness.Injection;
 
-var obj = DependencySystem.Shared.GetConcrete<List<string>>();
-obj.Add("Hello");
-obj.Add("Blindness");
-Console.WriteLine(obj); // [ Hello, Blindness ]
+var obj = DependencySystem.Shared.Get<A>();
+// C Created!
+// A
+Console.WriteLine(obj);
+var list = DependencySystem.Shared.Get<List<int>>();
+// System.Collections.Generic.List`1[System.Int32]
+Console.WriteLine(list);
 
-// Update current assembly any time
-DependencySystem.Shared.UpdateAssembly(typeof(List<string>).Assembly);
-// Missing a subtype of System.Collections.Generic.List`1[System.String] with concrete attribute.
-var obj2 = DependencySystem.Shared.GetConcrete<List<string>>();
+public class A(B b);
 
-public class MyList : List<string>
+public class B(C c);
+
+public class C
 {
-    public override string ToString()
-        => $"[ {string.Join(' ', this)} ]";
+    public C()
+        => Console.WriteLine("C Created!");
 }
 ```
 
