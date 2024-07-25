@@ -177,6 +177,26 @@ public class C
 }
 ```
 
+### Get Concrete types from Abstracts and Filter types with Blindness.Injection
+
+```cs
+using Blindness.Injection;
+
+var obj = DependencySystem.Shared.Get<A>([
+    // Exists a conflict between classes C and D because both implements A
+    // but this following filter choose only classes that inheriths B class
+    // solving the conflict.
+    // You can use built-in filters ou implements your own.
+    BaseTypeFilter.ByBaseType(typeof(B))
+]);
+Console.WriteLine(obj); // C object here
+
+public interface A;
+public abstract class B;
+public class C : B, A;
+public class D : A;
+```
+
 ### Generate code easily with Blindness.Factory
 
 ```cs

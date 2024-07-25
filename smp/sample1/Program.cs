@@ -10,22 +10,18 @@ using Blindness.Factory;
 
 using Blindness;
 using Blindness.Factory;
-using System.Reflection;
 using System.Linq;
-
 using Blindness.Injection;
-var obj = DependencySystem.Shared.Get<List<int>>();
+
+var obj = DependencySystem.Shared.Get<A>([
+    BaseTypeFilter.ByBaseType(typeof(B))
+]);
 Console.WriteLine(obj);
 
-public class A(B b);
-
-public class B(C c);
-
-public class C
-{
-    public C()
-        => Console.WriteLine("C Created!");
-}
+public interface A;
+public abstract class B;
+public class C : B, A;
+public class D : A;
 
 public interface LoginScreen : INode
 {
