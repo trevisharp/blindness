@@ -10,56 +10,8 @@ using Blindness.Factory;
 
 using Blindness;
 using Blindness.Factory;
-using System.Linq;
 
-using System.Reflection;
-using Blindness.Injection;
-
-var obj = DependencySystem.Shared.Get<Base>([ new MyFilter() ]);
-
-public class DependencyAttribute : Attribute;
-
-public abstract class Base;
-
-[Dependency]
-public class Concrete : Base
-{
-    public void Deps(List<int> list)
-    {
-        Console.WriteLine("I received a list!");
-    }
-}
-
-public class MyFilter : BaseTypeFilter
-{
-    public override bool Filter(Type type)
-    {
-        return type.GetCustomAttribute(typeof(DependencyAttribute)) is not null;
-    }
-}
-
-public class MyDepFunction : DepFunction
-{
-    public override object Call(Type type,
-        DependencySystem depSys, InjectionArgs args)
-    {
-        var constructors = type.GetConstructors();
-        var constructor = constructors
-            .FirstOrDefault(c => c.GetParameters().Length == 0);
-
-        var obj = constructor.Invoke([]);
-        var deps = type.GetMethod("Deps");
-        var data = deps
-            .GetParameters()
-            .Select(p => p.ParameterType)
-            .Select(t => depSys.Get(t, args))
-            .ToArray();
-        deps.Invoke(obj, data);
-
-        return obj;
-    }
-}
-
+System.Console.WriteLine("oi");
 
 public interface LoginScreen : INode
 {
