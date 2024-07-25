@@ -74,7 +74,7 @@ public class DependencySystem
 
         return assemblies
             .SelectMany(a => a.GetTypes())
-            .Where(type => type.IsAssignableFrom(baseType));
+            .Where(type => type.IsAssignableTo(baseType));
     }
 
     /// <summary>

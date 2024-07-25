@@ -26,7 +26,7 @@ public abstract class BaseTypeFilter
     public static BaseTypeFilter ByBaseType(Type baseType)
     {
         ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
-        LambdaTypeFilter filter = new (t => t.BaseType == baseType);
+        LambdaTypeFilter filter = new (t => t.IsSubclassOf(baseType));
         return filter;
     }
 
