@@ -14,9 +14,9 @@ public abstract class DepFunction
     /// Call the dependency function and returns the loaded object.
     /// </summary>
     public abstract object Call(
-        Type type, 
-        Func<Type, TypeList, DepFunction, object> depSys,
-        TypeList deepDeps
+        Type type,
+        DependencySystem depSys,
+        InjectionArgs args
     );
 
     public readonly static ConstructorDepFunction Constructor = new();

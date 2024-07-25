@@ -12,8 +12,8 @@ public class ConstructorDepFunction : DepFunction
 {
     public override object Call(
         Type type,
-        Func<Type, TypeList, DepFunction, object> depSys, 
-        TypeList deepDeps)
+        DependencySystem depSys,
+        InjectionArgs args)
     {
         try
         {
@@ -24,11 +24,10 @@ public class ConstructorDepFunction : DepFunction
                 throw new ManyConcreteTypeException(type);
             
             var constructor = defaultConstructor ?? constructors[0];
-
             var data = constructor
                 .GetParameters()
                 .Select(p => p.ParameterType)
-                .Select(t => depSys(t, deepDeps, this))
+                .Select(t => depSys.Get(t, args))
                 .ToArray();
             
             var obj = constructor.Invoke(data);

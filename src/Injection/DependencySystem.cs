@@ -79,11 +79,59 @@ public class DependencySystem
     /// </summary>
     public IEnumerable<Type> GetAllTypes<T>()
         => GetAllTypes(typeof(T));
-
-    public object Get(Type baseType)
+    
+    /// <summary>
+    /// Instanciate a type based on injection arguments.
+    /// </summary>
+    public object Get(Type type, InjectionArgs args)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(type, nameof(type));
+        ArgumentNullException.ThrowIfNull(args, nameof(args));
+
+        if (args.DependencyGraph.Contains(type))
+            throw new CycleDependencyException(type);
+
+        args.DependencyGraph.Push(type);
+        var obj = args.DepFunction.Call(type, this, args);
+        args.DependencyGraph.Pop();
+
+        return obj;
     }
+
+    /// <summary>
+    /// Instanciate a type based on dependency function.
+    /// </summary>
+    public object Get(Type type, DepFunction function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return Get(type, new InjectionArgs(function));
+    }
+
+    /// <summary>
+    /// Instanciate a type based on default injection arguments with constructor.
+    /// </summary>
+    public object Get(Type type)
+        => Get(type, InjectionArgs.Default);
+
+    /// <summary>
+    /// Instanciate a type based on default injection arguments with constructor.
+    /// </summary>
+    public T Get<T>()
+        => (T)Get(typeof(T), InjectionArgs.Default);
+
+    /// <summary>
+    /// Instanciate a type based on injection arguments.
+    /// </summary>
+    public T Get<T>(InjectionArgs args)
+        => (T)Get(typeof(T), args);
+
+    /// <summary>
+    /// Instanciate a type based on dependency function.
+    /// </summary>
+    public T Get<T>(DepFunction function)
+        => (T)Get(typeof(T), function);
+    
+    
 
     /// <summary>
     /// Get a concrete object of a type marked with ConcreteAttribute.
@@ -148,17 +196,7 @@ public class DependencySystem
         if (types.Count > 1)
             throw new ManyConcreteTypeException(dep);
         
-        var list = new TypeList();
-        return Get(types[0], list, null);
-    }
-
-    object Get(
-        Type type,
-        TypeList parents,
-        TypeNode last)
-    {
-
-        throw new NotImplementedException();
+        return Get(types[0], new InjectionArgs(function));
     }
 
     Type FindConcrete(Type inputType)
@@ -166,8 +204,8 @@ public class DependencySystem
         if (typeMap.TryGetValue(inputType, out Type type))
             return type;
         
-        if (currentAssembly is not null)
-            return FindAndMapType(inputType, currentAssembly);
+        // if (currentAssembly is not null)
+        //     return FindAndMapType(inputType, currentAssembly);
         
         if (!inputType.IsAbstract && !inputType.IsInterface)
             return inputType;
