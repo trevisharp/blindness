@@ -8,14 +8,14 @@ using System.Collections.Generic;
 
 namespace Blindness.Injection;
 
-public class TypeFilterCollection : TypeFilter, IList<TypeFilter>
+public class TypeFilterCollection : BaseTypeFilter, IList<BaseTypeFilter>
 {
-    readonly List<TypeFilter> filters = [];
+    readonly List<BaseTypeFilter> filters = [];
 
     public override bool Filter(Type type)
         => filters.All(f => f.Filter(type));
 
-    public TypeFilter this[int index]
+    public BaseTypeFilter this[int index]
     {
         get => filters[index]; 
         set => filters[index] = value;
@@ -25,28 +25,28 @@ public class TypeFilterCollection : TypeFilter, IList<TypeFilter>
 
     public bool IsReadOnly => false;
 
-    public void Add(TypeFilter item)
+    public void Add(BaseTypeFilter item)
         => filters.Add(item);
 
     public void Clear()
         => filters.Clear();
 
-    public bool Contains(TypeFilter item)
+    public bool Contains(BaseTypeFilter item)
         => filters.Contains(item);
 
-    public void CopyTo(TypeFilter[] array, int arrayIndex)
+    public void CopyTo(BaseTypeFilter[] array, int arrayIndex)
         => filters.CopyTo(array, arrayIndex);
 
-    public IEnumerator<TypeFilter> GetEnumerator()
+    public IEnumerator<BaseTypeFilter> GetEnumerator()
         => filters.GetEnumerator();
 
-    public int IndexOf(TypeFilter item)
+    public int IndexOf(BaseTypeFilter item)
         => filters.IndexOf(item);
 
-    public void Insert(int index, TypeFilter item)
+    public void Insert(int index, BaseTypeFilter item)
         => filters.Insert(index, item);
 
-    public bool Remove(TypeFilter item)
+    public bool Remove(BaseTypeFilter item)
         => filters.Remove(item);
 
     public void RemoveAt(int index)

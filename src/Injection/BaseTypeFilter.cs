@@ -9,28 +9,28 @@ namespace Blindness.Injection;
 /// <summary>
 /// Represents a Filter of types.
 /// </summary>
-public abstract class TypeFilter
+public abstract class BaseTypeFilter
 {
     public abstract bool Filter(Type type);
 
-    public static TypeFilter All
+    public static BaseTypeFilter All
         => new LambdaTypeFilter(t => true);
 
-    public static TypeFilter ByAttribute(Type attributeType)
+    public static BaseTypeFilter ByAttribute(Type attributeType)
     {
         ArgumentNullException.ThrowIfNull(attributeType, nameof(attributeType));
         LambdaTypeFilter filter = new (t => t.GetCustomAttribute(attributeType) is not null);
         return filter;
     }
 
-    public static TypeFilter ByBaseType(Type baseType)
+    public static BaseTypeFilter ByBaseType(Type baseType)
     {
         ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
         LambdaTypeFilter filter = new (t => t.BaseType == baseType);
         return filter;
     }
 
-    public static TypeFilter ByImplements(Type baseType)
+    public static BaseTypeFilter ByImplements(Type baseType)
     {
         ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
         LambdaTypeFilter filter = new (t => t.Implements(baseType));
