@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace Blindness.States;
+namespace Blindness.State;
 
 /// <summary>
 /// A inteface for all memory implementations.

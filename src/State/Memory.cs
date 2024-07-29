@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Blindness.States;
+namespace Blindness.State;
 
 using Injection;
 using Exceptions;

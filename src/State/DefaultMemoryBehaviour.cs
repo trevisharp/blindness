@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Blindness.States;
+namespace Blindness.State;
 
 /// <summary>
 /// Default implementation of memory.

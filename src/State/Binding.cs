@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
-namespace Blindness.States;
+namespace Blindness.State;
 
 using Internal;
 using Blindness;
