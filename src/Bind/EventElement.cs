@@ -46,7 +46,9 @@ public class EventElement(
                 value = newValue;
                 action(state, value);
             }
-
+            
+            SendSignal(newValue == value);
+            
             PauseAndWaitResume();
         }
     }

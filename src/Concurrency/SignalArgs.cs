@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/07/2024
+ * Date:    30/07/2024
  */
 namespace Blindness.Concurrency;
 
@@ -11,4 +11,7 @@ public record SignalArgs(bool Success)
 {
     public readonly static SignalArgs True = new(true);
     public readonly static SignalArgs False = new(false);
+
+    public static implicit operator SignalArgs(bool success)
+        => success ? True : False;
 }
