@@ -10,8 +10,34 @@ using Blindness.Factory;
 
 using Blindness;
 using Blindness.Factory;
+using System.Linq;
+using System.Reflection;
+using Blindness.Injection;
+using Blindness.Bind;
 
-System.Console.WriteLine("oi");
+var myBox = new Box<int>();
+myBox.Place(8);
+myBox.OnChange += e =>
+{
+    Console.WriteLine("The value changed!");
+    if (e.NewValue > e.OldValue)
+        Console.WriteLine("The value incresead!");
+};
+
+var component = new MyComponent(myBox);
+component.Run();
+Console.WriteLine(myBox.Open());
+
+public class MyComponent(IPlaceable<int> reference)
+{
+    public void Run()
+    {
+        reference.Place(8);
+        reference.Place(12);
+        reference.Place(8);
+    }
+}
+
 
 public interface LoginScreen : INode
 {
@@ -46,9 +72,9 @@ public interface LoginScreen : INode
         Repeat.Title = "repeat password";
         Repeat.Size = 40;
 
-        Bind |= login => Login.Text;
-        Bind |= password => Password.Text;
-        Bind |= repeat => Repeat.Text;
+        // Bind |= login => Login.Text;
+        // Bind |= password => Password.Text;
+        // Bind |= repeat => Repeat.Text;
 
         On(
             () => selectedField == 0,

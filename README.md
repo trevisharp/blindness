@@ -385,6 +385,40 @@ public partial class MyRealCodeConcrete : MyRealCode
 }
 ```
 
+### Use Boxing easily with events using Blindness.Bind
+
+```cs
+using Blindness.Bind;
+
+var myBox = new Box<int>();
+myBox.Place(8);
+myBox.OnChange += e =>
+{
+    Console.WriteLine("The value changed!");
+    if (e.NewValue > e.OldValue)
+        Console.WriteLine("The value incresead!");
+};
+
+var component = new MyComponent(myBox);
+component.Run();
+Console.WriteLine(myBox.Open());
+// output:
+// The value changed!
+// The value incresead!
+// The value changed!  
+// 8
+
+public class MyComponent(IPlaceable<int> reference)
+{
+    public void Run()
+    {
+        reference.Place(8);
+        reference.Place(12);
+        reference.Place(8);
+    }
+}
+```
+
 ### 
 
 # Versions
