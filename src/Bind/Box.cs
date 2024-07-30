@@ -24,7 +24,8 @@ public class Box<T> : IBox<T, T>
         if (newValue.Equals(value))
             return;
         
-        OnChange(new(value, newValue));
+        if (OnChange is not null)
+            OnChange(new(value, newValue));
         value = newValue;
     }
 
