@@ -2,39 +2,33 @@
 using System.Collections.Generic;
 
 using System;
-using System.Threading;
 
 using Blindness;
-
-using Blindness.Factory;
-
-using Blindness;
-using Blindness.Factory;
-using System.Linq;
-using System.Reflection;
-using Blindness.Injection;
 using Blindness.Bind;
 
-var myBox = new Box<int>();
-myBox.Place(8);
-myBox.OnChange += e =>
-{
-    Console.WriteLine("The value changed!");
-    if (e.NewValue > e.OldValue)
-        Console.WriteLine("The value incresead!");
-};
+MyComponent a = new();
+MyComponent b = new();
 
-var component = new MyComponent(myBox);
-component.Run();
-Console.WriteLine(myBox.Open());
+a.List = [1, 2, 3];
+a.Bind += List => b.List;
+b.List = [];
+a.List.Add(2);
 
-public class MyComponent(IPlaceable<int> reference)
+show(a.List);
+show(b.List);
+
+void show(List<int> list)
+    => Console.WriteLine($"[ {string.Join(", ", list)} ]");
+
+public class MyComponent
 {
-    public void Run()
+    public Binding<string> Bind { get; set; }
+    public MyComponent()
+        => Bind = new(this);
+    public List<int> List
     {
-        reference.Place(8);
-        reference.Place(12);
-        reference.Place(8);
+        get => Bind.Open<List<int>>(nameof(List));
+        set => Bind.Place(nameof(List), value);
     }
 }
 
