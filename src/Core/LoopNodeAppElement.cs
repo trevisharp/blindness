@@ -5,7 +5,6 @@ using System.Threading;
 
 namespace Blindness.Core;
 
-using States;
 using Exceptions;
 using Concurrency;
 
@@ -14,7 +13,6 @@ using Concurrency;
 /// </summary>
 public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
 {
-    public int ElementPointer { get; set; }
     bool running = false;
     bool paused = false;
 
@@ -23,8 +21,9 @@ public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
 
     public override void Run()
     {
+        // TODO: Apply New Box abstraction
         var app = Node.New(typeof(T), Model);
-        ElementPointer = app.MemoryLocation;
+        // ElementPointer = app.MemoryLocation;
 
         running = true;
         while (running)
@@ -32,11 +31,11 @@ public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
             while (paused)
                 Thread.Sleep(500);
             
-            var data = Memory.Current.GetObject(ElementPointer);
-            if (data is not IAsyncElement element)
-                throw new NonAsyncElementException(typeof(T));
+            // var data = Memory.Current.GetObject(ElementPointer);
+            // if (data is not IAsyncElement element)
+            //     throw new NonAsyncElementException(typeof(T));
                 
-            element.Run();
+            // element.Run();
             SendSignal(SignalArgs.True);
         }
     }

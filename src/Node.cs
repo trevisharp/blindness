@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/07/2024
+ * Date:    30/07/2024
  */
 using System;
 using System.Linq;
@@ -10,8 +10,7 @@ using System.Collections.Generic;
 
 namespace Blindness;
 
-using States;
-using Injection;
+using Bind;
 using Concurrency;
 
 /// <summary>
@@ -20,12 +19,6 @@ using Concurrency;
 /// </summary>
 public abstract class Node : IAsyncElement
 {
-    internal record EventMatch(
-        object Parent,
-        PropertyInfo Field,
-        EventElement EventObject
-    );
-
     /// <summary>
     /// Create a new node of a specified type and using a
     /// specified async model. The node is created from
@@ -51,7 +44,6 @@ public abstract class Node : IAsyncElement
 
     public Binding Bind { get; set; }
     public IAsyncModel Model { get; set; }
-    public int MemoryLocation { get; set; } = Memory.Null;
 
     public event Action<IAsyncElement, SignalArgs> OnSignal;
 
@@ -96,7 +88,6 @@ public abstract class Node : IAsyncElement
         
         this.Running = true;
         OnRun();
-        RunWhenList();
 
         if (signalCount == 0)
             return;
@@ -123,10 +114,7 @@ public abstract class Node : IAsyncElement
         Action action
     )
     {
-        if (condition is null || action is null)
-            return;
-        
-        whenList.Add((condition, action));
+        throw new NotImplementedException();
     }
 
     public void On(
@@ -134,50 +122,7 @@ public abstract class Node : IAsyncElement
         Action<bool> action
     )
     {
-        EventElement eventElement = new(
-            Model, action, condition.Compile()
-        );
-
-        AddEvents(condition, eventElement);
-
-        Model.Run(eventElement);
-    }
-
-    void AddEvents(
-        Expression exp,
-        EventElement eventObj
-    )
-    {
-        List<EventMatch> matches = new();
-        AddEvents(exp, eventObj, matches);
-
-        var uniqueMatches = matches
-            .Where(m => m.Field is not null)
-            .DistinctBy(m => m.Field);
-        
-        foreach (var match in uniqueMatches)
-            AddEvent(match);
-    }
-
-    void AddEvent(
-        EventMatch match
-    )
-    {
-        var binding = GetBinding(match.Parent);
-
-        binding.AddEvent(
-            match.Field,
-            match.EventObject
-        );
-    }
-
-    void RunWhenList()
-    {
-        foreach (var (pred, act) in whenList)
-        {
-            if (pred())
-                act();
-        }
+        throw new NotImplementedException();
     }
 
     MethodInfo FindDeps()
@@ -214,49 +159,49 @@ public abstract class Node : IAsyncElement
         return node.Bind;
     }
     
-    static void AddEvents(
-        Expression exp,
-        EventElement eventObj,
-        List<EventMatch> capturedEvents
-    )
-    {
-        switch (exp.NodeType)
-        {
-            case ExpressionType.Lambda:
-                var lambdaExp = exp as LambdaExpression;
-                AddEvents(lambdaExp.Body, eventObj, capturedEvents);
-                break;
+    // static void AddEvents(
+    //     Expression exp,
+    //     EventElement eventObj,
+    //     List<EventMatch> capturedEvents
+    // )
+    // {
+    //     switch (exp.NodeType)
+    //     {
+    //         case ExpressionType.Lambda:
+    //             var lambdaExp = exp as LambdaExpression;
+    //             AddEvents(lambdaExp.Body, eventObj, capturedEvents);
+    //             break;
             
-            case ExpressionType.AndAlso:
-            case ExpressionType.OrElse:
-            case ExpressionType.Add:
-            case ExpressionType.Subtract:
-            case ExpressionType.Multiply:
-            case ExpressionType.Divide:
-            case ExpressionType.And:
-            case ExpressionType.Or:
-            case ExpressionType.Equal:
-            case ExpressionType.GreaterThan:
-            case ExpressionType.GreaterThanOrEqual:
-            case ExpressionType.LessThan:
-            case ExpressionType.LessThanOrEqual:
-                var binExp = exp as BinaryExpression;
-                AddEvents(binExp.Left, eventObj, capturedEvents);
-                AddEvents(binExp.Right, eventObj, capturedEvents);
-                break;
+    //         case ExpressionType.AndAlso:
+    //         case ExpressionType.OrElse:
+    //         case ExpressionType.Add:
+    //         case ExpressionType.Subtract:
+    //         case ExpressionType.Multiply:
+    //         case ExpressionType.Divide:
+    //         case ExpressionType.And:
+    //         case ExpressionType.Or:
+    //         case ExpressionType.Equal:
+    //         case ExpressionType.GreaterThan:
+    //         case ExpressionType.GreaterThanOrEqual:
+    //         case ExpressionType.LessThan:
+    //         case ExpressionType.LessThanOrEqual:
+    //             var binExp = exp as BinaryExpression;
+    //             AddEvents(binExp.Left, eventObj, capturedEvents);
+    //             AddEvents(binExp.Right, eventObj, capturedEvents);
+    //             break;
 
-            case ExpressionType.MemberAccess:
-                var memberExp = exp as MemberExpression;
+    //         case ExpressionType.MemberAccess:
+    //             var memberExp = exp as MemberExpression;
 
-                var propExp = memberExp.Expression as ConstantExpression;
-                if (propExp is not null)
-                {
-                    capturedEvents.Add(new(propExp.Value, memberExp.Member as PropertyInfo, eventObj));
-                    break;
-                }
+    //             var propExp = memberExp.Expression as ConstantExpression;
+    //             if (propExp is not null)
+    //             {
+    //                 capturedEvents.Add(new(propExp.Value, memberExp.Member as PropertyInfo, eventObj));
+    //                 break;
+    //             }
 
-                AddEvents(memberExp.Expression, eventObj, capturedEvents);
-                break;
-        }
-    }
+    //             AddEvents(memberExp.Expression, eventObj, capturedEvents);
+    //             break;
+    //     }
+    // }
 }

@@ -5,7 +5,7 @@ using System;
 
 namespace Blindness.Core;
 
-using States;
+using Bind;
 using Reload;
 using Injection;
 using Concurrency;
@@ -21,9 +21,6 @@ public class DefaultAppBehaviour : AppBehaviour
         {
             var model = new DefaultModel();
             DependencySystem.Reset();
-
-            var memory = new DefaultMemoryBehaviour();
-            Memory.Reset(memory);
 
             var implementer = new DefaultImplementer();
             if (debug)

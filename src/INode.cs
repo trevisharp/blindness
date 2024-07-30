@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Blindness;
 
-using State;
+using Bind;
 
 /// <summary>
 /// A base class for all nodes.

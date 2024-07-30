@@ -13,7 +13,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Blindness.Reload;
 
-using States;
 using Injection;
 using Concurrency;
 
@@ -90,7 +89,7 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
             throw new ArgumentNullException(nameof(assembly));
         
         DependencySystem.Shared.UpdateAssembly(assembly);
-        Memory.Current.Reload();
+        // TODO
     }
     
     static IEnumerable<string> FindAllCSharpFiles(string directory)
