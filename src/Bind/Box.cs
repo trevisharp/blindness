@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    30/07/2024
  */
+using System;
+
 namespace Blindness.Bind;
 
 /// <summary>
@@ -10,12 +12,15 @@ public class Box<T>(T initalValue = default)
 {
     T value = initalValue;
     public T Value => value;
+    
+    public event Action<BoxChangeEventArgs<T>> OnChange;
 
     public void SetValue(T newValue)
     {
         if (newValue.Equals(value))
             return;
         
+        OnChange(new(value, newValue));
         value = newValue;
     }
 
