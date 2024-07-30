@@ -17,7 +17,7 @@ public interface INode
     /// <summary>
     /// Binding property.
     /// </summary>
-    Binding Bind { get; set; }
+    Binding<string> Bind { get; set; }
 
     /// <summary>
     /// Run the node.
