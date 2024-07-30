@@ -8,14 +8,18 @@ namespace Blindness.Bind;
 /// <summary>
 /// Represents a structure to box values.
 /// </summary>
-public class Box<T>(T initalValue = default)
+public class Box<T> : IBox<T, T>
 {
-    T value = initalValue;
-    public T Value => value;
-    
-    public event Action<BoxChangeEventArgs<T>> OnChange;
+    T value;
+    public Box(T initialValue = default)
+        => value = initialValue;
+    public Box(Box<T> other)
+        => value = other.Open();
 
-    public void SetValue(T newValue)
+    public event Action<BoxChangeEventArgs<T>> OnChange;
+    public T Open()
+        => value;
+    public void Place(T newValue)
     {
         if (newValue.Equals(value))
             return;
