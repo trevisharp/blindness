@@ -29,6 +29,9 @@ public class Binding<K>(object parent)
     {
         var fieldName = expression.Parameters[0].Name;
 
+        IOpenable<K> x = new Box<K>();
+        IOpenable<object> y = (IOpenable<object>)x;
+
         Verbose.Warning(fieldName);
         Verbose.Warning(expression.Body);
 

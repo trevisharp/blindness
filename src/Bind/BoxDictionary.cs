@@ -3,9 +3,10 @@
  */
 using System;
 using System.Collections.Generic;
-using Blindness.Exceptions;
 
 namespace Blindness.Bind;
+
+using Exceptions;
 
 /// <summary>
 /// A memory to map a key to a generic Box.
@@ -53,13 +54,15 @@ public class BoxDictionary<K>
     /// Get the box object. Throws a exception if key do
     /// not found.
     /// </summary>
-    public object GetBox(K boxName)
+    public object GetBox(K boxName, Type boxType)
     {
         ArgumentNullException.ThrowIfNull(nameof(boxName));
         if (memory.TryGetValue(boxName, out object obj))
             return obj;
         
-        throw new MissingBoxException(boxName.ToString());
+        var boxObj = CreateBox(boxType);
+        memory.Add(boxName, boxObj);
+        return boxObj;
     }
 
     /// <summary>
@@ -68,6 +71,26 @@ public class BoxDictionary<K>
     public void SetBox(K boxName, object value)
     {
         ArgumentNullException.ThrowIfNull(nameof(boxName));
+        if (IsBox(value))
+            throw new BoxTypeException(boxName.ToString());
         memory[boxName] = value;
+    }
+
+    /// <summary>
+    /// Test if a object is a Box<T>
+    /// </summary>
+    static bool IsBox(object value)
+        => value.GetType().GetGenericTypeDefinition() == typeof(Box<>);
+    
+    /// <summary>
+    /// Create a box based on his type.
+    /// </summary>
+    static object CreateBox(Type boxType)
+    {
+        var type = typeof(Box<>);
+        var genBoxType = type.MakeGenericType(boxType);
+        var boxConstructor = genBoxType.GetConstructor([ boxType ]);
+        var boxObj = boxConstructor.Invoke([]);
+        return boxObj;
     }
 }
