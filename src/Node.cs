@@ -42,7 +42,7 @@ public abstract class Node : IAsyncElement
     readonly AutoResetEvent signal = new(false);
     readonly List<(Func<bool> pred, Action act)> whenList = [];
 
-    public Binding<int> Bind { get; set; }
+    public Binding Bind { get; set; }
     public IAsyncModel Model { get; set; }
 
     public event Action<IAsyncElement, SignalArgs> OnSignal;
@@ -148,7 +148,7 @@ public abstract class Node : IAsyncElement
         return prop;
     }
 
-    static Binding<int> GetBinding(object type)
+    static Binding GetBinding(object type)
     {
         if (type is null)
             return null;

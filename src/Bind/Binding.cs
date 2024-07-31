@@ -1,7 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/07/2024
+ * Date:    31/07/2024
  */
 using System;
+using System.Reflection;
 using System.Linq.Expressions;
 
 namespace Blindness.Bind;
@@ -9,30 +10,32 @@ namespace Blindness.Bind;
 /// <summary>
 /// A object to manage binding between boxes.
 /// </summary>
-public class Binding<K>(object parent)
+public class Binding(object parent)
 {
-    readonly BoxDictionary<K> boxDictionary = new();
+    readonly BoxDictionary<string> dictionary = new();
+    readonly object parent = parent;
+    readonly Type parentType = parent.GetType();
 
     /// <summary>
     /// Get a box and open your value based on a key.
     /// </summary>
-    public T Open<T>(K boxKey)
-        => boxDictionary.Open<T>(boxKey);
+    public T Open<T>(string boxName)
+        => dictionary.Open<T>(boxName);
 
     /// <summary>
     /// Get a box and place your value based on a key.
     /// </summary>
-    public void Place<T>(K boxKey, T value)
-        => boxDictionary.Place(boxKey, value);
+    public void Place<T>(string boxName, T value)
+        => dictionary.Place(boxName, value);
 
-    public static Binding<K> operator +(Binding<K> binding, Expression<Func<object, object>> expression)
+    public static Binding operator +(Binding binding, Expression<Func<object, object>> expression)
     {
-        var fieldName = expression.Parameters[0].Name;
+        var propName = expression.Parameters[0].Name;
+        var property = binding.parentType.GetProperty(propName);
+        var propType = property.PropertyType;
+        var box = binding.dictionary.GetBox(propName, propType);
 
-        IOpenable<K> x = new Box<K>();
-        IOpenable<object> y = (IOpenable<object>)x;
-
-        Verbose.Warning(fieldName);
+        Verbose.Success(Box.Open(box));
         Verbose.Warning(expression.Body);
 
         return binding;
