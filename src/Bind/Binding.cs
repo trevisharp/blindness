@@ -14,6 +14,13 @@ using Exceptions;
 /// </summary>
 public class Binding(object parent)
 {
+    private static BindChain chain = null;
+    public static void SetBehaviour(IBindBehaviour behaviour)
+    {
+        ArgumentNullException.ThrowIfNull(behaviour, nameof(behaviour));
+        chain = behaviour.BuildChain();
+    }
+    
     readonly BoxDictionary<string> dictionary = new();
     readonly object parent = parent;
     readonly Type parentType = parent?.GetType();

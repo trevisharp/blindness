@@ -20,7 +20,7 @@ public class BoxDictionary<K>
     /// </summary>
     public T Open<T>(K boxName)
     {
-        ArgumentNullException.ThrowIfNull(nameof(boxName));
+        ArgumentNullException.ThrowIfNull(boxName, nameof(boxName));
         var box = GetOrCreate<T>(boxName);
         return box.Open();
     }
@@ -30,7 +30,7 @@ public class BoxDictionary<K>
     /// </summary>
     public void Place<T>(K boxName, T value)
     {
-        ArgumentNullException.ThrowIfNull(nameof(boxName));
+        ArgumentNullException.ThrowIfNull(boxName, nameof(boxName));
         var box = GetOrCreate<T>(boxName);
         box.Place(value);
     }
@@ -41,7 +41,7 @@ public class BoxDictionary<K>
     /// </summary>
     public Box<T> GetOrCreate<T>(K boxName)
     {
-        ArgumentNullException.ThrowIfNull(nameof(boxName));
+        ArgumentNullException.ThrowIfNull(boxName, nameof(boxName));
         if (memory.TryGetValue(boxName, out object obj))
             return obj as Box<T>;
         
@@ -56,7 +56,7 @@ public class BoxDictionary<K>
     /// </summary>
     public object GetBox(K boxName, Type boxType)
     {
-        ArgumentNullException.ThrowIfNull(nameof(boxName));
+        ArgumentNullException.ThrowIfNull(boxName, nameof(boxName));
         if (memory.TryGetValue(boxName, out object obj))
             return obj;
         
@@ -70,7 +70,7 @@ public class BoxDictionary<K>
     /// </summary>
     public void SetBox(K boxName, object value)
     {
-        ArgumentNullException.ThrowIfNull(nameof(boxName));
+        ArgumentNullException.ThrowIfNull(boxName, nameof(boxName));
         BoxTypeException.ThrowIfIsNotABox(value);
         memory[boxName] = value;
     }
