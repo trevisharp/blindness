@@ -8,5 +8,8 @@ namespace Blindness.Bind;
 /// </summary>
 public interface IOpenable<out T>
 {
+    /// <summary>
+    /// Open and get the internal value from this object.
+    /// </summary>
     T Open();
 }

@@ -8,5 +8,8 @@ namespace Blindness.Bind;
 /// </summary>
 public interface IPlaceable<in R>
 {
+    /// <summary>
+    /// Place a new internal value to this object.
+    /// </summary>
     void Place(R newValue);
 }

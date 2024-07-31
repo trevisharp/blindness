@@ -60,7 +60,7 @@ public class BoxDictionary<K>
         if (memory.TryGetValue(boxName, out object obj))
             return obj;
         
-        var boxObj = CreateBox(boxType);
+        var boxObj = Box.Create(boxType);
         memory.Add(boxName, boxObj);
         return boxObj;
     }
@@ -71,26 +71,7 @@ public class BoxDictionary<K>
     public void SetBox(K boxName, object value)
     {
         ArgumentNullException.ThrowIfNull(nameof(boxName));
-        if (IsBox(value))
-            throw new BoxTypeException(boxName.ToString());
+        BoxTypeException.ThrowIfIsNotABox(value);
         memory[boxName] = value;
-    }
-
-    /// <summary>
-    /// Test if a object is a Box<T>
-    /// </summary>
-    static bool IsBox(object value)
-        => value.GetType().GetGenericTypeDefinition() == typeof(Box<>);
-    
-    /// <summary>
-    /// Create a box based on his type.
-    /// </summary>
-    static object CreateBox(Type boxType)
-    {
-        var type = typeof(Box<>);
-        var genBoxType = type.MakeGenericType(boxType);
-        var boxConstructor = genBoxType.GetConstructor([ boxType ]);
-        var boxObj = boxConstructor.Invoke([]);
-        return boxObj;
     }
 }
