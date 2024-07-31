@@ -12,8 +12,16 @@ namespace Blindness.Bind;
 public class Binding<K>(object parent)
 {
     readonly BoxDictionary<K> boxDictionary = new();
+
+    /// <summary>
+    /// Get a box and open your value based on a key.
+    /// </summary>
     public T Open<T>(K boxKey)
         => boxDictionary.Open<T>(boxKey);
+
+    /// <summary>
+    /// Get a box and place your value based on a key.
+    /// </summary>
     public void Place<T>(K boxKey, T value)
         => boxDictionary.Place(boxKey, value);
 
