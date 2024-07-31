@@ -3,11 +3,14 @@
  */
 namespace Blindness.Bind;
 
+using ChainLinks;
+
 /// <summary>
 /// The default implementation of IBindBehaivour.
 /// </summary>
 public class DefaultBindBehaviour : IBindBehaviour
 {
     public BindChain BuildChain() => 
-        BindChain.New();
+        BindChain.New()
+        .Add(new SimpleMemberBindChainLink());
 }

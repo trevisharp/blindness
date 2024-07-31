@@ -60,19 +60,6 @@ public class Binding(object parent)
             ?? throw new MissingPropertyBindException(boxName, binding.parentType);
         var propType = property.PropertyType;
         var box = binding.dictionary.GetBox(boxName, propType);
-        
-        // TODO: 
-        //  Verify considering the boxing operations
-        //  The expression always returns a object
-        //  if the return is a int, a automatic boxing is
-        //  performed, so the expType is Object if the
-        //  real type is not a reference type.
-        // var expType = expression.Body.Type;
-        // if (!Box.IsBoxType(box, expression.Body.Type))
-        //     throw new TypeBindException(
-        //         binding.parent, boxName, 
-        //         propType, expType
-        //     );
 
         var args = new BindingArgs(
             expression,
