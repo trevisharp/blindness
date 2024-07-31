@@ -18,11 +18,11 @@ show(a.List);
 show(b.List);
 
 void show(List<int> list)
-    => Console.WriteLine($"[ {string.Join(", ", list)} ]");
+    => Verbose.Info($"[ {string.Join(", ", list)} ]");
 
 public class MyComponent
 {
-    public Binding<string> Bind { get; set; }
+    public Binding Bind { get; set; }
     public MyComponent()
         => Bind = new(this);
     public List<int> List
