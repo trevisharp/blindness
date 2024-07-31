@@ -2,12 +2,10 @@
  * Date:    31/07/2024
  */
 using System;
-using System.Reflection;
 using System.Linq.Expressions;
 
 namespace Blindness.Bind;
 
-using System.Collections.Generic;
 using Exceptions;
 
 /// <summary>
@@ -82,8 +80,10 @@ public class Binding(object parent)
             binding.parent,
             box
         );
+        var handled = Chain.Handle(args);
         
-        Chain.Handle(args);
+        if (!handled)
+            throw new InvalidBindingException();
 
         return binding;
     }
