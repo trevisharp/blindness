@@ -13,6 +13,7 @@ namespace Blindness.Bind;
 /// </summary>
 public record BindingArgs(
     Expression<Func<object, object>> Expression,
+    BoxDictionary<string> BindingBoxDictionary,
     object Parent,
     object ParentBox
 );

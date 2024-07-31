@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 
 namespace Blindness.Bind;
 
+using System.Collections.Generic;
 using Exceptions;
 
 /// <summary>
@@ -14,13 +15,24 @@ using Exceptions;
 /// </summary>
 public class Binding(object parent)
 {
-    private static BindChain chain = null;
-    public static void SetBehaviour(IBindBehaviour behaviour)
-    {
-        ArgumentNullException.ThrowIfNull(behaviour, nameof(behaviour));
-        chain = behaviour.BuildChain();
-    }
+    static IBindBehaviour behaviour = new DefaultBindBehaviour();
+    static BindChain chain = null;
     
+    /// <summary>
+    /// Get the chain of behaviour to bind operations.
+    /// </summary>
+    public static BindChain Chain => 
+        chain ??= behaviour.BuildChain();
+    
+    /// <summary>
+    /// Set the behaviour of a bind operation.
+    /// </summary>
+    public static void SetBehaviour(IBindBehaviour newBehaviour)
+    {
+        ArgumentNullException.ThrowIfNull(newBehaviour, nameof(newBehaviour));
+        behaviour = newBehaviour;
+    }
+
     readonly BoxDictionary<string> dictionary = new();
     readonly object parent = parent;
     readonly Type parentType = parent?.GetType();
@@ -39,8 +51,8 @@ public class Binding(object parent)
 
     public static Binding operator +(Binding binding, Expression<Func<object, object>> expression)
     {
-        ArgumentNullException.ThrowIfNull(nameof(binding));
-        ArgumentNullException.ThrowIfNull(nameof(expression));
+        ArgumentNullException.ThrowIfNull(binding, nameof(binding));
+        ArgumentNullException.ThrowIfNull(expression, nameof(expression));
 
         if (binding.parent is null)
             throw new ParentNullBindException();
@@ -64,9 +76,14 @@ public class Binding(object parent)
         //         propType, expType
         //     );
 
-        Verbose.Warning(expression.Body);
-        Verbose.Warning(expression.Body.Type);
-        Verbose.Warning(expression.Body.NodeType);
+        var args = new BindingArgs(
+            expression,
+            binding.dictionary,
+            binding.parent,
+            box
+        );
+        
+        Chain.Handle(args);
 
         return binding;
     }
