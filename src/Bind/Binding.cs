@@ -28,6 +28,7 @@ public class Binding<K>(object parent)
     public static Binding<K> operator +(Binding<K> binding, Expression<Func<object, object>> expression)
     {
         var fieldName = expression.Parameters[0].Name;
+
         Verbose.Warning(fieldName);
         Verbose.Warning(expression.Body);
 
