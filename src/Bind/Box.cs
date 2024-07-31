@@ -60,6 +60,21 @@ public static class Box
         => value.GetType().GetGenericTypeDefinition() == typeof(Box<>);
 
     /// <summary>
+    /// Test if a type is the type of internal data
+    /// of a box object. If the object is not a box
+    /// the function throws a exception.
+    /// </summary>
+    public static bool IsBoxType(object box, Type type)
+    {
+        ArgumentNullException.ThrowIfNull(box);
+        ArgumentNullException.ThrowIfNull(type);
+        BoxTypeException.ThrowIfIsNotABox(box);
+
+        var genericParam = box.GetType().GetGenericArguments()[0];
+        return genericParam == type;
+    }
+
+    /// <summary>
     /// Try to open a object like a box. Throw a exception if
     /// the object is not a box.
     /// </summary>
