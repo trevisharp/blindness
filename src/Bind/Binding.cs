@@ -29,6 +29,7 @@ public class Binding(object parent)
     {
         ArgumentNullException.ThrowIfNull(newBehaviour, nameof(newBehaviour));
         behaviour = newBehaviour;
+        chain = null;
     }
 
     readonly BoxDictionary<string> dictionary = new();
