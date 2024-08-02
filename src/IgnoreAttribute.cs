@@ -8,4 +8,5 @@ namespace Blindness;
 /// <summary>
 /// Attribute used to ignore interfaces in code generation step.
 /// </summary>
+[AttributeUsage(AttributeTargets.All)]
 public class IgnoreAttribute : Attribute;

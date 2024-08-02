@@ -8,4 +8,5 @@ namespace Blindness;
 /// <summary>
 /// Attribute used to denote concrete nodes
 /// </summary>
+[AttributeUsage(AttributeTargets.All)]
 public class ConcreteAttribute : Attribute;
