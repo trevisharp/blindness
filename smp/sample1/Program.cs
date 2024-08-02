@@ -10,7 +10,7 @@ MyComponent a = new();
 MyComponent b = new();
 
 a.Value = 3;
-a.Bind += Value => b.Value;
+a.Bind += Value => b.Value + 2;
 b.Value = 0;
 a.Value += 2;
 Verbose.Info(a.Value);

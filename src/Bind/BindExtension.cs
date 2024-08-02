@@ -92,6 +92,10 @@ public static class BindExtension
         return (obj, member);
     }
 
+    /// <summary>
+    /// Remove any type cast of a operation returning the operando of expression.
+    /// Example: (object)person.Age becomes person.Age.
+    /// </summary>
     public static Expression RemoveTypeCast(this Expression expression)
     {
         if (expression is not UnaryExpression op)
