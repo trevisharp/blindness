@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/07/2024
+ * Date:    01/08/2024
  */
 using System;
 using System.Linq.Expressions;
@@ -47,6 +47,12 @@ public class Binding(object parent)
     /// </summary>
     public void Place<T>(string boxName, T value)
         => dictionary.Place(boxName, value);
+    
+    /// <summary>
+    /// Get if the binding contains a box with a specific name.
+    /// </summary>
+    public bool Contains(string boxName)
+        => dictionary.Contains(boxName);
 
     public static Binding operator +(Binding binding, Expression<Func<object, object>> expression)
     {

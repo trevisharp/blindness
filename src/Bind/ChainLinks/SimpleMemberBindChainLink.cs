@@ -1,8 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    31/07/2024
  */
-using System.Linq.Expressions;
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace Blindness.Bind.ChainLinks;
 

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/07/2024
+ * Date:    01/08/2024
  */
 using System;
 using System.Collections.Generic;
@@ -74,4 +74,10 @@ public class BoxDictionary<K>
         BoxTypeException.ThrowIfIsNotABox(value);
         memory[boxName] = value;
     }
+
+    /// <summary>
+    /// Return true if the dictionary contains the boxName key.
+    /// </summary>
+    public bool Contains(K boxName)
+        => memory.ContainsKey(boxName);
 }
