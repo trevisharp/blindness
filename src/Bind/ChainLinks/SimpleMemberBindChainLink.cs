@@ -19,7 +19,7 @@ public class SimpleMemberBindChainLink : BindChainLink
         ArgumentNullException.ThrowIfNull(args.Binding, nameof(args.Binding));
 
         var exp = args.Expression;
-        var body = exp.Body;
+        var body = exp.Body.RemoveTypeCast();
         if (body is not MemberExpression parent)
             return false;
         

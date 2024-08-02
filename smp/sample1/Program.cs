@@ -9,6 +9,13 @@ using Blindness.Bind;
 MyComponent a = new();
 MyComponent b = new();
 
+a.Value = 3;
+a.Bind += Value => b.Value;
+b.Value = 0;
+a.Value += 2;
+Verbose.Info(a.Value);
+Verbose.Info(b.Value);
+
 a.List = [1, 2, 3];
 a.Bind += List => b.List;
 b.List = [];
@@ -31,6 +38,13 @@ public class MyComponent
     {
         get => Bind.Open<List<int>>(nameof(List));
         set => Bind.Place(nameof(List), value);
+    }
+    
+    [Binding]
+    public int Value
+    {
+        get => Bind.Open<int>(nameof(Value));
+        set => Bind.Place(nameof(Value), value);
     }
 }
 

@@ -92,6 +92,17 @@ public static class BindExtension
         return (obj, member);
     }
 
+    public static Expression RemoveTypeCast(this Expression expression)
+    {
+        if (expression is not UnaryExpression op)
+            return expression;
+        
+        if (op.NodeType is not ExpressionType.Convert or ExpressionType.ConvertChecked)
+            return expression;
+        
+        return op.Operand;
+    }
+
     static object GetProperty(object obj, PropertyInfo prop)
     {
         if (obj is null || prop is null)
