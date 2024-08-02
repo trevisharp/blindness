@@ -25,6 +25,8 @@ public class MyComponent
     public Binding Bind { get; set; }
     public MyComponent()
         => Bind = new(this);
+    
+    [Binding]
     public List<int> List
     {
         get => Bind.Open<List<int>>(nameof(List));

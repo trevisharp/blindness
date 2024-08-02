@@ -419,7 +419,49 @@ public class MyComponent(IPlaceable<int> reference)
 }
 ```
 
-### 
+### Use BInding to manage Box smartly
+
+```cs
+using Blindness;
+using Blindness.Bind;
+
+MyComponent a = new();
+MyComponent b = new();
+
+// a.List = [1, 2, 3]
+a.List = [1, 2, 3];
+// b.List is binded to a.List and recive the value
+// from the dominant type (a) so a.List = b.List = [ 1, 2, 3 ]
+a.Bind += List => b.List;
+// b.List = [], but a.List and b.List are binded so a.List = []
+b.List = [];
+// a.List = [ 2 ] so b.List = [ 2 ]
+a.List.Add(2);
+
+show(a.List); // [ 2 ]
+show(b.List); // [ 2 ]
+
+void show(List<int> list)
+    => Verbose.Info($"[ {string.Join(", ", list)} ]");
+
+public class MyComponent
+{
+    // Create a Bind Property
+    public Binding Bind { get; set; }
+
+    // Init Bind
+    public MyComponent()
+        => Bind = new(this);
+    
+    // Create a Bindable Property
+    [Binding]
+    public List<int> List
+    {
+        get => Bind.Open<List<int>>(nameof(List));
+        set => Bind.Place(nameof(List), value);
+    }
+}
+```
 
 # Versions
 
