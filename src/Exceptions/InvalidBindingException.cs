@@ -12,7 +12,7 @@ public class InvalidBindingException(string extraMessage = "") : Exception
 {
     public override string Message => 
         $"""
-        The binding sintax applied it is invalid and cannot be handled. {extraMessage}
+        The binding syntax applied it is invalid and cannot be handled. {extraMessage}
         Consider add a new BindChainLink, create a new BindBehaviour to extend the bind operation.
         """;
 }

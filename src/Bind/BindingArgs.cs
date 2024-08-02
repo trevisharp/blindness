@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/07/2024
+ * Date:    02/08/2024
  */
 using System;
 using System.Linq.Expressions;
@@ -13,7 +13,7 @@ namespace Blindness.Bind;
 /// </summary>
 public record BindingArgs(
     Expression<Func<object, object>> Expression,
-    BoxDictionary<string> BindingBoxDictionary,
+    Binding Binding,
     object Parent,
     object ParentBox
 );

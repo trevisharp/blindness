@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/08/2024
+ * Date:    02/08/2024
  */
 using System;
 using System.Linq.Expressions;
@@ -32,6 +32,7 @@ public class Binding(object parent)
         chain = null;
     }
 
+    public BoxDictionary<string> Dictionary => dictionary;
     readonly BoxDictionary<string> dictionary = new();
     readonly object parent = parent;
     readonly Type parentType = parent?.GetType();
@@ -70,7 +71,7 @@ public class Binding(object parent)
 
         var args = new BindingArgs(
             expression,
-            binding.dictionary,
+            binding,
             binding.parent,
             box
         );

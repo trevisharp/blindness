@@ -15,10 +15,16 @@ namespace Blindness.Bind;
 public static class BindExtension
 {
     /// <summary>
+    /// Get internal binding from a object.
+    /// </summary>
+    public static Binding GetBinding(this object obj)
+        => TryGetDataByType(obj, out Binding data) ? data : null;
+
+    /// <summary>
     /// Find in properties and fields of a object by a member
     /// with type T and get your data.
     /// </summary>
-    public static bool GetDataByType<T>(this object obj, out T data)
+    public static bool TryGetDataByType<T>(this object obj, out T data)
     {
         var type = obj.GetType();
         var targetType = typeof(T);
@@ -71,6 +77,19 @@ public static class BindExtension
 
         data = null;
         return false;
+    }
+
+    /// <summary>
+    /// Split a expression of form B.C in a B objet and C MemberInfo.
+    /// </summary>
+    public static (object obj, MemberInfo member) Split(
+        this MemberExpression expression
+    )
+    {
+        var lambda = Expression.Lambda(expression.Expression);
+        var obj = lambda.Compile().DynamicInvoke();
+        var member = expression.Member;
+        return (obj, member);
     }
 
     static object GetProperty(object obj, PropertyInfo prop)

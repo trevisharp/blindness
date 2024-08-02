@@ -49,7 +49,7 @@ public static class Box
         var boxType = typeof(Box<>);
         var genBoxType = boxType.MakeGenericType(type);
         var boxConstructor = genBoxType.GetConstructor([ type ]);
-        var boxObj = boxConstructor.Invoke([]);
+        var boxObj = boxConstructor.Invoke([ null ]);
         return boxObj;
     }
     

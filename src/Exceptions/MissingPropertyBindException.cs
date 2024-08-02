@@ -12,6 +12,6 @@ public class MissingPropertyBindException(string prop, Type parentType) : Except
 {
     public override string Message =>
         $"""
-        Missing a property {prop} on {parentType} to perform a Bind operation.
+        Missing a property/field {prop} on {parentType} to perform a Bind operation. Or the property/field is a method.
         """;
 }
