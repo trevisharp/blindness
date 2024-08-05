@@ -7,12 +7,11 @@ using Blindness;
 using Blindness.Bind;
 
 MyComponent a = new();
-int value = 8;
+List<int> list = [];
 
-a.Bind += Value => value;
-value += 2;
-a.Value += 2;
-Verbose.Info(value);
+a.Bind += Value => list.Count;
+a.Value = 1;
+Verbose.Info(list.Count);
 Verbose.Info(a.Value);
 
 public class MyComponent

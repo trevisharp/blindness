@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/08/2024
+ * Date:    05/08/2024
  */
 using System;
 using System.Linq;
@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Linq.Expressions;
 
 namespace Blindness.Bind;
+
+using Exceptions;
 
 /// <summary>
 /// A extension class to System.Linq.Expression, System.Type
@@ -149,7 +151,8 @@ public static class BindExtension
     {
         if (obj is null || prop is null)
             return null;
-        var getMethod = prop.GetGetMethod();
+        var getMethod = prop.GetGetMethod() 
+            ?? throw new InvalidMemberOperationException(obj, prop, "get");
         return getMethod.Invoke(obj, []);
     }
 
@@ -164,7 +167,8 @@ public static class BindExtension
     {
         if (obj is null || prop is null)
             return;
-        var getMethod = prop.GetSetMethod();
+        var getMethod = prop.GetSetMethod() 
+            ?? throw new InvalidMemberOperationException(obj, prop, "set");
         getMethod.Invoke(obj, [value]);
     }
 
