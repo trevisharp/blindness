@@ -10,9 +10,9 @@ namespace Blindness.Bind.ChainLinks;
 using Exceptions;
 
 /// <summary>
-/// Bind a expression of type A => B.C.
+/// Bind a expression of type A => B.C ... .
 /// </summary>
-public class SimpleMemberBindChainLink : BindChainLink
+public class BaseMemberBindChainLink : BindChainLink
 {
     protected override bool TryHandle(BindingArgs args)
     {

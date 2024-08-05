@@ -55,7 +55,7 @@ public class Binding(object parent)
     public bool Contains(string boxName)
         => dictionary.Contains(boxName);
 
-    public static Binding operator +(Binding binding, Expression<Func<object, object>> expression)
+    public static Binding operator |(Binding binding, Expression<Func<object, object>> expression)
     {
         ArgumentNullException.ThrowIfNull(binding, nameof(binding));
         ArgumentNullException.ThrowIfNull(expression, nameof(expression));
