@@ -73,7 +73,8 @@ public class Binding(object parent)
             expression,
             binding,
             binding.parent,
-            box
+            box,
+            Chain
         );
         var handled = Chain.Handle(args);
         

@@ -15,5 +15,6 @@ public record BindingArgs(
     Expression<Func<object, object>> Expression,
     Binding Binding,
     object Parent,
-    object ParentBox
+    object ParentBox,
+    BindChain Chain
 );
