@@ -30,7 +30,7 @@ public class SimpleMemberBindChainLink : BindChainLink
             throw new WrongFormatBindException("A => B.C", "() => B.C");
 
         var param = exp.Parameters[0].Name;
-        var (obj, member) = parent.Split();
+        var (obj, member) = parent.SplitMember();
         var memberType = 
             member is PropertyInfo p ? p.PropertyType :
             member is FieldInfo f ? f.FieldType :
@@ -50,10 +50,11 @@ public class SimpleMemberBindChainLink : BindChainLink
             BoxValueTypeException.ThrowIfIsIncorrectType(boxA, memberType);
             BoxValueTypeException.ThrowIfIsIncorrectType(boxB, memberType);
             
-            bindB.Dictionary.SetBox(member.Name, boxA);
+            bindA.Dictionary.SetBox(param, boxB);
             return true;
         }
-        
-        return false;
+
+        bindA.Dictionary.SetBox(param, Box.CreateMember(memberType, member, obj));
+        return true;
     }
 }

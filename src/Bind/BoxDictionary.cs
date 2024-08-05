@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/08/2024
+ * Date:    05/08/2024
  */
 using System;
 using System.Collections.Generic;
@@ -39,13 +39,13 @@ public class BoxDictionary<K>
     /// Get the box with a specific key. If the box not exists
     /// in the dictionary them create the box.
     /// </summary>
-    public Box<T> GetOrCreate<T>(K boxName)
+    public IBox<T, T> GetOrCreate<T>(K boxName)
     {
         ArgumentNullException.ThrowIfNull(boxName, nameof(boxName));
         if (memory.TryGetValue(boxName, out object obj))
-            return obj as Box<T>;
+            return obj as IBox<T, T>;
         
-        var box = new Box<T>();
+        var box = new ValueBox<T>();
         memory.Add(boxName, box);
         return box;
     }

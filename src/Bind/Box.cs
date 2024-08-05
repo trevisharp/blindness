@@ -1,63 +1,48 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/07/2024
+ * Date:    05/08/2024
  */
 using System;
+using System.Reflection;
 
 namespace Blindness.Bind;
 
+using System.Linq;
 using Exceptions;
-
-/// <summary>
-/// Represents a structure to box values.
-/// </summary>
-public class Box<T> : IBox<T, T>
-{
-    T value;
-    public Box(T initialValue = default)
-        => value = initialValue;
-    public Box(Box<T> other)
-        => value = other.Open();
-
-    /// <summary>
-    /// This events is triggered every moment that a new value
-    /// is placed and is diferent of the old internal value.
-    /// </summary>
-    public event Action<BoxChangeEventArgs<T>> OnChange;
-    public T Open()
-        => value;
-    public void Place(T newValue)
-    {
-        if (newValue.Equals(value))
-            return;
-        
-        if (OnChange is not null)
-            OnChange(new(value, newValue));
-        value = newValue;
-    }
-
-    public static implicit operator T(Box<T> pointer)
-        => pointer.value;
-}
 
 public static class Box
 {
     /// <summary>
-    /// Create a Box from a type.
+    /// Create a ValueBox from a type.
     /// </summary>
     public static object Create(Type type)
     {
-        var boxType = typeof(Box<>);
+        var boxType = typeof(ValueBox<>);
         var genBoxType = boxType.MakeGenericType(type);
         var boxConstructor = genBoxType.GetConstructor([ type ]);
         var boxObj = boxConstructor.Invoke([ null ]);
         return boxObj;
     }
     
+    
+    /// <summary>
+    /// Create a MemberBox from a type.
+    /// </summary>
+    public static object CreateMember(Type type, MemberInfo member, object instance)
+    {
+        var boxType = typeof(MemberBox<>);
+        var genBoxType = boxType.MakeGenericType(type);
+        var boxConstructor = genBoxType.GetConstructor([ typeof(MemberInfo), typeof(object) ]);
+        var boxObj = boxConstructor.Invoke([ member, instance ]);
+        return boxObj;
+    }
+
     /// <summary>
     /// Test if a object is a Box<T>
     /// </summary>
     public static bool IsBox(object value)
-        => value.GetType().GetGenericTypeDefinition() == typeof(Box<>);
+        => value.GetType().GetInterfaces().Any(i =>
+            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IBox<,>)
+        );
 
     /// <summary>
     /// Test if a type is the type of internal data

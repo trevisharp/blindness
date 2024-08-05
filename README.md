@@ -419,7 +419,7 @@ public class MyComponent(IPlaceable<int> reference)
 }
 ```
 
-### Use BInding to manage Box smartly
+### Use Binding to manage Box smartly
 
 ```cs
 using Blindness;
@@ -428,10 +428,10 @@ using Blindness.Bind;
 MyComponent a = new();
 MyComponent b = new();
 
-// a.List = [1, 2, 3]
-a.List = [1, 2, 3];
-// b.List is binded to a.List and recive the value
-// from the dominant type (a) so a.List = b.List = [ 1, 2, 3 ]
+// b.List = [1, 2, 3]
+b.List = [1, 2, 3];
+// a.List is binded to b.List and recive the value
+// from the dominant type (b) so a.List = b.List = [ 1, 2, 3 ]
 a.Bind += List => b.List;
 // b.List = [], but a.List and b.List are binded so a.List = []
 b.List = [];
@@ -459,6 +459,35 @@ public class MyComponent
     {
         get => Bind.Open<List<int>>(nameof(List));
         set => Bind.Place(nameof(List), value);
+    }
+}
+```
+
+### Bind non-Binding properties
+
+```cs
+using Blindness.Bind;
+
+MyComponent a = new();
+
+int value = 8;
+a.Bind += Value => value; // Bind a.Value to value, so a.Value equals to 8 now
+value += 2; // a.Value = value = 10
+a.Value += 2; // a.Value = value = 12
+Verbose.Info(value); // 12
+Verbose.Info(a.Value); // 12
+
+public class MyComponent
+{
+    public Binding Bind { get; set; }
+    public MyComponent()
+        => Bind = new(this);
+    
+    [Binding]
+    public int Value
+    {
+        get => Bind.Open<int>(nameof(Value));
+        set => Bind.Place(nameof(Value), value);
     }
 }
 ```

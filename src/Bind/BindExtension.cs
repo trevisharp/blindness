@@ -82,7 +82,7 @@ public static class BindExtension
     /// <summary>
     /// Split a expression of form B.C in a B objet and C MemberInfo.
     /// </summary>
-    public static (object obj, MemberInfo member) Split(
+    public static (object obj, MemberInfo member) SplitMember(
         this MemberExpression expression
     )
     {
@@ -90,6 +90,44 @@ public static class BindExtension
         var obj = lambda.Compile().DynamicInvoke();
         var member = expression.Member;
         return (obj, member);
+    }
+
+    /// <summary>
+    /// Get data from a member based on a instance.
+    /// </summary>
+    public static object GetData(this MemberInfo member, object instance)
+    {
+        ArgumentNullException.ThrowIfNull(member, nameof(member));
+
+        if (member is PropertyInfo prop)
+            return GetProperty(instance, prop);
+        
+        if (member is FieldInfo field)
+            return GetField(instance, field);
+        
+        throw new Exception("Invalid Member.");
+    }
+
+    /// <summary>
+    /// Set Get data from a member based on a instance.
+    /// </summary>
+    public static void SetData(this MemberInfo member, object instance, object value)
+    {
+        ArgumentNullException.ThrowIfNull(member, nameof(member));
+
+        if (member is PropertyInfo prop)
+        {
+            SetProperty(instance, prop, value);
+            return;
+        }
+        
+        if (member is FieldInfo field)
+        {
+            SetField(instance, field, value);
+            return;
+        }
+
+        throw new Exception("Invalid Member.");
     }
 
     /// <summary>
@@ -106,7 +144,7 @@ public static class BindExtension
         
         return op.Operand;
     }
-
+    
     static object GetProperty(object obj, PropertyInfo prop)
     {
         if (obj is null || prop is null)
@@ -120,5 +158,20 @@ public static class BindExtension
         if (obj is null || field is null)
             return null;
         return field.GetValue(obj);
+    }
+    
+    static void SetProperty(object obj, PropertyInfo prop, object value)
+    {
+        if (obj is null || prop is null)
+            return;
+        var getMethod = prop.GetSetMethod();
+        getMethod.Invoke(obj, [value]);
+    }
+
+    static void SetField(object obj, FieldInfo field, object value)
+    {
+        if (obj is null || field is null)
+            return;
+        field.SetValue(obj, value);
     }
 }

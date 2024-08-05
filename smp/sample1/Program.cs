@@ -7,38 +7,19 @@ using Blindness;
 using Blindness.Bind;
 
 MyComponent a = new();
-MyComponent b = new();
+int value = 8;
 
-a.Value = 3;
-a.Bind += Value => b.Value + 2;
-b.Value = 0;
+a.Bind += Value => value;
+value += 2;
 a.Value += 2;
+Verbose.Info(value);
 Verbose.Info(a.Value);
-Verbose.Info(b.Value);
-
-a.List = [1, 2, 3];
-a.Bind += List => b.List;
-b.List = [];
-a.List.Add(2);
-
-show(a.List);
-show(b.List);
-
-void show(List<int> list)
-    => Verbose.Info($"[ {string.Join(", ", list)} ]");
 
 public class MyComponent
 {
     public Binding Bind { get; set; }
     public MyComponent()
         => Bind = new(this);
-    
-    [Binding]
-    public List<int> List
-    {
-        get => Bind.Open<List<int>>(nameof(List));
-        set => Bind.Place(nameof(List), value);
-    }
     
     [Binding]
     public int Value
