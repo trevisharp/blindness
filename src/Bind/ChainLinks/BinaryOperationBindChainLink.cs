@@ -10,7 +10,7 @@ using Boxes;
 /// </summary>
 public class BinaryOperationBindChainLink : BindChainLink
 {
-    protected override bool TryHandle(BindingArgs args)
+    protected override bool TryHandle(BindingArgs args, out BindingResult result)
     {
         throw new System.NotImplementedException();
     }

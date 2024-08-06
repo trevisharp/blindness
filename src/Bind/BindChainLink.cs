@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/07/2024
+ * Date:    06/08/2024
  */
 namespace Blindness.Bind;
 
@@ -21,7 +21,7 @@ public abstract class BindChainLink
     /// handle it. If the chainlink handle with success
     /// returns true, otherside false.
     /// </summary>
-    protected abstract bool TryHandle(BindingArgs args);
+    protected abstract bool TryHandle(BindingArgs args, out BindingResult result);
 
     /// <summary>
     /// Handle the request. If any chainlink handle with
@@ -29,7 +29,7 @@ public abstract class BindChainLink
     /// </summary>
     public bool Handle(BindingArgs args)
     {
-        if (TryHandle(args))
+        if (TryHandle(args, out _))
             return true;
         
         if (Next is null)

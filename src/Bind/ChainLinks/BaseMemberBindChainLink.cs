@@ -15,10 +15,11 @@ using Exceptions;
 /// </summary>
 public class BaseMemberBindChainLink : BindChainLink
 {
-    protected override bool TryHandle(BindingArgs args)
+    protected override bool TryHandle(BindingArgs args, out BindingResult result)
     {
         ArgumentNullException.ThrowIfNull(args.Binding, nameof(args.Binding));
 
+        result = new();
         var body = args.Body.RemoveTypeCast();
         if (body is not MemberExpression parent)
             return false;
@@ -50,11 +51,14 @@ public class BaseMemberBindChainLink : BindChainLink
             BoxValueTypeException.ThrowIfIsIncorrectType(boxA, memberType);
             BoxValueTypeException.ThrowIfIsIncorrectType(boxB, memberType);
             
+            result.MainBox = boxB;
             bindA.Dictionary.SetBox(param, boxB);
             return true;
         }
 
-        bindA.Dictionary.SetBox(param, Box.CreateMember(memberType, member, obj));
+        var memberBox = Box.CreateMember(memberType, member, obj);
+        result.MainBox = memberBox;
+        bindA.Dictionary.SetBox(param, memberBox);
         return true;
     }
 }
