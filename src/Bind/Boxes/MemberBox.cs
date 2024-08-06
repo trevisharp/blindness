@@ -9,7 +9,7 @@ namespace Blindness.Bind.Boxes;
 /// <summary>
 /// Represents a structure to box values.
 /// </summary>
-public class MemberBox<T>(MemberInfo member, object instance) : IBox<T, T>
+public class MemberBox<T>(MemberInfo member, object instance) : IBox<T>
 {   
     public T Open()
     {

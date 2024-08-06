@@ -8,7 +8,7 @@ namespace Blindness.Bind.Boxes;
 /// <summary>
 /// Represents a structure to box values.
 /// </summary>
-public class ValueBox<T> : IBox<T, T>
+public class ValueBox<T> : IBox<T>
 {
     T value;
     public ValueBox(T initialValue = default)

@@ -8,6 +8,18 @@ namespace Blindness.Bind;
 /// </summary>
 public interface IBox<out T, in R>
 {
+    /// <summary>
+    /// Open and read the box value.
+    /// </summary>
     T Open();
+
+    /// <summary>
+    /// Place a new value in the box.
+    /// </summary>
     void Place(R value);
 }
+
+/// <summary>
+/// Represents a variant generic type to set and get a type with boxing.
+/// </summary>
+public interface IBox<T> : IBox<T, T>;
