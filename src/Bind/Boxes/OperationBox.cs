@@ -3,30 +3,40 @@
  */
 using System;
 using System.Reflection;
-using Blindness.Exceptions;
 
 namespace Blindness.Bind.Boxes;
 
+using Exceptions;
+
 /// <summary>
-/// Represents a structure to box values.
+/// Represents a box that has a operation of two value has internal value.
 /// </summary>
 public class OperationBox<T>(
-    IBox<T, T> boxA,
-    IBox<T, T> boxB,
+    IBox<T, T> leftBox,
+    IBox<T, T> rightBox,
     MethodInfo operation,
-    MethodInfo reverseOp = null) : IBox<T>
+    Func<T, T, T> reverseLeft = null,
+    Func<T, T, T> reverseRight = null) : IBox<T>
 {   
     public T Open()
-        => (T)operation.Invoke(null, [ boxA.Open(), boxB.Open() ]);
+        => (T)operation.Invoke(null, [ leftBox.Open(), rightBox.Open() ]);
 
     public void Place(T newValue)
     {
-        if (reverseOp is null)
-            throw new ReadonlyBoxException();
-
-        if (boxA is ConstantBox<T> cb)
+        if (leftBox is ConstantBox<T> && reverseLeft is not null)
         {
-            reverseOp()
+            var reversedValue = reverseLeft(leftBox.Open(), newValue);
+            rightBox.Place(reversedValue);
+            return;
         }
+
+        if (rightBox is ConstantBox<T> && reverseRight is not null)
+        {
+            var reversedValue = reverseRight(newValue, rightBox.Open());
+            leftBox.Place(reversedValue);
+            return;
+        }
+
+        throw new ReadonlyBoxException();
     }
 }
