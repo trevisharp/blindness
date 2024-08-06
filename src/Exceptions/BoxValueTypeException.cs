@@ -5,7 +5,7 @@ using System;
 
 namespace Blindness.Exceptions;
 
-using Bind;
+using Bind.Boxes;
 
 /// <summary>
 /// Represents a error that occurs when a object that is not

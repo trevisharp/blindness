@@ -6,4 +6,8 @@ namespace Blindness.Bind;
 /// <summary>
 /// Represents a variant generic type to set and get a type with boxing.
 /// </summary>
-public interface IBox<out T, in R> : IOpenable<T>, IPlaceable<R>;
+public interface IBox<out T, in R>
+{
+    T Open();
+    void Place(R value);
+}

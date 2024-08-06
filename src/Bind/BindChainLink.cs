@@ -37,4 +37,19 @@ public abstract class BindChainLink
         
         return Next.Handle(args);
     }
+
+    /// <summary>
+    /// Handle the request. If any chainlink handle with
+    /// success returns true, otherside false.
+    /// </summary>
+    public bool Handle(BindingArgs args, out BindingResult result)
+    {
+        if (TryHandle(args, out result))
+            return true;
+        
+        if (Next is null)
+            return false;
+        
+        return Next.Handle(args);
+    }
 }

@@ -12,5 +12,6 @@ public class DefaultBindBehaviour : IBindBehaviour
 {
     public BindChain BuildChain() => 
         BindChain.New()
+        .Add(new BinaryOperationBindChainLink())
         .Add(new BaseMemberBindChainLink());
 }

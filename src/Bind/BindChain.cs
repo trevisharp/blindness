@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/07/2024
+ * Date:    06/08/2024
  */
 using System;
 
@@ -33,6 +33,15 @@ public class BindChain
     /// </summary>
     public bool Handle(BindingArgs args)
         => first?.Handle(args) ?? false;
+
+    /// <summary>
+    /// Handle the binding args in the nodes of the chain.
+    /// </summary>
+    public bool Handle(BindingArgs args, out BindingResult result)
+    {
+        result = new();
+        return first?.Handle(args, out result) ?? false;
+    }
     
     /// <summary>
     /// Create a new empty BindChain.

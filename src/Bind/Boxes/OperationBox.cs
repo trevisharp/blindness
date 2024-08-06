@@ -9,7 +9,7 @@ namespace Blindness.Bind.Boxes;
 /// <summary>
 /// Represents a structure to box values.
 /// </summary>
-public class OperationBox<T>(IBox<T, T> boxA, IBox<T, T> boxB) : IBox<T, T>
+public class OperationBox<T>(IBox<T, T> boxA, IBox<T, T> boxB, MethodInfo operation) : IBox<T, T>
 {   
     public T Open()
     {
