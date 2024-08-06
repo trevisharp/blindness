@@ -18,18 +18,17 @@ public class BaseMemberBindChainLink : BindChainLink
     {
         ArgumentNullException.ThrowIfNull(args.Binding, nameof(args.Binding));
 
-        var exp = args.Expression;
-        var body = exp.Body.RemoveTypeCast();
+        var body = args.Body.RemoveTypeCast();
         if (body is not MemberExpression parent)
             return false;
         
-        if (exp.Parameters.Count > 1)
+        if (args.Parameters.Count > 1)
             throw new WrongFormatBindException("A => B.C", "(A, B, ...) => W.Z");
         
-        if (exp.Parameters.Count == 0)
+        if (args.Parameters.Count == 0)
             throw new WrongFormatBindException("A => B.C", "() => B.C");
 
-        var param = exp.Parameters[0].Name;
+        var param = args.Parameters[0].Name;
         var (obj, member) = parent.SplitMember();
         var memberType = 
             member is PropertyInfo p ? p.PropertyType :

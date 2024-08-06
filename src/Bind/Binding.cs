@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 
 namespace Blindness.Bind;
 
+using System.Net;
 using Exceptions;
 
 /// <summary>
@@ -70,7 +71,8 @@ public class Binding(object parent)
         var box = binding.dictionary.GetBox(boxName, propType);
 
         var args = new BindingArgs(
-            expression,
+            expression.Body,
+            expression.Parameters,
             binding,
             binding.parent,
             box,

@@ -1,8 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/08/2024
+ * Date:    06/08/2024
  */
-using System;
 using System.Linq.Expressions;
+using System.Collections.ObjectModel;
 
 namespace Blindness.Bind;
 
@@ -12,7 +12,8 @@ namespace Blindness.Bind;
 /// data binding.
 /// </summary>
 public record BindingArgs(
-    Expression<Func<object, object>> Expression,
+    Expression Body,
+    ReadOnlyCollection<ParameterExpression> Parameters,
     Binding Binding,
     object Parent,
     object ParentBox,
