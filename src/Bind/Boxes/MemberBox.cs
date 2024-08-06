@@ -4,7 +4,7 @@
 using System;
 using System.Reflection;
 
-namespace Blindness.Bind;
+namespace Blindness.Bind.Boxes;
 
 /// <summary>
 /// Represents a structure to box values.

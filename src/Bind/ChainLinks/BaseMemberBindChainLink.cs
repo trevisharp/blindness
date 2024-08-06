@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 
 namespace Blindness.Bind.ChainLinks;
 
+using Boxes;
 using Exceptions;
 
 /// <summary>

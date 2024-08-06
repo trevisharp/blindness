@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Blindness.Bind;
 
+using Boxes;
 using Exceptions;
 
 /// <summary>

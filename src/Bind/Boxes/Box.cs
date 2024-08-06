@@ -2,11 +2,11 @@
  * Date:    05/08/2024
  */
 using System;
+using System.Linq;
 using System.Reflection;
 
-namespace Blindness.Bind;
+namespace Blindness.Bind.Boxes;
 
-using System.Linq;
 using Exceptions;
 
 public static class Box
@@ -22,7 +22,6 @@ public static class Box
         var boxObj = boxConstructor.Invoke([ null ]);
         return boxObj;
     }
-    
     
     /// <summary>
     /// Create a MemberBox from a type.

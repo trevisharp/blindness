@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 
 namespace Blindness.Bind;
 
-using System.Net;
 using Exceptions;
 
 /// <summary>
