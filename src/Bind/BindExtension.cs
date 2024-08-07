@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/08/2024
+ * Date:    07/08/2024
  */
 using System;
 using System.Linq;
@@ -16,6 +16,10 @@ using Exceptions;
 /// </summary>
 public static class BindExtension
 {
+    /// <summary>
+    /// Returns if the member can be setted like a field, property
+    /// or a get with set method.
+    /// </summary>
     public static bool IsSettable(this MemberInfo member)
     {
         if (member is FieldInfo)
@@ -46,12 +50,6 @@ public static class BindExtension
     /// </summary>
     public static bool SetBinding(this object obj, Binding value)
         => TrySetDataByType(obj, value);
-
-    /// <summary>
-    /// Get internal binding from a object.
-    /// </summary>
-    public static Binding SetBinding(this object obj)
-        => TryGetDataByType(obj, out Binding data) ? data : null;
 
     /// <summary>
     /// Find in properties and fields of a object by a member
@@ -151,6 +149,24 @@ public static class BindExtension
         var obj = lambda.Compile().DynamicInvoke();
         var member = expression.Member;
         return (obj, member);
+    }
+
+    public static Type GetMemberReturnType(
+        this MemberInfo member
+    )
+    {
+        ArgumentNullException.ThrowIfNull(member, nameof(member));
+
+        if (member is PropertyInfo prop)
+            return prop.PropertyType;
+        
+        if (member is FieldInfo field)
+            return field.FieldType;
+        
+        if (member is MethodInfo method)
+            return method.ReturnType;
+        
+        throw new Exception("Invalid Member.");
     }
 
     /// <summary>

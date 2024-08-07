@@ -5,6 +5,7 @@ using System;
 
 using Blindness;
 using Blindness.Bind;
+using static Blindness.Bind.Binding;
 
 MyComponent a = new();
 MyComponent b = new();
@@ -12,28 +13,26 @@ MyComponent c = new();
 
 List<int> list = [ 0 ];
 
-a.Bind |= Value => list.Count;
-b.Bind |= Value => list[1] + 2;
-c.Bind |= Value => a.Value + b.Value;
+Bind(() => a.Value == list.Count);
+
+// a.Bind |= Value => list.Count;
+// b.Bind |= Value => list[1] + 2;
+// c.Bind |= Value => a.Value + b.Value;
 
 list.Add(4);
-Verbose.Info(c.Value);
+Verbose.Success(a.Value);
 
 list.Add(12);
-b.Value = 2;
-Verbose.Info(c.Value);
+// b.Value = 2;
+Verbose.Success(a.Value);
 
 public class MyComponent
 {
-    public Binding Bind { get; set; }
-    public MyComponent()
-        => Bind = new(this);
-    
     [Binding]
     public int Value
     {
-        get => Bind.Open<int>(nameof(Value));
-        set => Bind.Place(nameof(Value), value);
+        get => Get(this).Open<int>(nameof(Value));
+        set => Get(this).Place(nameof(Value), value);
     }
 }
 

@@ -34,6 +34,9 @@ public class Binding
         chain = null;
     }
 
+    /// <summary>
+    /// Bind two expressions values.
+    /// </summary>
     public static void Bind(Expression<Func<bool>> expression)
     {
         ArgumentNullException.ThrowIfNull(expression, nameof(expression));
@@ -49,9 +52,30 @@ public class Binding
             throw new InvalidBindingFormatException("Expected: Bind(() => a.Prop == value);");
         
         var (obj, member) = mexp.SplitMember();
-        var binding = cache[obj];
+        var binding = Get(obj);
+        var box = binding.dictionary.GetBox(member.Name, member.GetMemberReturnType());
+
         
+    }
+
+    /// <summary>
+    /// Get and init if needed the binding associated to the object.
+    /// </summary>
+    public static Binding Get(object obj)
+    {
+        ArgumentNullException.ThrowIfNull(obj, nameof(obj));
+
+        var hasBinding = obj.TryGetDataByType<Binding>(out var binding);
+
+        if (!hasBinding)
+            return cache[obj];
         
+        if (binding is not null)
+            return binding;
+        
+        binding = new Binding();
+        obj.TrySetDataByType(binding);
+        return binding;
     }
 
     public BoxDictionary<string> Dictionary => dictionary;
@@ -60,18 +84,18 @@ public class Binding
     /// <summary>
     /// Get a box and open your value based on a key.
     /// </summary>
-    public static T Open<T>(object obj, string boxName)
-        => cache[obj].dictionary.Open<T>(boxName);
+    public T Open<T>(string boxName)
+        => dictionary.Open<T>(boxName);
 
     /// <summary>
     /// Get a box and place your value based on a key.
     /// </summary>
-    public static void Place<T>(object obj, string boxName, T value)
-        => cache[obj].dictionary.Place(boxName, value);
+    public void Place<T>(string boxName, T value)
+        => dictionary.Place(boxName, value);
     
     /// <summary>
     /// Get if the binding contains a box with a specific name.
     /// </summary>
-    public static bool Contains(object obj, string boxName)
-        => cache[obj].dictionary.Contains(boxName);
+    public bool Contains(string boxName)
+        => dictionary.Contains(boxName);
 }
