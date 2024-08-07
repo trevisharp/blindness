@@ -71,6 +71,20 @@ public static class Box
     }
 
     /// <summary>
+    /// Get if the box is readonly.
+    /// </summary>
+    public static bool IsReadOnly(object box)
+    {
+        ArgumentNullException.ThrowIfNull(box, nameof(box));
+        BoxTypeException.ThrowIfIsNotABox(box);
+
+        var boxType = box.GetType();
+        var readonlyProperty = boxType.GetProperty("IsReadonly");
+        var getIsReadonly = readonlyProperty.GetGetMethod();
+        return (bool)getIsReadonly.Invoke(box, []);
+    }
+
+    /// <summary>
     /// Try to open a object like a box. Throw a exception if
     /// the object is not a box.
     /// </summary>

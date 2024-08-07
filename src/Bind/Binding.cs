@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace Blindness.Bind;
 
+using Blindness.Bind.Boxes;
 using Exceptions;
 
 /// <summary>
@@ -50,8 +51,13 @@ public class Binding
         
         var leftHandled = Chain.Handle(new(bin.Left, Chain), out var leftResult);
         var righttHandled = Chain.Handle(new(bin.Right, Chain), out var rightResult);
+        var leftReadonly = Box.IsReadOnly(leftResult.MainBox);
+        var rightReadonly = Box.IsReadOnly(rightResult.MainBox);
 
-
+        if (leftReadonly && rightReadonly)
+            throw new ReadonlyBindingException();
+        
+        
     }
 
     /// <summary>
