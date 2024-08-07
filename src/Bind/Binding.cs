@@ -47,15 +47,11 @@ public class Binding
         
         if (bin.NodeType != ExpressionType.Equal)
             throw new InvalidBindingFormatException("Expected: Bind(() => a.Prop == value);");
-
-        if (bin.Left is not MemberExpression mexp)
-            throw new InvalidBindingFormatException("Expected: Bind(() => a.Prop == value);");
         
-        var (obj, member) = mexp.SplitMember();
-        var binding = Get(obj);
-        var box = binding.dictionary.GetBox(member.Name, member.GetMemberReturnType());
+        var leftHandled = Chain.Handle(new(bin.Left, Chain), out var leftResult);
+        var righttHandled = Chain.Handle(new(bin.Right, Chain), out var rightResult);
 
-        
+
     }
 
     /// <summary>
