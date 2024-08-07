@@ -9,6 +9,11 @@ namespace Blindness.Bind;
 public interface IBox<out T, in R>
 {
     /// <summary>
+    /// Gets if the box is readonly and will throw a error on Place operation.
+    /// </summary>
+    bool IsReadonly { get; }
+
+    /// <summary>
     /// Open and read the box value.
     /// </summary>
     T Open();

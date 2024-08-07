@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/08/2024
+ * Date:    07/08/2024
  */
 using System;
 using System.Reflection;
@@ -17,23 +17,27 @@ public class OperationBox<T>(
     MethodInfo operation,
     Func<T, T, T> reverseLeft = null,
     Func<T, T, T> reverseRight = null) : IBox<T>
-{   
+{
+    public bool IsReadonly => 
+        (leftBox.IsReadonly || reverseRight is null) && 
+        (rightBox.IsReadonly || reverseLeft is null);
+
     public T Open()
         => (T)operation.Invoke(null, [ leftBox.Open(), rightBox.Open() ]);
 
     public void Place(T newValue)
     {
-        if (leftBox is ConstantBox<T> && reverseLeft is not null)
-        {
-            var reversedValue = reverseLeft(leftBox.Open(), newValue);
-            rightBox.Place(reversedValue);
-            return;
-        }
-
-        if (rightBox is ConstantBox<T> && reverseRight is not null)
+        if (!leftBox.IsReadonly && reverseRight is not null)
         {
             var reversedValue = reverseRight(newValue, rightBox.Open());
             leftBox.Place(reversedValue);
+            return;
+        }
+
+        if (!rightBox.IsReadonly && reverseLeft is not null)
+        {
+            var reversedValue = reverseLeft(leftBox.Open(), newValue);
+            rightBox.Place(reversedValue);
             return;
         }
 

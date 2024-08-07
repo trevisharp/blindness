@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/07/2024
+ * Date:    07/08/2024
  */
 namespace Blindness.Bind;
 
@@ -13,5 +13,6 @@ public class DefaultBindBehaviour : IBindBehaviour
     public BindChain BuildChain() => 
         BindChain.New()
         .Add(new BinaryOperationBindChainLink())
-        .Add(new BaseMemberBindChainLink());
+        .Add(new MemberBindChainLink())
+        .Add(new ConstantBindChainLink());
 }

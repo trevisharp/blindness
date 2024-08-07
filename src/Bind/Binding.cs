@@ -77,10 +77,12 @@ public class Binding(object parent)
             box,
             Chain
         );
-        var handled = Chain.Handle(args);
+        var handled = Chain.Handle(args, out var result);
         
         if (!handled)
             throw new InvalidBindingException();
+
+        
 
         return binding;
     }

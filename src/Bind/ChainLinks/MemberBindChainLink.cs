@@ -13,7 +13,7 @@ using Exceptions;
 /// <summary>
 /// Bind a expression of type A => B.C ... .
 /// </summary>
-public class BaseMemberBindChainLink : BindChainLink
+public class MemberBindChainLink : BindChainLink
 {
     protected override bool TryHandle(BindingArgs args, out BindingResult result)
     {

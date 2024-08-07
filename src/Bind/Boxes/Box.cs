@@ -36,6 +36,18 @@ public static class Box
     }
 
     /// <summary>
+    /// Create a ConstantBox from a type.
+    /// </summary>
+    public static object CreateConstant(object value)
+    {
+        var boxType = typeof(ConstantBox<>);
+        var genBoxType = boxType.MakeGenericType(value.GetType());
+        var boxConstructor = genBoxType.GetConstructor([ value.GetType() ]);
+        var boxObj = boxConstructor.Invoke([ value ]);
+        return boxObj;
+    }
+
+    /// <summary>
     /// Test if a object is a Box<T>
     /// </summary>
     public static bool IsBox(object value)

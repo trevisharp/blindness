@@ -16,6 +16,25 @@ using Exceptions;
 /// </summary>
 public static class BindExtension
 {
+    public static bool IsSettable(this MemberInfo member)
+    {
+        if (member is FieldInfo)
+            return true;
+
+        if (member is PropertyInfo prop && prop.GetSetMethod() is not null)
+            return true;
+        
+        if (member is not MethodInfo method)
+            return false;
+
+        var setVersionName = method.Name
+            .Replace("get", "set")
+            .Replace("Get", "Set");
+        var setVersion = member.DeclaringType
+            .GetMethod(setVersionName);
+        return setVersion is not null;
+    }
+
     /// <summary>
     /// Get internal binding from a object.
     /// </summary>

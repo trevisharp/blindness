@@ -15,6 +15,7 @@ public class ValueBox<T> : IBox<T>
         => value = initialValue;
     public ValueBox(ValueBox<T> other)
         => value = other.Open();
+    public bool IsReadonly => false;
 
     /// <summary>
     /// This events is triggered every moment that a new value

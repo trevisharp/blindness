@@ -10,6 +10,8 @@ using Exceptions;
 /// </summary>
 public class ConstantBox<T>(T value) : IBox<T>
 {
+    public bool IsReadonly => true;
+
     public T Open()
         => value;
 
