@@ -49,12 +49,8 @@ public class Binding
             throw new InvalidBindingFormatException("Expected: Bind(() => a.Prop == value);");
         
         var (obj, member) = mexp.SplitMember();
-        var binding = GetBindingAndInitIfIsNeeded(obj);
+        var binding = cache[obj];
         
-    }
-
-    static Binding GetBindingAndInitIfIsNeeded(object obj)
-    {
         
     }
 
@@ -64,48 +60,18 @@ public class Binding
     /// <summary>
     /// Get a box and open your value based on a key.
     /// </summary>
-    public T Open<T>(string boxName)
-        => dictionary.Open<T>(boxName);
+    public static T Open<T>(object obj, string boxName)
+        => cache[obj].dictionary.Open<T>(boxName);
 
     /// <summary>
     /// Get a box and place your value based on a key.
     /// </summary>
-    public void Place<T>(string boxName, T value)
-        => dictionary.Place(boxName, value);
+    public static void Place<T>(object obj, string boxName, T value)
+        => cache[obj].dictionary.Place(boxName, value);
     
     /// <summary>
     /// Get if the binding contains a box with a specific name.
     /// </summary>
-    public bool Contains(string boxName)
-        => dictionary.Contains(boxName);
-
-    public static Binding operator |(Binding binding, Expression<Func<object, object>> expression)
-    {
-        ArgumentNullException.ThrowIfNull(binding, nameof(binding));
-        ArgumentNullException.ThrowIfNull(expression, nameof(expression));
-
-        if (binding.parent is null)
-            throw new ParentNullBindException();
-
-        var boxName = expression.Parameters[0].Name;
-        var property = binding.parentType.GetProperty(boxName) 
-            ?? throw new MissingPropertyBindException(boxName, binding.parentType);
-        var propType = property.PropertyType;
-        var box = binding.dictionary.GetBox(boxName, propType);
-
-        var args = new BindingArgs(
-            expression.Body,
-            expression.Parameters,
-            binding,
-            binding.parent,
-            box,
-            Chain
-        );
-        if (!Chain.Handle(args, out var result))
-            throw new InvalidBindingException();
-
-        var resultBox = result.MainBox;
-
-        return binding;
-    }
+    public static bool Contains(object obj, string boxName)
+        => cache[obj].dictionary.Contains(boxName);
 }

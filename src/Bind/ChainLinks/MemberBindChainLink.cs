@@ -36,12 +36,11 @@ public class MemberBindChainLink : BindChainLink
             member is PropertyInfo p ? p.PropertyType :
             member is FieldInfo f ? f.FieldType :
             throw new MissingPropertyBindException(member.Name, obj.GetType());
-        var isBindingProp = member.GetCustomAttribute<BindingAttribute>() is not null;
 
         var bindA = args.Binding;
         var bindB = obj.GetBinding();
 
-        if (bindB is not null && isBindingProp)
+        if (bindB is not null)
         {
             var boxA = bindA.Dictionary.GetBox(param, memberType);
             var boxB = bindB.Dictionary.GetBox(member.Name, memberType);

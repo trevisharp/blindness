@@ -79,13 +79,16 @@ public class BindingCache
         {
             var pair = node.Value;
             var weakref = pair.Key;
-
-            if (weakref.IsAlive)
-                continue;
-            
-            count--;
             var prev = node.Previous;
             var next = node.Next;
+
+            if (weakref.IsAlive)
+            {
+                node = next;
+                continue;
+            }
+            
+            count--;
             
             if (node == bucket.First)
             {
@@ -100,11 +103,17 @@ public class BindingCache
 
     void AddNode(Bucket bucket, Node newNode)
     {
+        count++;
+
+        if (bucket.First is null)
+        {
+            bucket.First = bucket.Last = newNode;
+            return;
+        }
+
         bucket.Last.Next = newNode;
         newNode.Previous = bucket.Last;
         bucket.Last = newNode;
-
-        count++;
     }
 
     void SetOrAdd(object obj, Binding bind)
