@@ -3,8 +3,8 @@
  */
 namespace Blindness.Bind.ChainLinks;
 
-using System.Linq.Expressions;
 using Boxes;
+using System.Linq.Expressions;
 
 /// <summary>
 /// Represents a bind chain link for a + b expressions.
@@ -26,7 +26,8 @@ public class BinaryOperationBindChainLink : BindChainLink
         if (!args.Chain.Handle(subArgs2, out var res2))
             return false;
         
-        
+        Verbose.Success(bin.Method.Name);
+        Verbose.Success(bin.Method.IsSpecialName);
 
         return true;
     }

@@ -42,6 +42,18 @@ public static class BindExtension
         => TryGetDataByType(obj, out Binding data) ? data : null;
 
     /// <summary>
+    /// Get internal binding from a object.
+    /// </summary>
+    public static bool SetBinding(this object obj, Binding value)
+        => TrySetDataByType(obj, value);
+
+    /// <summary>
+    /// Get internal binding from a object.
+    /// </summary>
+    public static Binding SetBinding(this object obj)
+        => TryGetDataByType(obj, out Binding data) ? data : null;
+
+    /// <summary>
     /// Find in properties and fields of a object by a member
     /// with type T and get your data.
     /// </summary>
@@ -67,6 +79,34 @@ public static class BindExtension
         }
 
         data = default;
+        return false;
+    }
+    
+    /// <summary>
+    /// Find in properties and fields of a object by a member
+    /// with type T and get your data.
+    /// </summary>
+    public static bool TrySetDataByType<T>(this object obj, T data)
+    {
+        var type = obj.GetType();
+        var targetType = typeof(T);
+
+        var property = type.GetRuntimeProperties()
+            .FirstOrDefault(p => p.PropertyType == targetType);
+        if (property is not null)
+        {
+            SetProperty(obj, property, data);
+            return true;
+        }
+
+        var field = type.GetRuntimeFields()
+            .FirstOrDefault(p => p.FieldType == targetType);
+        if (field is not null)
+        {
+            SetField(obj, field, data);
+            return true;
+        }
+
         return false;
     }
 

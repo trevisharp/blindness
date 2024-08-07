@@ -1,8 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/08/2024
+ * Date:    07/08/2024
  */
 using System;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Blindness.Bind;
 
@@ -11,8 +12,9 @@ using Exceptions;
 /// <summary>
 /// A object to manage binding between boxes.
 /// </summary>
-public class Binding(object parent)
+public class Binding
 {
+    static readonly BindingCache cache = new(); 
     static IBindBehaviour behaviour = new DefaultBindBehaviour();
     static BindChain chain = null;
     
@@ -32,10 +34,32 @@ public class Binding(object parent)
         chain = null;
     }
 
+    public static void Bind(Expression<Func<bool>> expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+        var body = expression.Body;
+
+        if (body is not BinaryExpression bin)
+            throw new InvalidBindingFormatException("Expected: Bind(() => a.Prop == value);");
+        
+        if (bin.NodeType != ExpressionType.Equal)
+            throw new InvalidBindingFormatException("Expected: Bind(() => a.Prop == value);");
+
+        if (bin.Left is not MemberExpression mexp)
+            throw new InvalidBindingFormatException("Expected: Bind(() => a.Prop == value);");
+        
+        var (obj, member) = mexp.SplitMember();
+        var binding = GetBindingAndInitIfIsNeeded(obj);
+        
+    }
+
+    static Binding GetBindingAndInitIfIsNeeded(object obj)
+    {
+        
+    }
+
     public BoxDictionary<string> Dictionary => dictionary;
     readonly BoxDictionary<string> dictionary = new();
-    readonly object parent = parent;
-    readonly Type parentType = parent?.GetType();
 
     /// <summary>
     /// Get a box and open your value based on a key.
@@ -77,12 +101,10 @@ public class Binding(object parent)
             box,
             Chain
         );
-        var handled = Chain.Handle(args, out var result);
-        
-        if (!handled)
+        if (!Chain.Handle(args, out var result))
             throw new InvalidBindingException();
 
-        
+        var resultBox = result.MainBox;
 
         return binding;
     }
