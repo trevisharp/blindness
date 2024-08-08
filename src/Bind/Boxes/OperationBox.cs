@@ -14,30 +14,30 @@ using Exceptions;
 public class OperationBox<T>(
     IBox<T, T> leftBox,
     IBox<T, T> rightBox,
-    MethodInfo operation,
-    Func<T, T, T> reverseLeft = null,
-    Func<T, T, T> reverseRight = null) : IBox<T>
+    Func<T, T, T> operation,
+    Func<T, T, T> computeLeft,
+    Func<T, T, T> computeRight) : IBox<T>
 {
     public bool IsReadonly => 
-        (leftBox.IsReadonly || reverseRight is null) && 
-        (rightBox.IsReadonly || reverseLeft is null);
+        (leftBox.IsReadonly || computeRight is null) && 
+        (rightBox.IsReadonly || computeLeft is null);
 
     public T Open()
-        => (T)operation.Invoke(null, [ leftBox.Open(), rightBox.Open() ]);
+        => (T)operation.DynamicInvoke([ leftBox.Open(), rightBox.Open() ]);
 
     public void Place(T newValue)
     {
-        if (!leftBox.IsReadonly && reverseRight is not null)
+        if (!leftBox.IsReadonly && computeLeft is not null)
         {
-            var reversedValue = reverseRight(newValue, rightBox.Open());
-            leftBox.Place(reversedValue);
+            var reversedValue = computeLeft.DynamicInvoke([ newValue, rightBox.Open() ]);
+            leftBox.Place((T)reversedValue);
             return;
         }
 
-        if (!rightBox.IsReadonly && reverseLeft is not null)
+        if (!rightBox.IsReadonly && computeRight is not null)
         {
-            var reversedValue = reverseLeft(leftBox.Open(), newValue);
-            rightBox.Place(reversedValue);
+            var reversedValue = computeRight.DynamicInvoke([ newValue, leftBox.Open() ]);
+            rightBox.Place((T)reversedValue);
             return;
         }
 

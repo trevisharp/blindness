@@ -13,22 +13,13 @@ MyComponent c = new();
 
 List<int> list = [ ];
 
-Bind(() => b.Value == list[a.Value]);
-
-list.Add(1);
-Verbose.Success(b.Value);
-
-a.Value = 1;
-list.Add(2);
-Verbose.Success(b.Value);
+Bind(() => b.Value == 2 - a.Value);
 
 a.Value = 0;
-b.Value = 3;
-Verbose.Success(list[0]);
-
-a.Value = 1;
-list[1] = 4;
 Verbose.Success(b.Value);
+
+b.Value = 6;
+Verbose.Success(a.Value);
 
 public class MyComponent
 {

@@ -16,6 +16,16 @@ using Exceptions;
 /// </summary>
 public static class BindExtension
 {
+    public static Delegate BuildBinaryFunction(
+        this Type operationType,
+        Func<Expression, Expression, BinaryExpression> operation)
+    {
+        var leftParam = Expression.Parameter(operationType);
+        var rightParam = Expression.Parameter(operationType);
+        var lambda = Expression.Lambda(operation(leftParam, rightParam), leftParam, rightParam);
+        return lambda.Compile();
+    }
+
     /// <summary>
     /// Returns if the member can be setted like a field, property
     /// or a get with set method.

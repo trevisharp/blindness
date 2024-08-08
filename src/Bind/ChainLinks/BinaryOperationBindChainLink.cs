@@ -6,6 +6,7 @@ namespace Blindness.Bind.ChainLinks;
 using Boxes;
 using System;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices.Marshalling;
 
 /// <summary>
 /// Represents a bind chain link for a + b expressions.
@@ -28,15 +29,27 @@ public class BinaryOperationBindChainLink : BindChainLink
         if (!res2.Success)
             return BindingResult.Unsuccesfull;
         
+        var opType = Box.GetBoxType(res1.MainBox);
+
         var box = bin.NodeType switch
         {
-            // TODO: Improve Operation Box
             ExpressionType.Add =>
                 Box.CreateOperation(
                     res1.MainBox, res2.MainBox,
-                    null, 
-                    null,
-                    null
+                    opType.BuildBinaryFunction(Expression.Add),
+                    opType.BuildBinaryFunction(Expression.Subtract),
+                    opType.BuildBinaryFunction(Expression.Subtract)
+                ),
+                
+            ExpressionType.Subtract =>
+                Box.CreateOperation(
+                    res1.MainBox, res2.MainBox,
+                    opType.BuildBinaryFunction(Expression.Subtract),
+                    opType.BuildBinaryFunction(Expression.Add),
+                    opType.BuildBinaryFunction((res, lef) =>
+                    {
+                        throw new NotImplementedException();
+                    })
                 ),
 
             _ => throw new NotImplementedException(

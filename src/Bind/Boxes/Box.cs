@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Linq.Expressions;
 
 namespace Blindness.Bind.Boxes;
 
@@ -58,23 +57,23 @@ public static class Box
     /// </summary>
     public static object CreateOperation(
         object leftBox, object rightBox,
-        MethodInfo operation,
-        object reverseLeft = null,
-        object reverseRight = null)
+        Delegate operation,
+        object computeLeft,
+        object computeRight)
     {
         var boxType = typeof(OperationBox<>);
-        var T = operation.ReturnType;
+        var T = operation.Method.ReturnType;
         var genBoxType = boxType.MakeGenericType(T);
         var boxConstructor = genBoxType.GetConstructor([ 
-            typeof(IBox<>).MakeGenericType(T, T),
-            typeof(IBox<>).MakeGenericType(T, T),
-            typeof(MethodInfo),
-            typeof(Func<>).MakeGenericType(T, T, T),
-            typeof(Func<>).MakeGenericType(T, T, T)
+            typeof(IBox<,>).MakeGenericType(T, T),
+            typeof(IBox<,>).MakeGenericType(T, T),
+            typeof(Func<,,>).MakeGenericType(T, T, T),
+            typeof(Func<,,>).MakeGenericType(T, T, T),
+            typeof(Func<,,>).MakeGenericType(T, T, T)
         ]);
         var boxObj = boxConstructor.Invoke([ 
             leftBox, rightBox, operation, 
-            reverseLeft, reverseRight
+            computeLeft, computeRight
         ]);
         return boxObj;
     }
@@ -104,14 +103,24 @@ public static class Box
     /// of a box object. If the object is not a box
     /// the function throws a exception.
     /// </summary>
-    public static bool IsBoxType(object box, Type type)
+    public static bool IsBoxType(object box, Type expectedType)
+    {
+        ArgumentNullException.ThrowIfNull(expectedType);
+
+        var boxType = GetBoxType(box);
+        return boxType == expectedType;
+    }
+
+    /// <summary>
+    /// Get the type of internal data of the box.
+    /// </summary>
+    public static Type GetBoxType(object box)
     {
         ArgumentNullException.ThrowIfNull(box);
-        ArgumentNullException.ThrowIfNull(type);
         BoxTypeException.ThrowIfIsNotABox(box);
 
         var genericParam = box.GetType().GetGenericArguments()[0];
-        return genericParam == type;
+        return genericParam;
     }
 
     /// <summary>
