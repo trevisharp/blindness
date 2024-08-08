@@ -424,6 +424,7 @@ public class MyComponent(IPlaceable<int> reference)
 ```cs
 using Blindness;
 using Blindness.Bind;
+using static Blindness.Bind.Binding;
 
 MyComponent a = new();
 MyComponent b = new();
@@ -432,7 +433,7 @@ MyComponent b = new();
 b.List = [1, 2, 3];
 // a.List is binded to b.List and recive the value
 // from the dominant type (b) so a.List = b.List = [ 1, 2, 3 ]
-a.Bind += List => b.List;
+Bind(() => a.List == b.List);
 // b.List = [], but a.List and b.List are binded so a.List = []
 b.List = [];
 // a.List = [ 2 ] so b.List = [ 2 ]
@@ -445,20 +446,13 @@ void show(List<int> list)
     => Verbose.Info($"[ {string.Join(", ", list)} ]");
 
 public class MyComponent
-{
-    // Create a Bind Property
-    public Binding Bind { get; set; }
-
-    // Init Bind
-    public MyComponent()
-        => Bind = new(this);
-    
+{   
     // Create a Bindable Property
     [Binding]
     public List<int> List
     {
-        get => Bind.Open<List<int>>(nameof(List));
-        set => Bind.Place(nameof(List), value);
+        get => Get(this).Open<List<int>>(nameof(List));
+        set => Get(this).Place(nameof(List), value);
     }
 }
 ```
@@ -467,30 +461,29 @@ public class MyComponent
 
 ```cs
 using Blindness.Bind;
+using static Blindness.Bind.Binding;
 
 MyComponent a = new();
 
 int value = 8;
-a.Bind += Value => value; // Bind a.Value to value, so a.Value equals to 8 now
+Bind(() => a.Value == value); // Bind a.Value to value, so a.Value equals to 8 now
 value += 2; // a.Value = value = 10
 a.Value += 2; // a.Value = value = 12
 Verbose.Info(value); // 12
 Verbose.Info(a.Value); // 12
 
 public class MyComponent
-{
-    public Binding Bind { get; set; }
-    public MyComponent()
-        => Bind = new(this);
-    
+{   
     [Binding]
     public int Value
     {
-        get => Bind.Open<int>(nameof(Value));
-        set => Bind.Place(nameof(Value), value);
+        get => Get(this).Open<int>(nameof(Value));
+        set => Get(this).Place(nameof(Value), value);
     }
 }
 ```
+
+###
 
 # Versions
 

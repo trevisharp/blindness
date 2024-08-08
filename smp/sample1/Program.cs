@@ -11,20 +11,24 @@ MyComponent a = new();
 MyComponent b = new();
 MyComponent c = new();
 
-List<int> list = [ 0 ];
+List<int> list = [ ];
 
-Bind(() => a.Value == list.Count);
+Bind(() => b.Value == list[a.Value]);
 
-// a.Bind |= Value => list.Count;
-// b.Bind |= Value => list[1] + 2;
-// c.Bind |= Value => a.Value + b.Value;
+list.Add(1);
+Verbose.Success(b.Value);
 
-list.Add(4);
-Verbose.Success(a.Value);
+a.Value = 1;
+list.Add(2);
+Verbose.Success(b.Value);
 
-list.Add(12);
-// b.Value = 2;
-Verbose.Success(a.Value);
+a.Value = 0;
+b.Value = 3;
+Verbose.Success(list[0]);
+
+a.Value = 1;
+list[1] = 4;
+Verbose.Success(b.Value);
 
 public class MyComponent
 {
