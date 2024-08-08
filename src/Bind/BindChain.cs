@@ -31,17 +31,8 @@ public class BindChain
     /// <summary>
     /// Handle the binding args in the nodes of the chain.
     /// </summary>
-    public bool Handle(BindingArgs args)
-        => first?.Handle(args) ?? false;
-
-    /// <summary>
-    /// Handle the binding args in the nodes of the chain.
-    /// </summary>
-    public bool Handle(BindingArgs args, out BindingResult result)
-    {
-        result = new();
-        return first?.Handle(args, out result) ?? false;
-    }
+    public BindingResult Handle(BindingArgs args)
+        => first?.Handle(args) ?? BindingResult.Unsuccesfull;
     
     /// <summary>
     /// Create a new empty BindChain.

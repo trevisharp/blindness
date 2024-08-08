@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/08/2024
+ * Date:    07/08/2024
  */
 using System;
 using System.Reflection;
@@ -13,9 +13,9 @@ using Exceptions;
 /// <summary>
 /// Bind a expression of type A => B.C ... .
 /// </summary>
-public class MemberBindChainLink : BindChainLink
+public class ExpressionBindChainLink : BindChainLink
 {
-    protected override bool TryHandle(BindingArgs args, out BindingResult result)
+    protected override BindingResult TryHandle(BindingArgs args)
     {
         throw new NotImplementedException();
     }

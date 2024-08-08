@@ -1,12 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/07/2024
+ * Date:    07/08/2024
  */
 namespace Blindness.Bind;
 
 /// <summary>
 /// Exposes a function to build a Bind Chain.
 /// </summary>
-public interface IBindBehaviour
+public interface IBindAnalyzer
 {
     /// <summary>
     /// Build a chain to define the bind operation behaviour.

@@ -3,11 +3,11 @@
  */
 using System;
 using System.Linq.Expressions;
-using System.Collections.Generic;
 
 namespace Blindness.Bind;
 
-using Blindness.Bind.Boxes;
+using Behaviors;
+using Analyzers;
 using Exceptions;
 
 /// <summary>
@@ -16,23 +16,39 @@ using Exceptions;
 public class Binding
 {
     static readonly BindingCache cache = new(); 
-    static IBindBehaviour behaviour = new DefaultBindBehaviour();
-    static BindChain chain = null;
+    static IBindAnalyzer leftAnalyzer = new DefaultLeftBindAnalyzer();
+    static IBindAnalyzer rightAnalyzer = new DefaultRightBindAnalyzer();
+    static BindChain leftChain = null, rightChain = null;
+    static IBindBehavior behavior = new DefaultBindBehavior();
     
     /// <summary>
-    /// Get the chain of behaviour to bind operations.
+    /// Get the left chain of behaviour to bind operations.
     /// </summary>
-    public static BindChain Chain => 
-        chain ??= behaviour.BuildChain();
+    public static BindChain LeftChain => 
+        leftChain ??= leftAnalyzer.BuildChain();
+
+    /// <summary>
+    /// Get the right chain of behaviour to bind operations.
+    /// </summary>
+    public static BindChain RightChain => 
+        rightChain ??= rightAnalyzer.BuildChain();
     
     /// <summary>
     /// Set the behaviour of a bind operation.
     /// </summary>
-    public static void SetBehaviour(IBindBehaviour newBehaviour)
+    public static void SetBehaviour(
+        IBindAnalyzer leftBehaviour,
+        IBindAnalyzer rightBehaviour,
+        IBindBehavior bindBehavior)
     {
-        ArgumentNullException.ThrowIfNull(newBehaviour, nameof(newBehaviour));
-        behaviour = newBehaviour;
-        chain = null;
+        ArgumentNullException.ThrowIfNull(leftBehaviour, nameof(leftBehaviour));
+        ArgumentNullException.ThrowIfNull(rightBehaviour, nameof(rightBehaviour));
+
+        leftAnalyzer = leftBehaviour;
+        rightAnalyzer = rightBehaviour;
+        behavior = bindBehavior;
+
+        leftChain = rightChain = null;
     }
 
     /// <summary>
@@ -49,15 +65,13 @@ public class Binding
         if (bin.NodeType != ExpressionType.Equal)
             throw new InvalidBindingFormatException("Expected: Bind(() => a.Prop == value);");
         
-        var leftHandled = Chain.Handle(new(bin.Left, Chain), out var leftResult);
-        var righttHandled = Chain.Handle(new(bin.Right, Chain), out var rightResult);
-        var leftReadonly = Box.IsReadOnly(leftResult.MainBox);
-        var rightReadonly = Box.IsReadOnly(rightResult.MainBox);
+        var leftResult = LeftChain.Handle(new(bin.Left, LeftChain));
+        var rightResult = RightChain.Handle(new(bin.Right, RightChain));
 
-        if (leftReadonly && rightReadonly)
-            throw new ReadonlyBindingException();
+        if (!leftResult.Success || !rightResult.Success)
+            throw new InvalidBindingException();
         
-        
+        behavior.MakeBinding(leftResult, rightResult);
     }
 
     /// <summary>

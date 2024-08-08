@@ -11,24 +11,22 @@ using System.Linq.Expressions;
 /// </summary>
 public class BinaryOperationBindChainLink : BindChainLink
 {
-    protected override bool TryHandle(BindingArgs args, out BindingResult result)
+    protected override BindingResult TryHandle(BindingArgs args)
     {
-        result = new();
         var body = args.Body.RemoveTypeCast();
         if (body is not BinaryExpression bin)
-            return false;
+            return BindingResult.Unsuccesfull;
         
         var subArgs1 = args with { Body = bin.Left };
-        if (!args.Chain.Handle(subArgs1, out var res1))
-            return false;
+        var res1 = args.Chain.Handle(subArgs1);
+        if (!res1.Success)
+            return BindingResult.Unsuccesfull;
 
         var subArgs2 = args with { Body = bin.Right };
-        if (!args.Chain.Handle(subArgs2, out var res2))
-            return false;
+        var res2 = args.Chain.Handle(subArgs2);
+        if (!res2.Success)
+            return BindingResult.Unsuccesfull;
         
-        Verbose.Success(bin.Method.Name);
-        Verbose.Success(bin.Method.IsSpecialName);
-
-        return true;
+        
     }
 }

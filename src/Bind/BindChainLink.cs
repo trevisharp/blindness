@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/08/2024
+ * Date:    07/08/2024
  */
 namespace Blindness.Bind;
 
@@ -21,34 +21,20 @@ public abstract class BindChainLink
     /// handle it. If the chainlink handle with success
     /// returns true, otherside false.
     /// </summary>
-    protected abstract bool TryHandle(BindingArgs args, out BindingResult result);
+    protected abstract BindingResult TryHandle(BindingArgs args);
 
     /// <summary>
     /// Handle the request. If any chainlink handle with
     /// success returns true, otherside false.
     /// </summary>
-    public bool Handle(BindingArgs args)
+    public BindingResult Handle(BindingArgs args)
     {
-        if (TryHandle(args, out _))
-            return true;
+        var result = TryHandle(args);
+        if (result.Success)
+            return result;
         
         if (Next is null)
-            return false;
-        
-        return Next.Handle(args);
-    }
-
-    /// <summary>
-    /// Handle the request. If any chainlink handle with
-    /// success returns true, otherside false.
-    /// </summary>
-    public bool Handle(BindingArgs args, out BindingResult result)
-    {
-        if (TryHandle(args, out result))
-            return true;
-        
-        if (Next is null)
-            return false;
+            return BindingResult.Unsuccesfull;
         
         return Next.Handle(args);
     }
