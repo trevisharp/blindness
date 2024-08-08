@@ -1,12 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    07/08/2024
+ * Date:    08/08/2024
  */
 namespace Blindness.Bind.ChainLinks;
 
 using Boxes;
 using System;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices.Marshalling;
 
 /// <summary>
 /// Represents a bind chain link for a + b expressions.
@@ -46,10 +45,7 @@ public class BinaryOperationBindChainLink : BindChainLink
                     res1.MainBox, res2.MainBox,
                     opType.BuildBinaryFunction(Expression.Subtract),
                     opType.BuildBinaryFunction(Expression.Add),
-                    opType.BuildBinaryFunction((res, lef) =>
-                    {
-                        throw new NotImplementedException();
-                    })
+                    opType.BuildBinaryFunction((res, lef) => Expression.Subtract(lef, res))
                 ),
 
             _ => throw new NotImplementedException(
