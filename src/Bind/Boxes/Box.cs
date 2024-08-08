@@ -76,6 +76,20 @@ public static class Box
     }
 
     /// <summary>
+    /// Create a InnerBox from a type.
+    /// </summary>
+    public static object CreateInner(object innerBox, Type innerType)
+    {
+        var boxType = typeof(InnerBox<>);
+        var genBoxType = boxType.MakeGenericType(innerType);
+        var boxConstructor = genBoxType.GetConstructor([ innerBox.GetType() ]);
+        var boxObj = boxConstructor.Invoke([ innerBox ]);
+        return boxObj;
+    }
+
+
+
+    /// <summary>
     /// Test if a object is a Box<T>
     /// </summary>
     public static bool IsBox(object value)

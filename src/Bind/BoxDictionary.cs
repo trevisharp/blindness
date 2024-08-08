@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/08/2024
+ * Date:    08/08/2024
  */
 using System;
 using System.Collections.Generic;
@@ -46,7 +46,7 @@ public class BoxDictionary<K>
         if (memory.TryGetValue(boxName, out object obj))
             return obj as IBox<T, T>;
         
-        var box = new ValueBox<T>();
+        var box = new InnerBox<T>(new ValueBox<T>());
         memory.Add(boxName, box);
         return box;
     }
@@ -61,7 +61,9 @@ public class BoxDictionary<K>
         if (memory.TryGetValue(boxName, out object obj))
             return obj;
         
-        var boxObj = Box.Create(boxType);
+        var boxObj = Box.CreateInner(
+            Box.Create(boxType), boxType
+        );
         memory.Add(boxName, boxObj);
         return boxObj;
     }
