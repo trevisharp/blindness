@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    07/08/2024
+ * Date:    08/08/2024
  */
 namespace Blindness.Bind.Analyzers;
 
@@ -12,5 +12,5 @@ public class DefaultLeftBindAnalyzer : IBindAnalyzer
 {
     public BindChain BuildChain() => 
         BindChain.New()
-        .Add(new ExpressionBindChainLink());
+        .Add(new PropertyBindChainLink());
 }

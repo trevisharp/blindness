@@ -1,13 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/08/2024
+ * Date:    08/08/2024
  */
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace Blindness.Bind.Boxes;
 
-using System.Linq.Expressions;
 using Exceptions;
 
 public static class Box
@@ -27,7 +27,9 @@ public static class Box
     /// <summary>
     /// Create a ExpressionBox from a type.
     /// </summary>
-    public static object CreateExpression(Type type, MemberInfo member, LambdaExpression instanciator)
+    public static object CreateExpression(
+        Type type, MemberInfo member, 
+        LambdaExpression instanciator)
     {
         var boxType = typeof(ExpressionBox<>);
         var genBoxType = boxType.MakeGenericType(type);
@@ -52,8 +54,7 @@ public static class Box
     /// Create a OperationBox from a type.
     /// </summary>
     public static object CreateOperation(
-        object leftBox,
-        object rightBox,
+        object leftBox, object rightBox,
         MethodInfo operation,
         object reverseLeft = null,
         object reverseRight = null)
@@ -86,8 +87,6 @@ public static class Box
         var boxObj = boxConstructor.Invoke([ innerBox ]);
         return boxObj;
     }
-
-
 
     /// <summary>
     /// Test if a object is a Box<T>
@@ -124,6 +123,44 @@ public static class Box
         var readonlyProperty = boxType.GetProperty("IsReadonly");
         var getIsReadonly = readonlyProperty.GetGetMethod();
         return (bool)getIsReadonly.Invoke(box, []);
+    }
+
+    /// <summary>
+    /// Get the Inner property in the box is a InnerBox, otherside throws a error.
+    /// </summary>
+    public static object GetInner(object box)
+    {
+        var boxType = box.GetType();
+        if (boxType.GetGenericTypeDefinition() != typeof(InnerBox<>))
+            throw new BoxTypeException(box, "InnerBox");
+        
+        var innerProp = boxType.GetProperty("Inner") 
+            ?? throw new BoxTypeException(box, "InnerBox");
+        
+        var innerGet = innerProp.GetGetMethod()
+            ?? throw new BoxTypeException(box, "InnerBox");
+        
+        return innerGet.Invoke(box, []);
+    }
+
+    /// <summary>
+    /// Set the Inner property in the box is a InnerBox, otherside throws a error.
+    /// </summary>
+    public static void SetInner(object box, object newInner)
+    {
+        var boxType = box.GetType();
+        if (boxType.GetGenericTypeDefinition() != typeof(InnerBox<>))
+            throw new BoxTypeException(box, "InnerBox");
+        
+        BoxTypeException.ThrowIfIsNotABox(newInner);
+        
+        var innerProp = boxType.GetProperty("Inner") 
+            ?? throw new BoxTypeException(box, "InnerBox");
+        
+        var innerSet = innerProp.GetSetMethod()
+            ?? throw new BoxTypeException(box, "InnerBox");
+        
+        innerSet.Invoke(box, [ newInner ]);
     }
 
     /// <summary>

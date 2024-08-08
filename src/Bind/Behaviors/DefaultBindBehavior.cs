@@ -19,9 +19,6 @@ public class DefaultBindBehavior : IBindBehavior
         if (leftReadonly && rightReadonly)
             throw new ReadonlyBindingException();
         
-        if (!leftReadonly)
-        {
-
-        }
+        Box.SetInner(left.MainBox, right.MainBox);
     }
 }
