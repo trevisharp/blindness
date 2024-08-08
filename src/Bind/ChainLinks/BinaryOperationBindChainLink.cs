@@ -4,6 +4,7 @@
 namespace Blindness.Bind.ChainLinks;
 
 using Boxes;
+using System;
 using System.Linq.Expressions;
 
 /// <summary>
@@ -27,6 +28,21 @@ public class BinaryOperationBindChainLink : BindChainLink
         if (!res2.Success)
             return BindingResult.Unsuccesfull;
         
-        
+        var box = bin.NodeType switch
+        {
+            // TODO: Improve Operation Box
+            ExpressionType.Add =>
+                Box.CreateOperation(
+                    res1.MainBox, res2.MainBox,
+                    null, 
+                    null,
+                    null
+                ),
+
+            _ => throw new NotImplementedException(
+                $"The operation {bin.NodeType} is not suported."
+            )
+        };
+        return BindingResult.Successful(box);
     }
 }

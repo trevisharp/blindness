@@ -7,6 +7,7 @@ using System.Reflection;
 
 namespace Blindness.Bind.Boxes;
 
+using System.Linq.Expressions;
 using Exceptions;
 
 public static class Box
@@ -24,14 +25,14 @@ public static class Box
     }
     
     /// <summary>
-    /// Create a MemberBox from a type.
+    /// Create a ExpressionBox from a type.
     /// </summary>
-    public static object CreateMember(Type type, MemberInfo member, object instance)
+    public static object CreateExpression(Type type, MemberInfo member, LambdaExpression instanciator)
     {
-        var boxType = typeof(MemberBox<>);
+        var boxType = typeof(ExpressionBox<>);
         var genBoxType = boxType.MakeGenericType(type);
-        var boxConstructor = genBoxType.GetConstructor([ typeof(MemberInfo), typeof(object) ]);
-        var boxObj = boxConstructor.Invoke([ member, instance ]);
+        var boxConstructor = genBoxType.GetConstructor([ typeof(MemberInfo), typeof(LambdaExpression) ]);
+        var boxObj = boxConstructor.Invoke([ member, instanciator ]);
         return boxObj;
     }
 
@@ -44,6 +45,33 @@ public static class Box
         var genBoxType = boxType.MakeGenericType(value.GetType());
         var boxConstructor = genBoxType.GetConstructor([ value.GetType() ]);
         var boxObj = boxConstructor.Invoke([ value ]);
+        return boxObj;
+    }
+
+    /// <summary>
+    /// Create a OperationBox from a type.
+    /// </summary>
+    public static object CreateOperation(
+        object leftBox,
+        object rightBox,
+        MethodInfo operation,
+        object reverseLeft = null,
+        object reverseRight = null)
+    {
+        var boxType = typeof(OperationBox<>);
+        var T = operation.ReturnType;
+        var genBoxType = boxType.MakeGenericType(T);
+        var boxConstructor = genBoxType.GetConstructor([ 
+            typeof(IBox<>).MakeGenericType(T, T),
+            typeof(IBox<>).MakeGenericType(T, T),
+            typeof(MethodInfo),
+            typeof(Func<>).MakeGenericType(T, T, T),
+            typeof(Func<>).MakeGenericType(T, T, T)
+        ]);
+        var boxObj = boxConstructor.Invoke([ 
+            leftBox, rightBox, operation, 
+            reverseLeft, reverseRight
+        ]);
         return boxObj;
     }
 

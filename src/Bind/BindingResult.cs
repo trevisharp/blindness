@@ -10,7 +10,7 @@ public class BindingResult
 {
     public readonly static BindingResult Unsuccesfull = new();
 
-    public static BindingResult Successfull(object mainBox, Binding binding = null)
+    public static BindingResult Successful(object mainBox, Binding binding = null)
         => new() {
             Success = true,
             MainBox = mainBox,

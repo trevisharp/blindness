@@ -3,6 +3,7 @@
  */
 using System;
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace Blindness.Bind.Boxes;
 
@@ -11,7 +12,7 @@ using Exceptions;
 /// <summary>
 /// Represents a structure to box values.
 /// </summary>
-public class MemberBox<T>(MemberInfo member, object instance) : IBox<T>
+public class ExpressionBox<T>(MemberInfo member, LambdaExpression instanciator) : IBox<T>
 {
     public bool IsReadonly => !member.IsSettable();
 
@@ -19,6 +20,7 @@ public class MemberBox<T>(MemberInfo member, object instance) : IBox<T>
     {
         try
         {
+            var instance = instanciator.Compile().DynamicInvoke();
             var data = member.GetData(instance);
             return (T)member.GetData(instance);
         }
@@ -33,6 +35,7 @@ public class MemberBox<T>(MemberInfo member, object instance) : IBox<T>
         if (!member.IsSettable())
             throw new ReadonlyBoxException();
         
+        var instance = instanciator.Compile().DynamicInvoke();
         member.SetData(instance, newValue);
     }
 }

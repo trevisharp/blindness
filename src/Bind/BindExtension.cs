@@ -138,19 +138,6 @@ public static class BindExtension
         return false;
     }
 
-    /// <summary>
-    /// Split a expression of form B.C in a B objet and C MemberInfo.
-    /// </summary>
-    public static (object obj, MemberInfo member) SplitMember(
-        this MemberExpression expression
-    )
-    {
-        var lambda = Expression.Lambda(expression.Expression);
-        var obj = lambda.Compile().DynamicInvoke();
-        var member = expression.Member;
-        return (obj, member);
-    }
-
     public static Type GetMemberReturnType(
         this MemberInfo member
     )

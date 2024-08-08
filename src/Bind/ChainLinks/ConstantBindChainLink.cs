@@ -22,7 +22,7 @@ public class ConstantBindChainLink : BindChainLink
         if (body is not ConstantExpression constant)
             return BindingResult.Unsuccesfull;
 
-        return BindingResult.Successfull(
+        return BindingResult.Successful(
             Box.CreateConstant(constant.Value)
         );
     }
