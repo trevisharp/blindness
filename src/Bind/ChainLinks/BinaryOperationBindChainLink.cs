@@ -1,11 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    08/08/2024
  */
+using System;
+using System.Linq.Expressions;
+
 namespace Blindness.Bind.ChainLinks;
 
 using Boxes;
-using System;
-using System.Linq.Expressions;
 
 /// <summary>
 /// Represents a bind chain link for a + b expressions.

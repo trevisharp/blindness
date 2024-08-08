@@ -483,7 +483,7 @@ public class MyComponent
 }
 ```
 
-###
+### Bind many types of expressions
 
 # Versions
 
