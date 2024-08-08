@@ -1,9 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    07/08/2024
+ * Date:    08/08/2024
  */
 using System;
+using System.Linq;
 using System.Reflection;
-using System.Linq.Expressions;
 
 namespace Blindness.Bind.Boxes;
 
@@ -12,7 +12,7 @@ using Exceptions;
 /// <summary>
 /// Represents a structure to box values.
 /// </summary>
-public class ExpressionBox<T>(MemberInfo member, LambdaExpression instanciator) : IBox<T>
+public class ExpressionBox<T>(MemberInfo member, Delegate instanciator, object[] extraArgsBoxes = null) : IBox<T>
 {
     public bool IsReadonly => !member.IsSettable();
 
@@ -20,9 +20,9 @@ public class ExpressionBox<T>(MemberInfo member, LambdaExpression instanciator) 
     {
         try
         {
-            var instance = instanciator.Compile().DynamicInvoke();
-            var data = member.GetData(instance);
-            return (T)member.GetData(instance);
+            var instance = instanciator.DynamicInvoke();
+            object[] args = extraArgsBoxes?.Select(Box.Open)?.ToArray();
+            return (T)member.GetData(instance, args);
         }
         catch (Exception ex)
         {
@@ -35,7 +35,8 @@ public class ExpressionBox<T>(MemberInfo member, LambdaExpression instanciator) 
         if (!member.IsSettable())
             throw new ReadonlyBoxException();
         
-        var instance = instanciator.Compile().DynamicInvoke();
-        member.SetData(instance, newValue);
+        var instance = instanciator.DynamicInvoke();
+        object[] args = extraArgsBoxes?.Select(Box.Open)?.ToArray();
+        member.SetData(instance, newValue, args);
     }
 }

@@ -29,12 +29,15 @@ public static class Box
     /// </summary>
     public static object CreateExpression(
         Type type, MemberInfo member, 
-        LambdaExpression instanciator)
+        Delegate instanciator,
+        object[] extraArgsBoxes)
     {
         var boxType = typeof(ExpressionBox<>);
         var genBoxType = boxType.MakeGenericType(type);
-        var boxConstructor = genBoxType.GetConstructor([ typeof(MemberInfo), typeof(LambdaExpression) ]);
-        var boxObj = boxConstructor.Invoke([ member, instanciator ]);
+        var boxConstructor = genBoxType.GetConstructor([ 
+            typeof(MemberInfo), typeof(Delegate), typeof(object[])
+        ]);
+        var boxObj = boxConstructor.Invoke([ member, instanciator, extraArgsBoxes ]);
         return boxObj;
     }
 

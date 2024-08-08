@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    07/08/2024
+ * Date:    08/08/2024
  */
 using System;
 using System.Linq;
@@ -159,7 +159,7 @@ public static class BindExtension
     /// <summary>
     /// Get data from a member based on a instance.
     /// </summary>
-    public static object GetData(this MemberInfo member, object instance)
+    public static object GetData(this MemberInfo member, object instance, object[] extraData = null)
     {
         ArgumentNullException.ThrowIfNull(member, nameof(member));
 
@@ -169,13 +169,16 @@ public static class BindExtension
         if (member is FieldInfo field)
             return GetField(instance, field);
         
+        if (member is MethodInfo method)
+            return GetMethod(instance, method, extraData);
+
         throw new Exception("Invalid Member.");
     }
 
     /// <summary>
     /// Set Get data from a member based on a instance.
     /// </summary>
-    public static void SetData(this MemberInfo member, object instance, object value)
+    public static void SetData(this MemberInfo member, object instance, object value, object[] extraData = null)
     {
         ArgumentNullException.ThrowIfNull(member, nameof(member));
 
@@ -188,6 +191,12 @@ public static class BindExtension
         if (member is FieldInfo field)
         {
             SetField(instance, field, value);
+            return;
+        }
+        
+        if (member is MethodInfo method)
+        {
+            SetMethod(instance, method, extraData, value);
             return;
         }
 
@@ -239,5 +248,18 @@ public static class BindExtension
         if (obj is null || field is null)
             return;
         field.SetValue(obj, value);
+    }
+
+    static object GetMethod(object obj, MethodInfo method, object[] inputs)
+        => method?.Invoke(obj, inputs ?? []);
+
+    static void SetMethod(object obj, MethodInfo method, object[] inputs, object value)
+    {
+        var parentType = method.DeclaringType;
+        var expectedSetName = method.Name
+            .Replace("get", "set")
+            .Replace("Get", "Set");
+        var setMethod = parentType.GetMethod(expectedSetName);
+        GetMethod(obj, setMethod, [ ..inputs, value ]);
     }
 }
