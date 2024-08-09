@@ -528,8 +528,8 @@ using System;
 using System.Linq.Expressions;
 
 using Blindness.Bind;
-using Blindness.Boxes;
-using Blindness.Analyzers;
+using Blindness.Bind.Boxes;
+using Blindness.Bind.Analyzers;
 
 Binding.SetBehaviour(
     new DefaultLeftBindAnalyzer(), // left analyzer
