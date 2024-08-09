@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    08/08/2024
+ * Date:    09/08/2024
  */
 using System;
 using System.Linq.Expressions;
@@ -48,9 +48,25 @@ public class BinaryOperationBindChainLink : BindChainLink
                     opType.BuildBinaryFunction(Expression.Add),
                     opType.BuildBinaryFunction((res, lef) => Expression.Subtract(lef, res))
                 ),
+            
+            ExpressionType.Multiply =>
+                Box.CreateOperation(
+                    res1.MainBox, res2.MainBox,
+                    opType.BuildBinaryFunction(Expression.Multiply),
+                    opType.BuildBinaryFunction(Expression.Divide),
+                    opType.BuildBinaryFunction(Expression.Divide)
+                ),
+            
+            ExpressionType.Divide =>
+                Box.CreateOperation(
+                    res1.MainBox, res2.MainBox,
+                    opType.BuildBinaryFunction(Expression.Divide),
+                    opType.BuildBinaryFunction(Expression.Multiply),
+                    opType.BuildBinaryFunction((res, lef) => Expression.Divide(lef, res))
+                ),
 
             _ => throw new NotImplementedException(
-                $"The operation {bin.NodeType} is not suported."
+                $"The operation {bin.NodeType} is not suported by 'BinaryOperationBindChainLink' class."
             )
         };
         return BindingResult.Successful(box);
