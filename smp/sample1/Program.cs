@@ -1,25 +1,30 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Collections.Generic;
-
-using System;
 
 using Blindness;
 using Blindness.Bind;
 using static Blindness.Bind.Binding;
 
-MyComponent a = new();
-MyComponent b = new();
-MyComponent c = new();
+MyComponent index = new();
+MyComponent oddIndex = new();
+MyComponent oddValue = new();
 
-List<int> list = [ ];
+List<int> list = [ 9, 6, 5, 11, 4, 3 ];
 
-Bind(() => b.Value == 2 - a.Value);
+Bind(() => oddIndex.Value == 2 * index.Value + 1);
+Bind(() => oddValue.Value == list[oddIndex.Value]);
 
-a.Value = 0;
-Verbose.Success(b.Value);
+int lastOddIndex = 
+    list.Count % 2 == 0 ? 
+    list.Count - 1 : list.Count;
+oddIndex.Value = lastOddIndex;
+int lastIndex = index.Value;
 
-b.Value = 6;
-Verbose.Success(a.Value);
+int sum = 0;
+for (index.Value = 0; index.Value <= lastIndex; index.Value++)
+    sum += oddValue.Value;
+Verbose.Success(sum);
 
 public class MyComponent
 {

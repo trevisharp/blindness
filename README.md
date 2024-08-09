@@ -485,6 +485,42 @@ public class MyComponent
 
 ### Bind many types of expressions
 
+```cs
+using Blindness;
+using Blindness.Bind;
+using static Blindness.Bind.Binding;
+
+MyComponent index = new();
+MyComponent oddIndex = new();
+MyComponent oddValue = new();
+
+List<int> list = [ 9, 6, 5, 11, 4, 3 ];
+
+Bind(() => oddIndex.Value == 2 * index.Value + 1);
+Bind(() => oddValue.Value == list[oddIndex.Value]);
+
+int lastOddIndex = 
+    list.Count % 2 == 0 ? 
+    list.Count - 1 : list.Count;
+oddIndex.Value = lastOddIndex;
+int lastIndex = index.Value;
+
+int sum = 0;
+for (index.Value = 0; index.Value <= lastIndex; index.Value++)
+    sum += oddValue.Value;
+Verbose.Success(sum);
+
+public class MyComponent
+{
+    [Binding]
+    public int Value
+    {
+        get => Get(this).Open<int>(nameof(Value));
+        set => Get(this).Place(nameof(Value), value);
+    }
+}
+```
+
 # Versions
 
 ### Blindness v3.0.0
