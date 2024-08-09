@@ -502,7 +502,7 @@ Bind(() => oddValue.Value == list[oddIndex.Value]);
 int lastOddIndex = 
     list.Count % 2 == 0 ? 
     list.Count - 1 : list.Count;
-oddIndex.Value = lastOddIndex;
+oddIndex.Value = lastOddIndex; // (Reverse calcule) index.Value = (oddIndex.Value - 1) / 2 = 2
 int lastIndex = index.Value;
 
 int sum = 0;
@@ -517,6 +517,64 @@ public class MyComponent
     {
         get => Get(this).Open<int>(nameof(Value));
         set => Get(this).Place(nameof(Value), value);
+    }
+}
+```
+
+### Customize the binding pipeline
+
+```cs
+using System;
+using System.Linq.Expressions;
+
+using Blindness.Bind;
+using Blindness.Boxes;
+using Blindness.Analyzers;
+
+Binding.SetBehaviour(
+    new DefaultLeftBindAnalyzer(), // left analyzer
+    new MyBindAnalyzer(), // right analyzer
+    new MyBindBehavior() // behaviour
+)
+
+public class MyConstantBindChainLink : BindChainLink
+{
+    protected override BindingResult TryHandle(BindingArgs args)
+    {
+        var body = args.Body.RemoveTypeCast();
+        if (body is not ConstantExpression constant)
+            return BindingResult.Unsuccesfull;
+        
+        if (constant.value is null)
+            throw new Exception();
+
+        return BindingResult.Successful(
+            Box.CreateConstant(constant.Value)
+        );
+    }
+}
+
+public class MyBindAnalyzer : IBindAnalyzer
+{
+    public BindChain BuildChain() => 
+        BindChain.New()
+        .Add(new BinaryOperationBindChainLink())
+        .Add(new ExpressionBindChainLink())
+        .Add(new CallBindChainLink())
+        .Add(new MyConstantBindChainLink());
+}
+
+public class MyBindBehavior : IBindBehavior
+{
+    public void MakeBinding(BindingResult left, BindingResult right)
+    {
+        var leftReadonly = Box.IsReadOnly(left.MainBox);
+        var rightReadonly = Box.IsReadOnly(right.MainBox);
+        
+        if (leftReadonly && rightReadonly)
+            throw new ReadonlyBindingException();
+        
+        Box.SetInner(left.MainBox, right.MainBox);
     }
 }
 ```

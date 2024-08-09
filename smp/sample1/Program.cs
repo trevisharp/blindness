@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Blindness;
 using Blindness.Bind;
 using static Blindness.Bind.Binding;
+using Blindness.Bind.Analyzers;
 
 MyComponent index = new();
 MyComponent oddIndex = new();
