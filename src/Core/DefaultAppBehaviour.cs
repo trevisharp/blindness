@@ -8,10 +8,14 @@ namespace Blindness.Core;
 
 using Bind;
 using Bind.Boxes;
+using Bind.Behaviors;
+using Bind.Analyzers;
+
 using Factory;
 using Injection;
 using Concurrency;
 
+using Core.Binds;
 using Core.Concurrencies;
 
 /// <summary>
@@ -31,6 +35,12 @@ public class DefaultAppBehaviour : AppBehaviour
     {
         try
         {
+            Binding.SetBehaviour(
+                new DeepLeftBindAnalyzer(),
+                new DefaultRightBindAnalyzer(),
+                new DefaultBindBehavior()
+            );
+
             if (App.Debug)
             {
                 var hotReload = new HotReload(Model);

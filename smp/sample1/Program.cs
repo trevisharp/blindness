@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Blindness;
 using Blindness.Core;
 
+Verbose.VerboseLevel = int.MaxValue;
 App.Start<LoginScreen>();
 
 public interface LoginScreen : INode

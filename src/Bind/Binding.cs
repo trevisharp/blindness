@@ -67,7 +67,7 @@ public class Binding
         
         var leftResult = LeftChain.Handle(new(bin.Left, LeftChain));
         var rightResult = RightChain.Handle(new(bin.Right, RightChain));
-
+        
         if (!leftResult.Success || !rightResult.Success)
             throw new InvalidBindingException();
         
