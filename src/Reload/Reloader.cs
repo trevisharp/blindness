@@ -3,6 +3,7 @@
  */
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace Blindness.Reload;
 
@@ -13,6 +14,11 @@ public abstract class Reloader
 {
     public FileWatcher Watcher { get; set; }
     public AssemblyCompiler Compiler { get; set; }
+
+    /// <summary>
+    /// Actions to run when files are modifieds.
+    /// </summary>
+    public List<Action> Actions { get; private set; } = [];
 
     /// <summary>
     /// Get the default configuration of Reloader class.
@@ -37,6 +43,14 @@ public abstract class Reloader
         var verify = Watcher.Verify();
         if (!verify)
             return;
+        
+        foreach (var action in Actions)
+        {
+            if (action is null)
+                continue;
+            
+            action();
+        }
         
         var newAssembly = Compiler.Get();
         if (newAssembly is null)

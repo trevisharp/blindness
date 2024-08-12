@@ -3,11 +3,9 @@ using System.Text;
 using System.Collections.Generic;
 
 using Blindness;
-using static Blindness.Bind.Binding;
+using Blindness.Core;
 
-
-
-
+App.Start<LoginScreen>();
 
 public interface LoginScreen : INode
 {

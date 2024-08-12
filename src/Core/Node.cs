@@ -24,7 +24,6 @@ public abstract class Node
 {
     readonly static DepFunction depFunction = new DepsDepFunction();
     readonly static BaseTypeFilter filter = new ConcreteFilter();
-
     public static Node New(Type type)
     {
         var node = DependencySystem.Shared.Get(type,
@@ -34,7 +33,10 @@ public abstract class Node
         return node as Node;
     }
 
-    Binding Bind;
+    public static Node Replace(Type type, Node oldNode)
+    {
+        throw new NotImplementedException();
+    }
 
-    
+    Binding Bind;
 }

@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    12/08/2024
  */
+using System;
 using System.Threading;
 
 namespace Blindness.Core.Concurrencies;
@@ -13,6 +14,7 @@ using Concurrency;
 /// </summary>
 public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
 {
+    readonly Reloader reloader = Reloader.GetDefault();
     bool running = false;
     bool paused = false;
 
@@ -21,7 +23,6 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
 
     public override void Run()
     {
-        Reloader reloader = Reloader.GetDefault();
         reloader.OnReload += assembly =>
         {
             SendSignal(new AssemblySignalArgs(assembly, true));
@@ -37,6 +38,9 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
             reloader.TryReload();
         }
     }
+
+    public void AddAction(Action action)
+        => reloader.Actions.Add(action);
 
     public override void Pause()
         => paused = true;

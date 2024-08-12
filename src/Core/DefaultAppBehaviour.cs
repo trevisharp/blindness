@@ -7,28 +7,29 @@ using System.Collections.Generic;
 namespace Blindness.Core;
 
 using Bind;
-using Reload;
+using Bind.Boxes;
 using Injection;
 using Concurrency;
 
 using Core.Concurrencies;
+using Blindness.Factory;
 
 /// <summary>
 /// The default structure to a Blindness app.
 /// </summary>
 public class DefaultAppBehaviour : AppBehaviour
 {
-    readonly Dictionary<string, Stack<INode>> apps = [];
-    Stack<INode> currentStack;
+    public Implementer Implementer { get; set; } = new DefaultImplementer();
 
-    public override INode CurrentMainNode => currentStack?.Peek();
+    readonly Dictionary<string, Stack<IBox<INode>>> apps = [];
+    Stack<IBox<INode>> currentStack;
+
+    public override INode CurrentMainNode => currentStack?.Peek()?.Open();
 
     public override void Run<T>(params object[] parameters)
     {
         try
         {
-            InitMain<T>(parameters);
-
             var model = new DefaultModel();
 
             if (App.Debug)
@@ -44,9 +45,31 @@ public class DefaultAppBehaviour : AppBehaviour
                     if (!args.Success)
                         return;
                     
-                    // HotReload Here!!
+                    // TODO: Test and improve
+                    DependencySystem.Shared.UpdateAssembly(args.NewAssembly);
+                    foreach (var app in apps)
+                    {
+                        var stack = app.Value;
+                        foreach (var box in stack)
+                        {
+                            var oldNode = box.Open();
+                            var newNode = Node.Replace(oldNode.GetType(), oldNode as Node);
+                            box.Place(newNode as INode);
+                        }
+                    }
                 };
+
+                void implement()
+                {
+                    Verbose.Info("Implementing Concrete Nodes...");
+                    Implementer.Implement();
+                }
+
+                hotReload.AddAction(implement);
+                implement();
             }
+            
+            InitMain<T>(parameters);
 
             var runner = new NodeRunner(model, () => CurrentMainNode);
             model.Run(runner);
@@ -64,7 +87,7 @@ public class DefaultAppBehaviour : AppBehaviour
         var node = Node.New(typeof(T)) as INode;
         if (currentStack.Count > 0)
             currentStack?.Pop();
-        currentStack?.Push(node);
+        currentStack?.Push(new ValueBox<INode>(node));
     }
 
     public override void Clear()
@@ -85,12 +108,12 @@ public class DefaultAppBehaviour : AppBehaviour
     }
 
     public override INode Pop()
-        => currentStack?.Pop();
+        => currentStack?.Pop()?.Open();
 
     public override void Push<T>(params object[] parameters)
     {
         var node = Node.New(typeof(T)) as INode;
-        currentStack?.Push(node);
+        currentStack?.Push(new ValueBox<INode>(node));
     }
 
     void InitMain<T>(params object[] parameters)
