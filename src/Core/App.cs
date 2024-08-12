@@ -1,9 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    22/07/2024
  */
-namespace Blindness;
-
-using Core;
+namespace Blindness.Core;
 
 /// <summary>
 /// Base class for start a application.

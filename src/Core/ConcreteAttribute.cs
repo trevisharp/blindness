@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace Blindness;
+namespace Blindness.Core;
 
 /// <summary>
 /// Attribute used to denote concrete nodes

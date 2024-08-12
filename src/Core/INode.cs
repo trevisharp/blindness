@@ -1,12 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    12/08/2024
  */
 using System;
 using System.Linq.Expressions;
 
-namespace Blindness;
+namespace Blindness.Core;
 
-using Bind;
+using Factory;
 
 /// <summary>
 /// A base class for all nodes.
@@ -15,14 +15,15 @@ using Bind;
 public interface INode
 {
     /// <summary>
-    /// Binding property.
-    /// </summary>
-    Binding Bind { get; set; }
-
-    /// <summary>
     /// Run the node.
     /// </summary>
     void Run();
+
+    /// <summary>
+    /// Bind properties.
+    /// Function to easely call Blindness.Bind.Binding.Bind();
+    /// </summary>
+    void Bind(Func<bool> binding);
 
     /// <summary>
     /// Add a action called every time that condition is true.

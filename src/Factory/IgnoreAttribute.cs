@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace Blindness;
+namespace Blindness.Factory;
 
 /// <summary>
 /// Attribute used to ignore interfaces in code generation step.

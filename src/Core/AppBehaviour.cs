@@ -1,9 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/07/2024
+ * Date:    12/08/2024
  */
 using System;
 
-namespace Blindness;
+namespace Blindness.Core;
 
 /// <summary>
 /// Represents a Blindess application

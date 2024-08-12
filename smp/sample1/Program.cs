@@ -3,6 +3,12 @@ using System.Text;
 using System.Collections.Generic;
 
 using Blindness;
+using static Blindness.Bind.Binding;
+
+
+
+
+
 public interface LoginScreen : INode
 {
     Panel Panel { get; set; }
@@ -36,9 +42,9 @@ public interface LoginScreen : INode
         Repeat.Title = "repeat password";
         Repeat.Size = 40;
 
-        // Bind |= login => Login.Text;
-        // Bind |= password => Password.Text;
-        // Bind |= repeat => Repeat.Text;
+        Bind(() => login == Login.Text);
+        Bind(() => password == Password.Text);
+        Bind(() => repeat == Repeat.Text);
 
         On(
             () => selectedField == 0,

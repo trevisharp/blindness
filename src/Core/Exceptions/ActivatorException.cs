@@ -1,12 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/07/2024
+ * Date:    12/08/2024
  */
 using System;
 
-namespace Blindness.Exceptions;
+namespace Blindness.Core.Exceptions;
 
 /// <summary>
-/// Represents error that occurs during instantiation of a Node.
+/// Represents error that occurs during instantiation of a Type.
 /// </summary>
 public class ActivatorException(Exception inner, Type type) : Exception
 {
@@ -15,7 +15,7 @@ public class ActivatorException(Exception inner, Type type) : Exception
 
     public override string Message =>
         $"""
-        The following error are throwed at creation of node '{type.Name}'.
+        The following error are throwed on constructor or Deps method invokation from type '{type}':
             {inner.Message.Replace("\n", "\n\t")}
         """;
 }
