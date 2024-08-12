@@ -24,6 +24,20 @@ dotnet add package Blindness # Install Blindness
 
 # Learn by examples
 
+### Use Blindness.Core to use all framework resources...
+
+
+
+### ...Or use only the resources that you like
+
+```cs
+using Blindness.Concurrency;
+using Blindness.Injection;
+using Blindness.Factory;
+using Blindness.Bind;
+using Blindness.Reload;
+```
+
 ### Using Blindness.Concurrency
 
 ```cs

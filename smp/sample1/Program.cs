@@ -3,34 +3,6 @@ using System.Text;
 using System.Collections.Generic;
 
 using Blindness;
-using Blindness.Reload;
-using System.Threading;
-
-var reloader = Reloader.GetDefault();
-dynamic component = new MyComponent();
-
-reloader.OnReload += assembly =>
-{
-    var newMyComponent = assembly.GetType("MyComponent");
-    var constructor = newMyComponent.GetConstructor([]);
-    var obj = constructor.Invoke([]);
-    component = obj;
-};
-
-while (true)
-{
-    Console.Clear();
-    component.Print();
-    reloader.TryReload();
-    Thread.Sleep(200);
-}
-
-public interface BaseComponent { void Print(); }
-public class MyComponent : BaseComponent {
-    public void Print()
-        => Verbose.Success("Message...");
-}
-
 public interface LoginScreen : INode
 {
     Panel Panel { get; set; }
