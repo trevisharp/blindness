@@ -1,19 +1,21 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/07/2024
+ * Date:    12/08/2024
  */
+using System;
+
 namespace Blindness.Core;
 
 /// <summary>
-/// Base class for start a application.
+/// A global object for start and manage your application.
 /// </summary>
 public static class App
 {
     public static bool Debug { get; set; } = true;
     public static AppBehaviour Behaviour { get; set; } = new DefaultAppBehaviour();
-
-    /// <summary>
-    /// Start application based on a Node type.
-    /// </summary>
-    public static void StartWith<T>()
-        => Behaviour.Run<T>(Debug);
+    
+    public static void Start<T>() where T : INode
+    {
+        ArgumentNullException.ThrowIfNull(Behaviour, nameof(Behaviour));
+        Behaviour.Run<T>();
+    }
 }

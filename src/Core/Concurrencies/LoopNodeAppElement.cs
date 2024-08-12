@@ -3,7 +3,7 @@
  */
 using System.Threading;
 
-namespace Blindness.Core;
+namespace Blindness.Core.Concurrencies;
 
 using Exceptions;
 using Concurrency;
@@ -22,7 +22,7 @@ public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
     public override void Run()
     {
         // TODO: Apply New Box abstraction
-        var app = Node.New(typeof(T), Model);
+        var app = Node.New(typeof(T));
         // ElementPointer = app.MemoryLocation;
 
         running = true;
