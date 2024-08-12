@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/07/2024
+ * Date:    12/08/2024
  */
 using System;
 using System.Collections.Generic;
@@ -11,6 +11,8 @@ using Reload;
 using Injection;
 using Concurrency;
 
+using Core.Concurrencies;
+
 /// <summary>
 /// The default structure to a Blindness app.
 /// </summary>
@@ -21,11 +23,35 @@ public class DefaultAppBehaviour : AppBehaviour
 
     public override INode CurrentMainNode => currentStack?.Peek();
 
-    public override void Run<T>()
+    public override void Run<T>(params object[] parameters)
     {
         try
         {
-            
+            InitMain<T>(parameters);
+
+            var model = new DefaultModel();
+
+            if (App.Debug)
+            {
+                var hotReload = new HotReload(model);
+                model.Run(hotReload);
+
+                hotReload.OnSignal += (el, sa) =>
+                {
+                    if (sa is not AssemblySignalArgs args)
+                        return;
+
+                    if (!args.Success)
+                        return;
+                    
+                    // HotReload Here!!
+                };
+            }
+
+            var runner = new NodeRunner(model, () => CurrentMainNode);
+            model.Run(runner);
+
+            model.Start();
         }
         catch (Exception ex)
         {
@@ -33,7 +59,7 @@ public class DefaultAppBehaviour : AppBehaviour
         }
     }
 
-    public override void Open<T>()
+    public override void Open<T>(params object[] parameters)
     {
         var node = Node.New(typeof(T)) as INode;
         if (currentStack.Count > 0)
@@ -51,7 +77,7 @@ public class DefaultAppBehaviour : AppBehaviour
         apps.Add(app, []);
     }
 
-    public override void Move(string app)
+    public override void MoveTo(string app)
     {
         if (!apps.TryGetValue(app, out var stack))
             throw new NotImplementedException();
@@ -61,9 +87,18 @@ public class DefaultAppBehaviour : AppBehaviour
     public override INode Pop()
         => currentStack?.Pop();
 
-    public override void Push<T>()
+    public override void Push<T>(params object[] parameters)
     {
         var node = Node.New(typeof(T)) as INode;
         currentStack?.Push(node);
+    }
+
+    void InitMain<T>(params object[] parameters)
+        where T : INode
+    {
+        if (!apps.ContainsKey("main"))
+            Create("main");
+        MoveTo("main");
+        Open<T>(parameters);
     }
 }

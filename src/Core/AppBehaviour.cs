@@ -18,12 +18,12 @@ public abstract class AppBehaviour
     /// Run the Behaviour structures.
     /// Open a first Run in a app named 'main'.
     /// </summary>
-    public abstract void Run<T>() where T : INode;
+    public abstract void Run<T>(params object[] parameters) where T : INode;
 
     /// <summary>
     /// Open or replace the current INode to run in app.
     /// </summary>
-    public abstract void Open<T>() where T : INode;
+    public abstract void Open<T>(params object[] parameters) where T : INode;
 
     /// <summary>
     /// Remove all the INodes to execution stack.
@@ -33,7 +33,7 @@ public abstract class AppBehaviour
     /// <summary>
     /// Push a new INode to top of execution stack.
     /// </summary>
-    public abstract void Push<T>() where T : INode;
+    public abstract void Push<T>(params object[] parameters) where T : INode;
 
     /// <summary>
     /// Pop the top of the execution stack.
@@ -48,7 +48,7 @@ public abstract class AppBehaviour
     /// <summary>
     /// Start to use the another parallel execution stack.
     /// </summary>
-    public abstract void Move(string app);
+    public abstract void MoveTo(string app);
 
     protected static void ShowError(Exception ex)
     {

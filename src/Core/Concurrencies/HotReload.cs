@@ -1,17 +1,17 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/07/2024
+ * Date:    12/08/2024
  */
 using System.Threading;
 
 namespace Blindness.Core.Concurrencies;
 
-using Exceptions;
+using Reload;
 using Concurrency;
 
 /// <summary>
-/// Loop a specific node.
+/// The Hot Reload System Async Element.
 /// </summary>
-public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
+public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
 {
     bool running = false;
     bool paused = false;
@@ -21,22 +21,20 @@ public class LoopNodeAppElement<T>(IAsyncModel model) : BaseAsyncElement(model)
 
     public override void Run()
     {
-        // TODO: Apply New Box abstraction
-        var app = Node.New(typeof(T));
-        // ElementPointer = app.MemoryLocation;
-
+        Reloader reloader = Reloader.GetDefault();
+        reloader.OnReload += assembly =>
+        {
+            SendSignal(new AssemblySignalArgs(assembly, true));
+            reloader.Watcher.Reset();
+        };
+        
         running = true;
         while (running)
         {
             while (paused)
                 Thread.Sleep(500);
             
-            // var data = Memory.Current.GetObject(ElementPointer);
-            // if (data is not IAsyncElement element)
-            //     throw new NonAsyncElementException(typeof(T));
-                
-            // element.Run();
-            SendSignal(SignalArgs.True);
+            reloader.TryReload();
         }
     }
 
