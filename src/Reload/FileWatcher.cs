@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/08/2024
+ * Date:    12/08/2024
  */
 using System;
 using System.IO;
@@ -63,7 +63,7 @@ public class FileWatcher
     /// have not been modified in the last 'TimeFactor'
     /// seconds. That is, they are no longer being modified.
     /// </summary>
-    public bool Verify()
+    public virtual bool Verify()
     {
         InitWatcherIfNeeded();
 
@@ -78,7 +78,7 @@ public class FileWatcher
         return true;
     }
 
-    void InitWatcherIfNeeded()
+    protected virtual void InitWatcherIfNeeded()
     {
         if (watcher is null)
             return;
@@ -86,7 +86,7 @@ public class FileWatcher
         InitWatcher();
     }
 
-    void InitWatcher()
+    protected virtual void InitWatcher()
     {
         watcher = new() {
             Path = Environment.CurrentDirectory,

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/07/2024
+ * Date:    12/08/2024
  */
 using System;
 using System.IO;
@@ -23,7 +23,7 @@ public class AssemblyCompiler
     /// <summary>
     /// Get a new assembly of compilation from files in 'MainDirectory'
     /// </summary>
-    public Assembly Get()
+    public virtual Assembly Get()
     {
         var newAssembly = GetNewAssembly(
             MainDirectory,
@@ -32,7 +32,7 @@ public class AssemblyCompiler
         return newAssembly;
     }
 
-    static IEnumerable<string> FindAllCSharpFiles(
+    protected virtual IEnumerable<string> FindAllCSharpFiles(
         string directory)
     {
         var files = Directory.GetFiles(
@@ -52,7 +52,7 @@ public class AssemblyCompiler
             yield return file;
     }
 
-    static IEnumerable<MetadataReference> GetReferences(
+    protected virtual IEnumerable<MetadataReference> GetReferences(
         IEnumerable<Assembly> extraRefs)
     {
         var assembly = Assembly.GetEntryAssembly();
@@ -69,7 +69,7 @@ public class AssemblyCompiler
             select MetadataReference.CreateFromFile(loc);
     }
 
-    static Assembly GetNewAssembly(
+    protected virtual Assembly GetNewAssembly(
         string directory,
         IEnumerable<Assembly> extraRefs)
     {
