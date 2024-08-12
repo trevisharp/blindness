@@ -579,6 +579,51 @@ public class MyBindBehavior : IBindBehavior
 }
 ```
 
+### Update your code with Blindness.Reload
+
+```cs
+using System.Threading;
+
+using Blindness;
+using Blindness.Reload;
+
+var reloader = Reloader.GetDefault();
+dynamic component = new MyComponent();
+
+reloader.OnReload += assembly =>
+{
+    var newMyComponent = assembly.GetType("MyComponent");
+    var constructor = newMyComponent.GetConstructor([]);
+    var obj = constructor.Invoke([]);
+    component = obj;
+};
+
+while (true)
+{
+    Console.Clear();
+    component.Print();
+    reloader.TryReload();
+    Thread.Sleep(200);
+}
+
+public interface BaseComponent { void Print(); }
+public class MyComponent : BaseComponent {
+    public void Print()
+        => Verbose.Success("Message...");
+}
+```
+
+The app display 'Message...' on screen continuously. If the code is modified likes:
+
+```cs
+public class MyComponent : BaseComponent {
+    public void Print()
+        => Verbose.Success("Message!!");
+}
+```
+
+Some time the code start to display 'Message!!' on screen without reestart app.
+
 # Versions
 
 ### Blindness v3.0.0

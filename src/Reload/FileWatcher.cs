@@ -80,7 +80,7 @@ public class FileWatcher
 
     protected virtual void InitWatcherIfNeeded()
     {
-        if (watcher is null)
+        if (watcher is not null)
             return;
         
         InitWatcher();

@@ -3,40 +3,33 @@ using System.Text;
 using System.Collections.Generic;
 
 using Blindness;
-using Blindness.Bind;
-using static Blindness.Bind.Binding;
-using Blindness.Bind.Analyzers;
+using Blindness.Reload;
+using System.Threading;
 
-MyComponent index = new();
-MyComponent oddIndex = new();
-MyComponent oddValue = new();
+var reloader = Reloader.GetDefault();
+dynamic component = new MyComponent();
 
-List<int> list = [ 9, 6, 5, 11, 4, 3 ];
-
-Bind(() => oddIndex.Value == 2 * index.Value + 1);
-Bind(() => oddValue.Value == list[oddIndex.Value]);
-
-int lastOddIndex = 
-    list.Count % 2 == 0 ? 
-    list.Count - 1 : list.Count;
-oddIndex.Value = lastOddIndex;
-int lastIndex = index.Value;
-
-int sum = 0;
-for (index.Value = 0; index.Value <= lastIndex; index.Value++)
-    sum += oddValue.Value;
-Verbose.Success(sum);
-
-public class MyComponent
+reloader.OnReload += assembly =>
 {
-    [Binding]
-    public int Value
-    {
-        get => Get(this).Open<int>(nameof(Value));
-        set => Get(this).Place(nameof(Value), value);
-    }
+    var newMyComponent = assembly.GetType("MyComponent");
+    var constructor = newMyComponent.GetConstructor([]);
+    var obj = constructor.Invoke([]);
+    component = obj;
+};
+
+while (true)
+{
+    Console.Clear();
+    component.Print();
+    reloader.TryReload();
+    Thread.Sleep(200);
 }
 
+public interface BaseComponent { void Print(); }
+public class MyComponent : BaseComponent {
+    public void Print()
+        => Verbose.Success("Message...");
+}
 
 public interface LoginScreen : INode
 {

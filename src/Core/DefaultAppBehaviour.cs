@@ -30,7 +30,7 @@ public class DefaultAppBehaviour : AppBehaviour
             
             var chain = new ReloadElement(
                 model,
-                new HotReload(model),
+                null,
                 loopApp
             );
 
