@@ -10,7 +10,7 @@ namespace Blindness.Core.Implementations;
 using Factory;
 
 /// <summary>
-/// Generate constructor with binding by default behavior.
+/// Generate empty constructor.
 /// </summary>
 public class ConstructorImplementation : BaseTypeImplementation
 {
@@ -22,28 +22,6 @@ public class ConstructorImplementation : BaseTypeImplementation
     )
     {
         builder
-            .AddCodeLine($"public {baseInterface.Name}Concrete()")
-            .AddScope()
-            .AddCodeLine("=> this.Bind = new Binding(")
-            .AddScope()
-            .AddCodeLine($"this, {properties.Count}, typeof({baseInterface.Name}),")
-            .AddCodeLine("s => s switch")
-            .AddCodeLine("{")
-            .AddScope();
-
-        for (int i = 0; i < properties.Count; i++)
-        {
-            var prop = properties[i];
-            builder.AddCodeLine(
-                $"\"{prop.Name}\" => {i},"
-            );
-        }
-        builder
-            .AddCodeLine("_ => -1")
-            .RemoveScope()
-            .AddCodeLine("}")
-            .RemoveScope()
-            .AddCodeLine(");")
-            .RemoveScope();
+            .AddCodeLine($"public {baseInterface.Name}Concrete() {{ }}");
     }
 }

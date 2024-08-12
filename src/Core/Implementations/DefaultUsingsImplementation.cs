@@ -26,6 +26,7 @@ public class DefaultUsingsImplementation : BaseTypeImplementation
             .AddUsing("System.Reflection")
             .AddUsing("System.Collections.Generic")
             .AddUsing("Blindness")
-            .AddUsing("Blindness.States");
+            .AddUsing("Blindness.Bind")
+            .AddUsing("Blindness.Core");
     }
 }

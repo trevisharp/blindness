@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/01/2024
+ * Date:    12/08/2024
  */
 using System;
 using System.Linq;
@@ -29,7 +29,7 @@ public class OnRunImplementation : BaseTypeImplementation
         
         builder.AddCodeLine(
             $$"""
-            protected override void OnRun()
+            public override void Run()
                 => (({{baseInterface.Name}})this).OnRun();
             """
         );

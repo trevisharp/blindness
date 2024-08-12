@@ -8,11 +8,11 @@ namespace Blindness.Core;
 
 using Bind;
 using Bind.Boxes;
+using Factory;
 using Injection;
 using Concurrency;
 
 using Core.Concurrencies;
-using Blindness.Factory;
 
 /// <summary>
 /// The default structure to a Blindness app.
@@ -20,6 +20,7 @@ using Blindness.Factory;
 public class DefaultAppBehaviour : AppBehaviour
 {
     public Implementer Implementer { get; set; } = new DefaultImplementer();
+    public IAsyncModel Model { get; set; } = new DefaultModel();
 
     readonly Dictionary<string, Stack<IBox<INode>>> apps = [];
     Stack<IBox<INode>> currentStack;
@@ -30,12 +31,10 @@ public class DefaultAppBehaviour : AppBehaviour
     {
         try
         {
-            var model = new DefaultModel();
-
             if (App.Debug)
             {
-                var hotReload = new HotReload(model);
-                model.Run(hotReload);
+                var hotReload = new HotReload(Model);
+                Model.Run(hotReload);
 
                 hotReload.OnSignal += (el, sa) =>
                 {
@@ -71,10 +70,10 @@ public class DefaultAppBehaviour : AppBehaviour
             
             InitMain<T>(parameters);
 
-            var runner = new NodeRunner(model, () => CurrentMainNode);
-            model.Run(runner);
+            var runner = new NodeRunner(Model, () => CurrentMainNode);
+            Model.Run(runner);
 
-            model.Start();
+            Model.Start();
         }
         catch (Exception ex)
         {

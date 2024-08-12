@@ -11,38 +11,32 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using Blindness;
-using Blindness.States;
+using Blindness.Bind;
+using Blindness.Core;
 
 [Concrete]
 public partial class PanelConcrete : Node, Panel
 {
-	public PanelConcrete()
-		=> this.Bind = new Binding(
-			this, 3, typeof(Panel),
-			s => s switch
-			{
-				"Title" => 0,
-				"Width" => 1,
-				"Children" => 2,
-				_ => -1
-			}
-		);
-	protected override void OnRun()
+	public PanelConcrete() { }
+	public override void Run()
 	    => ((Panel)this).OnRun();
+	[Binding]
 	public String Title
 	{
-		get => Bind.Get<String>(0);
-		set => Bind.Set(0, value);
+		get => Binding.Get(this).Open<String>(nameof(Title));
+		set => Binding.Get(this).Place(nameof(Title), value);
 	}
+	[Binding]
 	public Int32 Width
 	{
-		get => Bind.Get<Int32>(1);
-		set => Bind.Set(1, value);
+		get => Binding.Get(this).Open<Int32>(nameof(Width));
+		set => Binding.Get(this).Place(nameof(Width), value);
 	}
+	[Binding]
 	public List<INode> Children
 	{
-		get => Bind.Get<List<INode>>(2);
-		set => Bind.Set(2, value);
+		get => Binding.Get(this).Open<List<INode>>(nameof(Children));
+		set => Binding.Get(this).Place(nameof(Children), value);
 	}
 
 }

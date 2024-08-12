@@ -11,27 +11,13 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using Blindness;
-using Blindness.States;
+using Blindness.Bind;
+using Blindness.Core;
 
 [Concrete]
 public partial class LoginScreenConcrete : Node, LoginScreen
 {
-	public LoginScreenConcrete()
-		=> this.Bind = new Binding(
-			this, 8, typeof(LoginScreen),
-			s => s switch
-			{
-				"Panel" => 0,
-				"Login" => 1,
-				"Password" => 2,
-				"Repeat" => 3,
-				"login" => 4,
-				"password" => 5,
-				"repeat" => 6,
-				"selectedField" => 7,
-				_ => -1
-			}
-		);
+	public LoginScreenConcrete() { }
 	public void Deps(
 		Panel Panel,
 		TextBox Login,
@@ -44,49 +30,57 @@ public partial class LoginScreenConcrete : Node, LoginScreen
 		this.Password = Password;
 		this.Repeat = Repeat;
 	}
-	protected override void OnLoad()
+	public override void Load()
 	    => ((LoginScreen)this).OnLoad();
-	protected override void OnRun()
+	public override void Run()
 	    => ((LoginScreen)this).OnRun();
+	[Binding]
 	public Panel Panel
 	{
-		get => Bind.Get<Panel>(0);
-		set => Bind.Set(0, value);
+		get => Binding.Get(this).Open<Panel>(nameof(Panel));
+		set => Binding.Get(this).Place(nameof(Panel), value);
 	}
+	[Binding]
 	public TextBox Login
 	{
-		get => Bind.Get<TextBox>(1);
-		set => Bind.Set(1, value);
+		get => Binding.Get(this).Open<TextBox>(nameof(Login));
+		set => Binding.Get(this).Place(nameof(Login), value);
 	}
+	[Binding]
 	public TextBox Password
 	{
-		get => Bind.Get<TextBox>(2);
-		set => Bind.Set(2, value);
+		get => Binding.Get(this).Open<TextBox>(nameof(Password));
+		set => Binding.Get(this).Place(nameof(Password), value);
 	}
+	[Binding]
 	public TextBox Repeat
 	{
-		get => Bind.Get<TextBox>(3);
-		set => Bind.Set(3, value);
+		get => Binding.Get(this).Open<TextBox>(nameof(Repeat));
+		set => Binding.Get(this).Place(nameof(Repeat), value);
 	}
+	[Binding]
 	public String login
 	{
-		get => Bind.Get<String>(4);
-		set => Bind.Set(4, value);
+		get => Binding.Get(this).Open<String>(nameof(login));
+		set => Binding.Get(this).Place(nameof(login), value);
 	}
+	[Binding]
 	public String password
 	{
-		get => Bind.Get<String>(5);
-		set => Bind.Set(5, value);
+		get => Binding.Get(this).Open<String>(nameof(password));
+		set => Binding.Get(this).Place(nameof(password), value);
 	}
+	[Binding]
 	public String repeat
 	{
-		get => Bind.Get<String>(6);
-		set => Bind.Set(6, value);
+		get => Binding.Get(this).Open<String>(nameof(repeat));
+		set => Binding.Get(this).Place(nameof(repeat), value);
 	}
+	[Binding]
 	public Int32 selectedField
 	{
-		get => Bind.Get<Int32>(7);
-		set => Bind.Set(7, value);
+		get => Binding.Get(this).Open<Int32>(nameof(selectedField));
+		set => Binding.Get(this).Place(nameof(selectedField), value);
 	}
 
 }

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/07/2024
+ * Date:    12/08/2024
  */
 using System;
 using System.Reflection;
@@ -27,10 +27,11 @@ public class DefaultPropertyImplementation : BaseTypeImplementation
             var typeName = ArrangeGenericTypeName(prop.PropertyType);
             builder
                 .CreateProperty()
+                    .AddAttribute("Binding")
                     .SetType(typeName)
                     .SetName(prop.Name)
-                    .SetGetCode($"Bind.Get<{typeName}>({i})")
-                    .SetSetCode($"Bind.Set({i}, value)")
+                    .SetGetCode($"Binding.Get(this).Open<{typeName}>(nameof({prop.Name}))")
+                    .SetSetCode($"Binding.Get(this).Place(nameof({prop.Name}), value)")
                 .AppendMember();
             properties.Remove(prop);
         }

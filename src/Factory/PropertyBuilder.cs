@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/07/2024
+ * Date:    12/08/2024
  */
+using System.Collections.Generic;
+
 namespace Blindness.Factory;
 
 /// <summary>
@@ -13,6 +15,7 @@ public class PropertyBuilder(ClassBuilder parent) : MemberBuilder(parent)
     string getCode = null;
     string setCode = null;
     AccessModifier accessModifier = AccessModifier.Public;
+    List<string> attributes = [];
 
     public PropertyBuilder SetAccessModifier(AccessModifier accessModifier)
     {
@@ -44,8 +47,17 @@ public class PropertyBuilder(ClassBuilder parent) : MemberBuilder(parent)
         return this;
     }
 
+    public PropertyBuilder AddAttribute(string type)
+    {
+        attributes.Add(type);
+        return this;
+    }
+
     protected override void Build()
     {
+        foreach (var attribute in attributes)
+            parent.AddCodeLine($"[{attribute}]");
+
         if (getCode is null && setCode is null) {
             parent.AddCodeLine($"{accessModifier} {type} {name} {{ get; set; }}");
             return;

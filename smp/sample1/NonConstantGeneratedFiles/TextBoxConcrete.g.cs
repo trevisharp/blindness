@@ -11,44 +11,38 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using Blindness;
-using Blindness.States;
+using Blindness.Bind;
+using Blindness.Core;
 
 [Concrete]
 public partial class TextBoxConcrete : Node, TextBox
 {
-	public TextBoxConcrete()
-		=> this.Bind = new Binding(
-			this, 4, typeof(TextBox),
-			s => s switch
-			{
-				"Title" => 0,
-				"Text" => 1,
-				"Size" => 2,
-				"Selected" => 3,
-				_ => -1
-			}
-		);
-	protected override void OnRun()
+	public TextBoxConcrete() { }
+	public override void Run()
 	    => ((TextBox)this).OnRun();
+	[Binding]
 	public String Title
 	{
-		get => Bind.Get<String>(0);
-		set => Bind.Set(0, value);
+		get => Binding.Get(this).Open<String>(nameof(Title));
+		set => Binding.Get(this).Place(nameof(Title), value);
 	}
+	[Binding]
 	public String Text
 	{
-		get => Bind.Get<String>(1);
-		set => Bind.Set(1, value);
+		get => Binding.Get(this).Open<String>(nameof(Text));
+		set => Binding.Get(this).Place(nameof(Text), value);
 	}
+	[Binding]
 	public Int32 Size
 	{
-		get => Bind.Get<Int32>(2);
-		set => Bind.Set(2, value);
+		get => Binding.Get(this).Open<Int32>(nameof(Size));
+		set => Binding.Get(this).Place(nameof(Size), value);
 	}
+	[Binding]
 	public Boolean Selected
 	{
-		get => Bind.Get<Boolean>(3);
-		set => Bind.Set(3, value);
+		get => Binding.Get(this).Open<Boolean>(nameof(Selected));
+		set => Binding.Get(this).Place(nameof(Selected), value);
 	}
 
 }

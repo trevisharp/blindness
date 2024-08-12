@@ -28,15 +28,32 @@ public abstract class Node
     {
         var node = DependencySystem.Shared.Get(type,
             depFunction, [ filter ]
-        );
+        ) as Node;
+        node?.Load();
 
-        return node as Node;
+        return node;
     }
+
+    Binding internalBind = new();
 
     public static Node Replace(Type type, Node oldNode)
     {
         throw new NotImplementedException();
     }
 
-    Binding Bind;
+    public virtual void Run() { }
+    public virtual void Load() { }
+
+    public void Bind(Expression<Func<bool>> binding)
+        => Binding.Bind(binding);
+
+    public void When(Func<bool> condition, Action action)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void On(Expression<Func<bool>> condition, Action<bool> action)
+    {
+        throw new NotImplementedException();
+    }
 }

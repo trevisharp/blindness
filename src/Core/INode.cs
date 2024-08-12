@@ -15,6 +15,11 @@ using Factory;
 public interface INode
 {
     /// <summary>
+    /// Load the node data.
+    /// </summary>
+    void Load();
+
+    /// <summary>
     /// Run the node.
     /// </summary>
     void Run();
@@ -23,7 +28,7 @@ public interface INode
     /// Bind properties.
     /// Function to easely call Blindness.Bind.Binding.Bind();
     /// </summary>
-    void Bind(Func<bool> binding);
+    void Bind(Expression<Func<bool>> binding);
 
     /// <summary>
     /// Add a action called every time that condition is true.

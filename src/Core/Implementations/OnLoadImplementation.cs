@@ -29,7 +29,7 @@ public class OnLoadImplementation : BaseTypeImplementation
         
         builder.AddCodeLine(
             $$"""
-            protected override void OnLoad()
+            public override void Load()
                 => (({{baseInterface.Name}})this).OnLoad();
             """
         );
