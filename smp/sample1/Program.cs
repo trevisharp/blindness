@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Blindness;
 using Blindness.Core;
 
-Verbose.VerboseLevel = int.MaxValue;
 App.Start<LoginScreen>();
 
 public interface LoginScreen : INode
@@ -30,7 +29,6 @@ public interface LoginScreen : INode
 
     void OnLoad()
     {
-        Panel.Title = "Register Page";
         Panel.Width = 60;
 
         Login.Title = "login";
@@ -50,6 +48,7 @@ public interface LoginScreen : INode
         Bind(() => Login.Selected == (selectedField == 0));
         Bind(() => Password.Selected == (selectedField == 1));
         Bind(() => Repeat.Selected == (selectedField == 2));
+        Bind(() => Panel.Title == (registerPage ? "Register Page" : "Login Page"));
 
         registerPage = true;
 
@@ -120,7 +119,6 @@ public interface LoginScreen : INode
 
         if (newChar.Key == ConsoleKey.Enter)
         {
-            Panel.Title = "Login Page";
             registerPage = false;
             selectedField = 0;
             return;

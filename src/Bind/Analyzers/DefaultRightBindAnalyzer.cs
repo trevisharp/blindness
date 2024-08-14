@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    08/08/2024
+ * Date:    14/08/2024
  */
 namespace Blindness.Bind.Analyzers;
 
@@ -13,6 +13,7 @@ public class DefaultRightBindAnalyzer : IBindAnalyzer
     public BindChain BuildChain() => 
         BindChain.New()
         .Add(new BinaryOperationBindChainLink())
+        .Add(new ConditionalBindChainLink())
         .Add(new ExpressionBindChainLink())
         .Add(new CallBindChainLink())
         .Add(new ConstantBindChainLink());

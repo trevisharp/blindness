@@ -39,6 +39,26 @@ public static class Box
         var boxObj = boxConstructor.Invoke([ member, instanciator, extraArgsBoxes ]);
         return boxObj;
     }
+    
+    /// <summary>
+    /// Create a ExpressionBox from a type.
+    /// </summary>
+    public static object CreateConditional(
+        Type type, 
+        Delegate condition, 
+        Delegate ifTrue,
+        Delegate ifFalse)
+    {
+        var boxType = typeof(ConditionalBox<>);
+        var genBoxType = boxType.MakeGenericType(type);
+        var boxConstructor = genBoxType.GetConstructor([
+            typeof(Func<bool>),
+            typeof(Func<>).MakeGenericType(type),
+            typeof(Func<>).MakeGenericType(type)
+        ]);
+        var boxObj = boxConstructor.Invoke([ condition, ifTrue, ifFalse ]);
+        return boxObj;
+    }
 
     /// <summary>
     /// Create a ConstantBox from a type.
