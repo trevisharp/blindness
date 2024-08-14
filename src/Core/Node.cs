@@ -37,11 +37,19 @@ public abstract class Node
     Binding internalBind = new();
     readonly List<OnEvent> ons = [];
     readonly List<WhenEvent> whens = [];
-    class OnEvent(Func<bool> trigger, Action<bool> action)
+    class OnEvent
     {
-        public Action<bool> action = action;
-        public Func<bool> trigger = trigger;
-        public bool last = trigger();
+        public OnEvent(Func<bool> trigger, Action<bool> action)
+        {
+            this.action = action;
+            this.trigger = trigger;
+            last = trigger();
+            action(last);
+        }
+
+        public Action<bool> action;
+        public Func<bool> trigger;
+        public bool last = false;
     }
     class WhenEvent(Func<bool> trigger, Action action)
     {
@@ -91,7 +99,7 @@ public abstract class Node
     {
         ArgumentNullException.ThrowIfNull(action, nameof(action));
         ArgumentNullException.ThrowIfNull(condition, nameof(condition));
-
+        
         ons.Add(new(condition, action));
     }
 }

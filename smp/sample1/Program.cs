@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 using Blindness;
 using Blindness.Core;
-using System.Threading;
 
 Verbose.VerboseLevel = int.MaxValue;
 App.Start<LoginScreen>();
@@ -78,7 +77,6 @@ public interface LoginScreen : INode
     {
         Console.Clear();
         Panel.Run();
-        Console.WriteLine(login);
 
         var newChar = Console.ReadKey(true);
         if (newChar.Key == ConsoleKey.Tab)
@@ -99,14 +97,14 @@ public interface LoginScreen : INode
                     login = login
                         .Substring(0, login.Length - 1);
                     break;
-                
+
                 case 1:
                     if (password.Length == 0)
                         break;
                     password = password
                         .Substring(0, password.Length - 1);
                     break;
-                
+
                 case 2:
                     if (repeat.Length == 0)
                         break;
@@ -119,17 +117,17 @@ public interface LoginScreen : INode
 
         if (newChar.Key == ConsoleKey.Enter)
             return;
-        
+
         switch (selectedField)
         {
             case 0:
                 login += newChar.KeyChar;
                 break;
-            
+
             case 1:
                 password += newChar.KeyChar;
                 break;
-            
+
             case 2:
                 repeat += newChar.KeyChar;
                 break;
@@ -155,7 +153,7 @@ public interface Panel : INode
 
         foreach (var child in Children)
             child.Run();
-        
+
         sb.Clear();
         sb.Append('─', Width);
         Console.WriteLine(sb);
@@ -190,7 +188,7 @@ public interface TextBox : INode
             sb.Append(text);
             sb.Append(' ', Size + 1 - text.Length);
             sb.AppendLine("║");
-        
+
             sb.Append("╚");
             sb.Append('═', Size + 2);
             sb.AppendLine("╝");
@@ -206,7 +204,7 @@ public interface TextBox : INode
             sb.Append(text);
             sb.Append(' ', Size + 1 - text.Length);
             sb.AppendLine("│");
-        
+
             sb.Append("└");
             sb.Append('─', Size + 2);
             sb.AppendLine("┘");
