@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/08/2024
+ * Date:    13/08/2024
  */
 using System;
 using System.Threading;
@@ -11,7 +11,7 @@ using Concurrency;
 /// <summary>
 /// The AsyncElement that loop a Node element.
 /// </summary>
-public class NodeRunner(IAsyncModel model, Func<INode> NodeGetter) : BaseAsyncElement(model)
+public class NodeRunner(IAsyncModel model, Func<Node> NodeGetter) : BaseAsyncElement(model)
 {
     bool running = false;
     bool paused = false;
@@ -32,6 +32,7 @@ public class NodeRunner(IAsyncModel model, Func<INode> NodeGetter) : BaseAsyncEl
                 return;
             
             currentNode.Run();
+            currentNode.EvaluateEvents();
         }
     }
 

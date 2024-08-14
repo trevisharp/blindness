@@ -80,7 +80,7 @@ public class DefaultAppBehaviour : AppBehaviour
             
             InitMain<T>(parameters);
 
-            var runner = new NodeRunner(Model, () => CurrentMainNode);
+            var runner = new NodeRunner(Model, () => CurrentMainNode as Node);
             Model.Run(runner);
 
             Model.Start();
