@@ -41,10 +41,7 @@ public class BinaryOperationBindChainLink : BindChainLink
                     Box.CreateOperation(
                         res1.MainBox, res2.MainBox,
                         opType.BuildBinaryFunction((a, b) => 
-                            Expression.Call(null, strType.GetMethod("Concat", [ strType, strType ]), a, b)),
-                        null,
-                        null
-                    ),
+                            Expression.Call(null, strType.GetMethod("Concat", [ strType, strType ]), a, b))),
 
                 _ => throw new NotImplementedException(
                     $"The operation {bin.NodeType} is not suported between strings in 'BinaryOperationBindChainLink' class."
@@ -86,6 +83,11 @@ public class BinaryOperationBindChainLink : BindChainLink
                     opType.BuildBinaryFunction(Expression.Multiply),
                     opType.BuildBinaryFunction((res, lef) => Expression.Divide(lef, res))
                 ),
+            
+            ExpressionType.Equal =>
+                Box.CreateOperation(
+                    res1.MainBox, res2.MainBox,
+                    opType.BuildBinaryFunction(Expression.Equal)),
 
             _ => throw new NotImplementedException(
                 $"The operation {bin.NodeType} is not suported by 'BinaryOperationBindChainLink' class."

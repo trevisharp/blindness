@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    08/08/2024
+ * Date:    14/08/2024
  */
 using System;
 using System.Linq;
@@ -58,19 +58,30 @@ public static class Box
     public static object CreateOperation(
         object leftBox, object rightBox,
         Delegate operation,
-        object computeLeft,
-        object computeRight)
+        object computeLeft = null,
+        object computeRight = null)
     {
-        var boxType = typeof(OperationBox<>);
-        var T = operation.Method.ReturnType;
-        var genBoxType = boxType.MakeGenericType(T);
+        var boxType = typeof(OperationBox<,,>);
+        var parameters = operation.Method.GetParameters();
+
+        var T1 = parameters[0].ParameterType;
+        var T2 = parameters[1].ParameterType;
+        var R = operation.Method.ReturnType;
+
+        // If T1 or T2 is a internal generate function the type has Closure
+        // Use T1 has T2 possibilities some operations like MyProp == 3.
+        if (T1.Name == "Closure") T1 = T2;
+        if (T2.Name == "Closure") T2 = T1;
+        
+        var genBoxType = boxType.MakeGenericType(T1, T2, R);
         var boxConstructor = genBoxType.GetConstructor([ 
-            typeof(IBox<,>).MakeGenericType(T, T),
-            typeof(IBox<,>).MakeGenericType(T, T),
-            typeof(Func<,,>).MakeGenericType(T, T, T),
-            typeof(Func<,,>).MakeGenericType(T, T, T),
-            typeof(Func<,,>).MakeGenericType(T, T, T)
+            typeof(IBox<,>).MakeGenericType(T1, T1),
+            typeof(IBox<,>).MakeGenericType(T2, T2),
+            typeof(Func<,,>).MakeGenericType(T1, T2, R),
+            typeof(Func<,,>).MakeGenericType(T1, T2, R),
+            typeof(Func<,,>).MakeGenericType(T1, T2, R)
         ]);
+
         var boxObj = boxConstructor.Invoke([ 
             leftBox, rightBox, operation, 
             computeLeft, computeRight

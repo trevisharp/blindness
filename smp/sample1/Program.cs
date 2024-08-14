@@ -34,7 +34,7 @@ public interface LoginScreen : INode
         Panel.Width = 60;
 
         Login.Title = "login";
-        Login.Size = 120;
+        Login.Size = 40;
 
         Password.Title = "password";
         Password.Text = "";
@@ -46,23 +46,21 @@ public interface LoginScreen : INode
         Bind(() => login == Login.Text);
         Bind(() => password == Password.Text);
         Bind(() => repeat == Repeat.Text);
-        Bind(() => children == Login);
-        Bind(() => children == Password);
-        Bind(() => children == Repeat);
+        Bind(() => children == Panel.Children);
+        Bind(() => Login.Selected == (selectedField == 0));
+        Bind(() => Password.Selected == (selectedField == 1));
+        Bind(() => Repeat.Selected == (selectedField == 2));
 
-        On(
-            () => selectedField == 0,
-            r => Login.Selected = r
+        registerPage = true;
+
+        When(
+            () => registerPage,
+            () => children = [ Login, Password, Repeat ]
         );
 
-        On(
-            () => selectedField == 1,
-            r => Password.Selected = r
-        );
-
-        On(
-            () => selectedField == 2,
-            r => Repeat.Selected = r
+        When(
+            () => !registerPage,
+            () => children = [ Login, Password ]
         );
 
         On(
@@ -123,7 +121,7 @@ public interface LoginScreen : INode
         if (newChar.Key == ConsoleKey.Enter)
         {
             Panel.Title = "Login Page";
-            Panel.Children = [ Login, Password ];
+            registerPage = false;
             selectedField = 0;
             return;
         }

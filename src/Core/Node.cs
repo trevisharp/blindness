@@ -125,10 +125,17 @@ public abstract class Node
         public Func<bool> trigger;
         public bool last = false;
     }
-    class WhenEvent(Func<bool> trigger, Action action)
+    class WhenEvent
     {
-        public Action action = action;
-        public Func<bool> trigger = trigger;
+        public WhenEvent(Func<bool> trigger, Action action)
+        {
+            this.action = action;
+            this.trigger = trigger;
+            if (trigger())
+                action();
+        }
+        public Action action;
+        public Func<bool> trigger;
     }
 
     public virtual void Run() { }
