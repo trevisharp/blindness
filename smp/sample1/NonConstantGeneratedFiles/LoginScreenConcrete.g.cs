@@ -77,10 +77,22 @@ public partial class LoginScreenConcrete : Node, LoginScreen
 		set => Binding.Get(this).Place(nameof(repeat), value);
 	}
 	[Binding]
+	public Boolean registerPage
+	{
+		get => Binding.Get(this).Open<Boolean>(nameof(registerPage));
+		set => Binding.Get(this).Place(nameof(registerPage), value);
+	}
+	[Binding]
 	public Int32 selectedField
 	{
 		get => Binding.Get(this).Open<Int32>(nameof(selectedField));
 		set => Binding.Get(this).Place(nameof(selectedField), value);
+	}
+	[Binding]
+	public List<INode> children
+	{
+		get => Binding.Get(this).Open<List<INode>>(nameof(children));
+		set => Binding.Get(this).Place(nameof(children), value);
 	}
 
 }

@@ -3,7 +3,6 @@
  */
 using System;
 using System.Linq;
-using System.Threading;
 using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections.Generic;
@@ -12,9 +11,9 @@ namespace Blindness.Core;
 
 using Bind;
 using Injection;
-using Concurrency;
 
 using Core.Injections;
+using Blindness.Exceptions;
 
 /// <summary>
 /// A base class for all concrete nodes.
@@ -24,6 +23,10 @@ public abstract class Node
 {
     readonly static DepFunction depFunction = new DepsDepFunction();
     readonly static BaseTypeFilter filter = new ConcreteFilter();
+
+    /// <summary>
+    /// Uses depedency injection to create a new node.
+    /// </summary>
     public static Node New(Type type)
     {
         var obj = DependencySystem.Shared.Get(type,
@@ -35,6 +38,10 @@ public abstract class Node
         return node;
     }
 
+    /// <summary>
+    /// Recreate the Node based on a new assembly and a oldNode.
+    /// Recreate all subnodes and apply CopyNonValues function between the old and new nodes.
+    /// </summary>
     public static Node Recreate(Assembly assembly, Node oldNode)
     {
         ArgumentNullException.ThrowIfNull(oldNode, nameof(oldNode));
@@ -56,8 +63,17 @@ public abstract class Node
         return newNode;
     }
 
+    /// <summary>
+    /// Copy all non Node properties from source to target based on name and type.
+    /// If a source has a inner Node property A and target has a inner Node Property B,
+    /// CopyNonNodeValues(A, B) is automatically applied.
+    /// Ignore copies when the property is a readonly binding binding.
+    /// </summary>
     public static void CopyNonNodeValues(Node source, Node target)
     {
+        if (source is null || target is null)
+            return;
+
         var targetType = target.GetType();
         foreach (var prop in source.GetType().GetProperties())
         {
@@ -68,11 +84,27 @@ public abstract class Node
             if (prop.PropertyType != targetProp.PropertyType)
                 continue;
             
-            if (prop.PropertyType.Implements(typeof(INode)))
+            if (!prop.PropertyType.Implements(typeof(INode)))
+            {
+                var value = prop.GetValue(source);
+                TrySet(value, targetProp);
                 continue;
+            }
             
-            var value = prop.GetValue(source);
-            targetProp.SetData(target, value);
+            var srcNode = prop.GetValue(source) as Node;
+            var tgtNode = prop.GetValue(target) as Node;
+            CopyNonNodeValues(srcNode, tgtNode);
+        }
+
+        void TrySet(object value, PropertyInfo targetProp)
+        {
+            // Try set a property that can contains a ReadonlyBox
+            try { targetProp.SetData(target, value); }
+            // Ignore readonly boxes copies
+            catch (ReadonlyBoxException) { }
+            catch (Exception ex) when (ex.InnerException is ReadonlyBoxException) { }
+            // Keep other exceptions
+            catch { throw; }
         }
     }
 

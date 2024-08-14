@@ -17,7 +17,9 @@ public interface LoginScreen : INode
     string login { get; set; }
     string password { get; set; }
     string repeat { get; set; }
+    bool registerPage { get; set; }
     int selectedField { get; set; }
+    List<INode> children { get; set; }
 
     void Deps(
         Panel Panel, 
@@ -28,12 +30,11 @@ public interface LoginScreen : INode
 
     void OnLoad()
     {
-        Panel.Title = "Login Page";
+        Panel.Title = "Register Page";
         Panel.Width = 60;
-        Panel.Children = [ Login, Password, Repeat ];
 
         Login.Title = "login";
-        Login.Size = 40;
+        Login.Size = 120;
 
         Password.Title = "password";
         Password.Text = "";
@@ -45,7 +46,9 @@ public interface LoginScreen : INode
         Bind(() => login == Login.Text);
         Bind(() => password == Password.Text);
         Bind(() => repeat == Repeat.Text);
-        
+        Bind(() => children == Login);
+        Bind(() => children == Password);
+        Bind(() => children == Repeat);
 
         On(
             () => selectedField == 0,
@@ -64,6 +67,7 @@ public interface LoginScreen : INode
 
         On(
             () => 
+                !registerPage ||
                 password.Length > 5  &&
                 password.Length < 50 &&
                 password == repeat,
@@ -82,9 +86,12 @@ public interface LoginScreen : INode
         var newChar = Console.ReadKey(true);
         if (newChar.Key == ConsoleKey.Tab)
         {
-            selectedField =
-                selectedField == 2 ? 0 :
-                selectedField + 1;
+            selectedField = (selectedField, registerPage) switch
+            {
+                (2, true) => 0,
+                (1, false) => 0,
+                (var n, _) => n + 1
+            };
             return;
         }
 
@@ -114,7 +121,12 @@ public interface LoginScreen : INode
         }
 
         if (newChar.Key == ConsoleKey.Enter)
+        {
+            Panel.Title = "Login Page";
+            Panel.Children = [ Login, Password ];
+            selectedField = 0;
             return;
+        }
 
         switch (selectedField)
         {

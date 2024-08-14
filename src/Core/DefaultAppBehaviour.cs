@@ -54,7 +54,6 @@ public class DefaultAppBehaviour : AppBehaviour
                     if (!args.Success)
                         return;
                     
-                    // TODO: Test and improve
                     DependencySystem.Shared.UpdateAssembly(args.NewAssembly);
                     foreach (var app in apps)
                     {
