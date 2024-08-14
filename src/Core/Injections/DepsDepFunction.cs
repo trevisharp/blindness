@@ -25,19 +25,10 @@ public class DepsDepFunction : DepFunction
         {
             var obj = constructor.Invoke([]);
 
+            TryInvokeDeps(obj, type, depSys, args);
+
             if (obj is Node node)
                 node.Load();
-
-            var deps = type.GetMethod("Deps");
-            if (deps is null)
-                return obj;
-            
-            var data = 
-                from parameter in deps.GetParameters()
-                select parameter.ParameterType into paramType
-                select depSys.Get(paramType, args);
-            
-            deps.Invoke(obj, [ ..data ]);
 
             return obj;
         }
@@ -45,5 +36,19 @@ public class DepsDepFunction : DepFunction
         {
             throw new ActivatorException(ex, type);
         }
+    }
+
+    static void TryInvokeDeps(object obj, Type type, DependencySystem depSys, InjectionArgs args)
+    {
+        var deps = type.GetMethod("Deps");
+        if (deps is null)
+            return;
+        
+        var data = 
+            from parameter in deps.GetParameters()
+            select parameter.ParameterType into paramType
+            select depSys.Get(paramType, args);
+        
+        deps.Invoke(obj, [ ..data ]);
     }
 }
