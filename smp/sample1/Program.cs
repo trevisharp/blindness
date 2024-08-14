@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 using Blindness;
 using Blindness.Core;
+using System.Threading;
 
 Verbose.VerboseLevel = int.MaxValue;
 App.Start<LoginScreen>();
@@ -28,7 +29,7 @@ public interface LoginScreen : INode
 
     void OnLoad()
     {
-        Panel.Title = "Login Page!!";
+        Panel.Title = "Login Page";
         Panel.Width = 60;
         Panel.Children = [ Login, Password, Repeat ];
 
@@ -36,12 +37,13 @@ public interface LoginScreen : INode
         Login.Size = 40;
 
         Password.Title = "password";
+        Password.Text = "";
         Password.Size = 40;
 
         Repeat.Title = "repeat password";
         Repeat.Size = 40;
 
-        Bind(() => login == Login.Text);
+        Bind(() => login == string.Concat(Login.Text, "oi"));
         Bind(() => password == Password.Text);
         Bind(() => repeat == Repeat.Text);
 
@@ -76,6 +78,7 @@ public interface LoginScreen : INode
     {
         Console.Clear();
         Panel.Run();
+        Console.WriteLine(login);
 
         var newChar = Console.ReadKey(true);
         if (newChar.Key == ConsoleKey.Tab)
@@ -170,6 +173,7 @@ public interface TextBox : INode
     {
         StringBuilder sb = new StringBuilder();
         int size = 8 * Size / 10;
+        Text ??= "";
         var text = Text.Length < size ? Text : 
             Text.Substring(
             Text.Length - size, size

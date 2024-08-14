@@ -42,7 +42,7 @@ public interface INode
     /// Add a action called every time that condition change.
     /// </summary>
     void On(
-        Expression<Func<bool>> condition,
+        Func<bool> condition,
         Action<bool> action
     );
 }

@@ -83,7 +83,14 @@ public class DefaultAppBehaviour : AppBehaviour
             var runner = new NodeRunner(Model, () => CurrentMainNode as Node);
             Model.Run(runner);
 
+            Model.OnError += (el, ex) =>
+            {
+                Verbose.Error($"Error on {el} element.");
+                ShowError(ex);
+            };
+
             Model.Start();
+
         }
         catch (Exception ex)
         {
