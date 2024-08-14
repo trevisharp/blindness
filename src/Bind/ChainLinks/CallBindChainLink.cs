@@ -23,7 +23,8 @@ public class CallBindChainLink : BindChainLink
         if (body is not MethodCallExpression call)
             return BindingResult.Unsuccesfull;
         
-        var instanciator = Expression.Lambda(call.Object).Compile();
+        var instanciator = call.Object is null ? null 
+            : Expression.Lambda(call.Object).Compile();
         var member = call.Method;
         var arguments =
             from arg in call.Arguments

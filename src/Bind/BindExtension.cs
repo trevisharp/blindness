@@ -40,13 +40,24 @@ public static class BindExtension
         
         if (member is not MethodInfo method)
             return false;
-
+        
+        if (method.Name is not [ 'g' or 'G', 'e', 't', ..])
+            return false;
+        
         var setVersionName = method.Name
             .Replace("get", "set")
             .Replace("Get", "Set");
-        var setVersion = member.DeclaringType
+        
+        try
+        {
+            var setVersion = member.DeclaringType
             .GetMethod(setVersionName);
-        return setVersion is not null;
+            return setVersion is not null;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>

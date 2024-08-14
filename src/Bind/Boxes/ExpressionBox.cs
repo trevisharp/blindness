@@ -18,16 +18,9 @@ public class ExpressionBox<T>(MemberInfo member, Delegate instanciator, object[]
 
     public T Open()
     {
-        try
-        {
-            var instance = instanciator.DynamicInvoke();
-            object[] args = extraArgsBoxes?.Select(Box.Open)?.ToArray();
-            return (T)member.GetData(instance, args);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("An error was thrown on open box operation.", ex);
-        }
+        var instance = instanciator?.DynamicInvoke();
+        object[] args = extraArgsBoxes?.Select(Box.Open)?.ToArray();
+        return (T)member.GetData(instance, args);
     }
 
     public void Place(T newValue)
@@ -35,7 +28,7 @@ public class ExpressionBox<T>(MemberInfo member, Delegate instanciator, object[]
         if (!member.IsSettable())
             throw new ReadonlyBoxException();
         
-        var instance = instanciator.DynamicInvoke();
+        var instance = instanciator?.DynamicInvoke();
         object[] args = extraArgsBoxes?.Select(Box.Open)?.ToArray();
         member.SetData(instance, newValue, args);
     }
