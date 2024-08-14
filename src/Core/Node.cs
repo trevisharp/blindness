@@ -29,7 +29,6 @@ public abstract class Node
         var node = DependencySystem.Shared.Get(type,
             depFunction, [ filter ]
         ) as Node;
-        node?.Load();
 
         return node;
     }

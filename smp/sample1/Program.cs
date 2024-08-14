@@ -28,7 +28,7 @@ public interface LoginScreen : INode
 
     void OnLoad()
     {
-        Panel.Title = "Login Page";
+        Panel.Title = "Login Page!";
         Panel.Width = 60;
         Panel.Children = [ Login, Password, Repeat ];
 

@@ -9,6 +9,9 @@ namespace Blindness.Core.Injections;
 using Injection;
 using Exceptions;
 
+/// <summary>
+/// Init objects using Deps functions and Call Load if the object is a Node type.
+/// </summary>
 public class DepsDepFunction : DepFunction
 {
     public override object Call(Type type, DependencySystem depSys, InjectionArgs args)
@@ -21,6 +24,9 @@ public class DepsDepFunction : DepFunction
         try
         {
             var obj = constructor.Invoke([]);
+
+            if (obj is Node node)
+                node.Load();
 
             var deps = type.GetMethod("Deps");
             if (deps is null)
