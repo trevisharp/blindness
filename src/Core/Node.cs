@@ -29,6 +29,9 @@ public abstract class Node
     /// </summary>
     public static Node New(Type type)
     {
+        type = DependencySystem
+            .Shared.GetCompatibilityType(type);
+        
         var obj = DependencySystem.Shared.Get(type,
             depFunction, [ filter ]
         );

@@ -60,6 +60,7 @@ public class AssemblyCompiler
             .GetReferencedAssemblies()
             .Select(Assembly.Load)
             .Append(assembly)
+            .Append(Assembly.Load("System.Linq.Expressions"))
             .Append(Assembly.Load("System.Private.CoreLib"))
             .Concat(extraRefs);
         

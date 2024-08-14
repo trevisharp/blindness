@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/08/2024
+ * Date:    14/08/2024
  */
 using System;
 using System.Threading;
@@ -12,8 +12,17 @@ using Concurrency;
 /// <summary>
 /// The Hot Reload System Async Element.
 /// </summary>
-public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
+public class HotReload : BaseAsyncElement
 {
+    public HotReload(IAsyncModel model) : base(model)
+    {
+        reloader.OnReload += assembly =>
+        {
+            SendSignal(new AssemblySignalArgs(assembly, true));
+            reloader.Watcher.Reset();
+        };
+    }
+
     readonly Reloader reloader = Reloader.GetDefault();
     bool running = false;
     bool paused = false;
@@ -23,12 +32,6 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
 
     public override void Run()
     {
-        reloader.OnReload += assembly =>
-        {
-            SendSignal(new AssemblySignalArgs(assembly, true));
-            reloader.Watcher.Reset();
-        };
-        
         running = true;
         while (running)
         {
@@ -38,6 +41,9 @@ public class HotReload(IAsyncModel model) : BaseAsyncElement(model)
             reloader.TryReload();
         }
     }
+
+    public void Force()
+        => reloader.Reload();
 
     public void AddAction(Action action)
         => reloader.Actions.Add(action);

@@ -29,7 +29,8 @@ public class DefaultAppBehaviour : AppBehaviour
     readonly Dictionary<string, Stack<IBox<INode>>> apps = [];
     Stack<IBox<INode>> currentStack;
 
-    public override INode CurrentMainNode => currentStack?.Peek()?.Open();
+    public override INode CurrentMainNode => 
+        currentStack.Count == 0 ? null : currentStack?.Peek()?.Open();
 
     public override void Run<T>(params object[] parameters)
     {
@@ -40,12 +41,15 @@ public class DefaultAppBehaviour : AppBehaviour
                 new DefaultRightBindAnalyzer(),
                 new DefaultBindBehavior()
             );
+            
+            InitMain();
 
+            HotReload hotReload = null;
             if (App.Debug)
             {
-                var hotReload = new HotReload(Model);
+                hotReload = new(Model);
                 Model.Run(hotReload);
-
+                
                 hotReload.OnSignal += (el, sa) =>
                 {
                     if (sa is not AssemblySignalArgs args)
@@ -54,30 +58,13 @@ public class DefaultAppBehaviour : AppBehaviour
                     if (!args.Success)
                         return;
                     
-                    DependencySystem.Shared.UpdateAssembly(args.NewAssembly);
-                    foreach (var app in apps)
-                    {
-                        var stack = app.Value;
-                        foreach (var box in stack)
-                        {
-                            var oldNode = box.Open();
-                            var newNode = Node.Recreate(args.NewAssembly, oldNode as Node);
-                            box.Place(newNode as INode);
-                        }
-                    }
+                    hotreload(args);
                 };
 
-                void implement()
-                {
-                    Verbose.Info("Implementing Concrete Nodes...");
-                    Implementer.Implement();
-                }
-
                 hotReload.AddAction(implement);
-                implement();
             }
-            
-            InitMain<T>(parameters);
+
+            firstOpen(hotReload);
 
             var runner = new NodeRunner(Model, () => CurrentMainNode as Node);
             Model.Run(runner);
@@ -93,6 +80,44 @@ public class DefaultAppBehaviour : AppBehaviour
         catch (Exception ex)
         {
             ShowError(ex);
+        }
+
+        void hotreload(AssemblySignalArgs args)
+        {      
+            Verbose.Info("Applying Hot Reload...", 1);
+            DependencySystem.Shared.UpdateAssembly(args.NewAssembly);
+            
+            foreach (var app in apps)
+            {
+                var stack = app.Value;
+                foreach (var box in stack)
+                {
+                    var oldNode = box.Open();
+                    var newNode = Node.Recreate(args.NewAssembly, oldNode as Node);
+                    box.Place(newNode as INode);
+                }
+            }
+        }
+
+        void implement()
+        {
+            Verbose.Info("Implementing Concrete Nodes...", 1);
+            Implementer.Implement();
+        }
+
+        void firstOpen(HotReload hotReload)
+        {
+            try { Open<T>(); }
+            catch (Exception ex) when (App.Debug)
+            {
+                Verbose.Warning(ex.Message, 1);
+                hotReload.Force();
+                Open<T>();
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 
@@ -130,12 +155,10 @@ public class DefaultAppBehaviour : AppBehaviour
         currentStack?.Push(new ValueBox<INode>(node));
     }
 
-    void InitMain<T>(params object[] parameters)
-        where T : INode
+    void InitMain()
     {
         if (!apps.ContainsKey("main"))
             Create("main");
         MoveTo("main");
-        Open<T>(parameters);
     }
 }

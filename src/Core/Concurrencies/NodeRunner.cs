@@ -29,7 +29,11 @@ public class NodeRunner(IAsyncModel model, Func<Node> NodeGetter) : BaseAsyncEle
             
             var currentNode = NodeGetter();
             if (currentNode is null)
-                return;
+            {
+                Verbose.Warning("The running node is null; Waiting for creation or autoimplementation of node.", 1);
+                Thread.Sleep(1000);
+                continue;
+            }
             
             currentNode.Run();
             currentNode.EvaluateEvents();

@@ -24,8 +24,6 @@ public abstract class Implementer(Type baseType)
     /// </summary>
     public virtual void Implement()
     {
-        Verbose.Info("Generating Files...");
-
         var nonConstDir = Path.Combine(
             Environment.CurrentDirectory,
             "NonConstantGeneratedFiles"

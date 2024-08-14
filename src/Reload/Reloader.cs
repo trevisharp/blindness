@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/08/2024
+ * Date:    14/08/2024
  */
 using System;
 using System.Reflection;
@@ -56,6 +56,28 @@ public abstract class Reloader
         if (newAssembly is null)
             return;
         
-        OnReload(newAssembly);
+        if (OnReload is not null)
+            OnReload(newAssembly);
+    }
+
+    /// <summary>
+    /// Force Reload wihtout verification.
+    /// </summary>
+    public void Reload()
+    {
+        foreach (var action in Actions)
+        {
+            if (action is null)
+                continue;
+            
+            action();
+        }
+        
+        var newAssembly = Compiler.Get();
+        if (newAssembly is null)
+            return;
+        
+        if (OnReload is not null)
+            OnReload(newAssembly);
     }
 }

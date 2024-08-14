@@ -55,8 +55,7 @@ public class DefaultModel : IAsyncModel
 
     public void Run(IAsyncElement node)
     {
-        if (node is null)
-            throw new ArgumentNullException(nameof(node));
+        ArgumentNullException.ThrowIfNull(node, nameof(node));
         
         var pressureLimit = HighPressureLimit * Environment.ProcessorCount;
         var highPressure = activeCount > pressureLimit;

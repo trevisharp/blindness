@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    13/08/2024
+ * Date:    14/08/2024
  */
 using System;
 using System.Linq;
@@ -32,6 +32,23 @@ public class DependencySystem
     readonly Dictionary<Type, Type> typeCache = [];
 
     /// <summary>
+    /// Find a type on the list of assemblies that has a type with
+    /// same name and namespaces that given type.
+    /// </summary>
+    public Type GetCompatibilityType(Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type, nameof(type));
+        if (assemblies.Contains(type.Assembly))
+            return type;
+        
+        var compatibilityType = assemblies
+            .SelectMany(a => a.GetTypes())
+            .FirstOrDefault(t => t.FullName == type.FullName);
+        
+        return compatibilityType;
+    }
+
+    /// <summary>
     /// Add a assembly to search types.
     /// </summary>
     public void AddAssembly(Assembly assembly)
@@ -47,28 +64,30 @@ public class DependencySystem
     public void RemoveAssembly(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+
+        if (assemblies.Count < 2)
+            return;
+
         assemblies.Remove(assembly);
         typeCache.Clear();
     }
     
     /// <summary>
-    /// Update or Add a Assembly by another with same name.
+    /// Update the main assembly from the assembly list.
     /// </summary>
     public void UpdateAssembly(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
-
-        var removedName = assembly.GetName().Name;
-        assemblies.RemoveAll(a => a.GetName().Name == removedName);
-
-        assemblies.Add(assembly);
+        if (assemblies.Count == 0)
+            assemblies.Add(assembly);
+        else assemblies[0] = assembly;
         typeCache.Clear();
     }
 
     /// <summary>
     /// Get all types in the assembly that implements a baseType.
     /// </summary>
-    public IEnumerable<Type> GetAllTypes(Type baseType)
+    public IEnumerable<Type> GetAllTypesByBaseType(Type baseType)
     {
         ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
 
@@ -80,8 +99,8 @@ public class DependencySystem
     /// <summary>
     /// Get all types that implements a baseType.
     /// </summary>
-    public IEnumerable<Type> GetAllTypes<T>()
-        => GetAllTypes(typeof(T));
+    public IEnumerable<Type> GetAllTypesByBaseType<T>()
+        => GetAllTypesByBaseType(typeof(T));
     
     /// <summary>
     /// Instanciate a type based on injection arguments.
@@ -173,7 +192,7 @@ public class DependencySystem
         if (typeCache.TryGetValue(dep, out Type type))
             return type;
 
-        var types = GetAllTypes(dep)
+        var types = GetAllTypesByBaseType(dep)
             .Where(t => !t.IsAbstract)
             .Where(t => !t.IsInterface)
             .Where(args.Filters.Filter)
