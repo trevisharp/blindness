@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/08/2024
+ * Date:    14/08/2024
  */
 using System;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ public class DefaultAppBehaviour : AppBehaviour
                         foreach (var box in stack)
                         {
                             var oldNode = box.Open();
-                            var newNode = Node.Replace(oldNode.GetType(), oldNode as Node);
+                            var newNode = Node.Recreate(args.NewAssembly, oldNode as Node);
                             box.Place(newNode as INode);
                         }
                     }
@@ -90,7 +90,6 @@ public class DefaultAppBehaviour : AppBehaviour
             };
 
             Model.Start();
-
         }
         catch (Exception ex)
         {

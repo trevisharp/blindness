@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    13/08/2024
+ * Date:    14/08/2024
  */
 using System;
 using System.Linq;
@@ -26,11 +26,54 @@ public abstract class Node
     readonly static BaseTypeFilter filter = new ConcreteFilter();
     public static Node New(Type type)
     {
-        var node = DependencySystem.Shared.Get(type,
+        var obj = DependencySystem.Shared.Get(type,
             depFunction, [ filter ]
-        ) as Node;
+        );
 
+        if (obj is not Node node)
+            throw new InvalidOperationException($"The {type} not inherits from Node type.");
         return node;
+    }
+
+    public static Node Recreate(Assembly assembly, Node oldNode)
+    {
+        ArgumentNullException.ThrowIfNull(oldNode, nameof(oldNode));
+        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+
+        var oldType = oldNode.GetType();
+        var okTypes = 
+            from t in assembly.GetTypes()
+            where t.Name == oldType.Name
+            select t;
+        
+        if (okTypes.Count() != 1)
+            throw new Exception("1");
+        
+        var newType = okTypes.First();
+        var newNode = New(newType);
+        CopyNonNodeValues(oldNode, newNode);
+        
+        return newNode;
+    }
+
+    public static void CopyNonNodeValues(Node source, Node target)
+    {
+        var targetType = target.GetType();
+        foreach (var prop in source.GetType().GetProperties())
+        {
+            var targetProp = targetType.GetProperty(prop.Name);
+            if (targetProp is null)
+                continue;
+            
+            if (prop.PropertyType != targetProp.PropertyType)
+                continue;
+            
+            if (prop.PropertyType.Implements(typeof(INode)))
+                continue;
+            
+            var value = prop.GetValue(source);
+            targetProp.SetData(target, value);
+        }
     }
 
     Binding internalBind = new();
@@ -56,11 +99,6 @@ public abstract class Node
         public Func<bool> trigger = trigger;
     }
 
-    public static Node Replace(Type type, Node oldNode)
-    {
-        throw new NotImplementedException();
-    }
-
     public virtual void Run() { }
     public virtual void Load() { }
 
@@ -83,22 +121,31 @@ public abstract class Node
         }
     }
 
+    /// <summary>
+    /// Bind two expressions with Bind(myField == expression).
+    /// </summary>
     public void Bind(Expression<Func<bool>> binding)
         => Binding.Bind(binding);
 
-    public void When(Func<bool> condition, Action action)
+    /// <summary>
+    /// Add a event that already call a action when the trigger is true.
+    /// </summary>
+    public void When(Func<bool> trigger, Action action)
     {
         ArgumentNullException.ThrowIfNull(action, nameof(action));
-        ArgumentNullException.ThrowIfNull(condition, nameof(condition));
+        ArgumentNullException.ThrowIfNull(trigger, nameof(trigger));
 
-        whens.Add(new(condition, action));
+        whens.Add(new(trigger, action));
     }
 
-    public void On(Func<bool> condition, Action<bool> action)
+    /// <summary>
+    /// Add a event that already call a action when the trigger values change.
+    /// </summary>
+    public void On(Func<bool> trigger, Action<bool> action)
     {
         ArgumentNullException.ThrowIfNull(action, nameof(action));
-        ArgumentNullException.ThrowIfNull(condition, nameof(condition));
+        ArgumentNullException.ThrowIfNull(trigger, nameof(trigger));
         
-        ons.Add(new(condition, action));
+        ons.Add(new(trigger, action));
     }
 }

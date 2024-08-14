@@ -28,7 +28,7 @@ public interface LoginScreen : INode
 
     void OnLoad()
     {
-        Panel.Title = "Login Page!";
+        Panel.Title = "Login Page";
         Panel.Width = 60;
         Panel.Children = [ Login, Password, Repeat ];
 
@@ -45,6 +45,7 @@ public interface LoginScreen : INode
         Bind(() => login == Login.Text);
         Bind(() => password == Password.Text);
         Bind(() => repeat == Repeat.Text);
+        
 
         On(
             () => selectedField == 0,
@@ -94,22 +95,19 @@ public interface LoginScreen : INode
                 case 0:
                     if (login.Length == 0)
                         break;
-                    login = login
-                        .Substring(0, login.Length - 1);
+                    login = login[..^1];
                     break;
 
                 case 1:
                     if (password.Length == 0)
                         break;
-                    password = password
-                        .Substring(0, password.Length - 1);
+                    password = password[..^1];
                     break;
 
                 case 2:
                     if (repeat.Length == 0)
                         break;
-                    repeat = repeat
-                        .Substring(0, repeat.Length - 1);
+                    repeat = repeat[..^1];
                     break;
             }
             return;
