@@ -31,6 +31,28 @@ public class BinaryOperationBindChainLink : BindChainLink
         
         var opType = Box.GetBoxType(res1.MainBox);
 
+        // Testing especial operations between strings
+        var strType = typeof(string);
+        if (Box.GetBoxType(res1.MainBox) == strType && Box.GetBoxType(res2.MainBox) == strType)
+        {
+            var stringBox = bin.NodeType switch
+            {
+                ExpressionType.Add =>
+                    Box.CreateOperation(
+                        res1.MainBox, res2.MainBox,
+                        opType.BuildBinaryFunction((a, b) => 
+                            Expression.Call(null, strType.GetMethod("Concat", [ strType, strType ]), a, b)),
+                        null,
+                        null
+                    ),
+
+                _ => throw new NotImplementedException(
+                    $"The operation {bin.NodeType} is not suported between strings in 'BinaryOperationBindChainLink' class."
+                )
+            };
+            return BindingResult.Successful(stringBox);
+        }
+
         var box = bin.NodeType switch
         {
             ExpressionType.Add =>

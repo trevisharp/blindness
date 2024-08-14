@@ -18,7 +18,7 @@ public static class BindExtension
 {
     public static Delegate BuildBinaryFunction(
         this Type operationType,
-        Func<Expression, Expression, BinaryExpression> operation)
+        Func<Expression, Expression, Expression> operation)
     {
         var leftParam = Expression.Parameter(operationType);
         var rightParam = Expression.Parameter(operationType);

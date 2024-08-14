@@ -43,7 +43,7 @@ public interface LoginScreen : INode
         Repeat.Title = "repeat password";
         Repeat.Size = 40;
 
-        Bind(() => login == Login.Text + "oi");
+        Bind(() => login == Login.Text);
         Bind(() => password == Password.Text);
         Bind(() => repeat == Repeat.Text);
 
