@@ -31,7 +31,7 @@ for ($i = 0; $i -lt $versionText.Length; $i++)
     }
 }
 
-dotnet pack -c Release
+dotnet pack src.sln -c Release
 $file = ".\bin\Release\Blindness." + $version + ".nupkg"
 cp $file Blindness.nupkg
 
