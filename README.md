@@ -1,6 +1,4 @@
-<p align="center">
-  <img width="70%" src="res/logo.svg">
-</p>
+# Blindness
 
 Blindness is a framework for you to build your frameworks without seeing the details.
 
