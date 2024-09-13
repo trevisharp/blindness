@@ -110,17 +110,21 @@ public interface LoginScreen : INode
 
         registerPage = true;
 
-        // ADd events
+        // add events
+
+	// run every loop when the condition is true
         When(
             () => registerPage,
             () => children = [ Login, Password, Repeat ]
         );
 
+	// run every loop when the condition is true
         When(
             () => !registerPage,
             () => children = [ Login, Password ]
         );
 
+	// run when condition changes
         On(
             () => 
                 !registerPage ||
