@@ -25,6 +25,11 @@ dotnet add package Blindness # Install Blindness
 ### Use Blindness.Core to use all framework resources...
 
 ```cs
+using System;
+using System.Threading;
+
+using Blindness.Core;
+
 App.Start<Example>();
 
 // Create interfaces that will be autoimplementend
