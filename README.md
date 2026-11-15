@@ -901,6 +901,24 @@ Some time the code start to display 'Message!!' on screen without reestart app.
 
 # Versions
 
+### Blindness v3.1.0
+
+ - ![](https://img.shields.io/badge/update-blue) Bind accepts any binary operator (comparisons, logical operators, user operators), unary operators and the implicit conversions inserted by the compiler.
+ - ![](https://img.shields.io/badge/update-blue) App.Debug is true only when the entry assembly is a Debug build.
+ - ![](https://img.shields.io/badge/update-blue) Hot reload compiles with the global usings, the preprocessor symbols and every framework assembly, and releases the previous assembly.
+ - ![](https://img.shields.io/badge/update-blue) Package now ships README, XML documentation and the build targets on build/ and buildTransitive/.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix the code generator for nodes inside a namespace, interface hierarchies with many levels and generic types.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix the code generator crashing when the project path has spaces, and remove generated files of deleted nodes.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix ValueBox crashing when a property receives null.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix BindingCache losing every binding when more than 32 objects were cached.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a failed injection producing a false CycleDependencyException on the next ones.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix the concrete type cache ignoring the type filters.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix DefaultModel never stopping when many elements run at the same time.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix hot reload using a whole CPU core while idle, and its file watcher losing the filters after the first reload.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix When and On events registered inside another event action.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix LoopAsyncElement staying paused forever when Resume came right after Pause.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Several smaller fixes: IsSettable names, ClassBuilder without base type, Verbose groups, error messages.
+
 ### Blindness v3.0.0
 
  - ![](https://img.shields.io/badge/update-blue) Refactor all API to be more consistent and improve legibility.

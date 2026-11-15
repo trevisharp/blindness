@@ -1,17 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>Blindness</PackageId>
-    <PackageVersion>3.0.0</PackageVersion>
+    <PackageVersion>3.1.0</PackageVersion>
     <Authors>Leonardo Trevisan Silio</Authors>
+    <Description>A framework to build frameworks: dependency injection, data binding, auto-implemented nodes, concurrency and hot reload.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>framework;binding;dependency-injection;hot-reload</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="transitiveTargets\*.*" PackagePath="transitiveTargets" Pack="true" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="transitiveTargets\Blindness.targets" Pack="true" PackagePath="build\;buildTransitive\" />
   </ItemGroup>
 
   <ItemGroup>
