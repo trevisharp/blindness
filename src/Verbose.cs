@@ -13,6 +13,7 @@ public static class Verbose
 {
     public static int VerboseLevel = 0;
     private static string tabInfo = null;
+    private static readonly object sync = new();
     private static void message(
         int level,
         object msg, 
@@ -23,15 +24,19 @@ public static class Verbose
         if (VerboseLevel < level)
             return;
         
-        if (inline) Write(" ");
-        else WriteLine();
+        lock (sync)
+        {
+            if (inline) Write(" ");
+            else WriteLine();
 
-        if (!inline)
-            Write(tabInfo);
-        
-        ForegroundColor = color;
-        Write(msg);
-        ForegroundColor = Color.Gray;
+            if (!inline)
+                Write(tabInfo);
+            
+            var original = ForegroundColor;
+            ForegroundColor = color;
+            Write(msg);
+            ForegroundColor = original;
+        }
     }
 
     /// <summary>
@@ -69,7 +74,7 @@ public static class Verbose
             return;
         }
 
-        tabInfo = tabInfo.Remove(0);
+        tabInfo = tabInfo[..^1];
     }
     
     /// <summary>

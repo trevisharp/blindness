@@ -12,6 +12,6 @@ public class MissingFieldException(string field, Type parentType) : Exception
 {
     public override string Message =>
         $"""
-        The type '{parentType}' does not have a field '{field}'.
+        The type '{parentType}' does not have a field '{@field}'.
         """;
 }

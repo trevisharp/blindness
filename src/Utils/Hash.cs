@@ -10,7 +10,7 @@ namespace Blindness.Utils;
 public static class HashExtensions
 {
     /// <summary>
-    /// Get Sha256 base64 encoded hash from a string.
+    /// Get SHA-512 base64 encoded hash from a string.
     /// </summary>
     public static string ToHash(this string text)
     {
