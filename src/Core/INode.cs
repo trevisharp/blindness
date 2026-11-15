@@ -25,15 +25,20 @@ public interface INode
     void Run();
 
     /// <summary>
+    /// Unload the node, releasing its events and bindings.
+    /// </summary>
+    void Unload();
+
+    /// <summary>
     /// Bind properties.
     /// Function to easely call Blindness.Bind.Binding.Bind();
     /// </summary>
-    void Bind(Expression<Func<bool>> binding);
+    IDisposable Bind(Expression<Func<bool>> binding);
 
     /// <summary>
     /// Add a action called every time that condition is true.
     /// </summary>
-    void When(
+    IDisposable When(
         Func<bool> condition,
         Action action
     );
@@ -41,7 +46,7 @@ public interface INode
     /// <summary>
     /// Add a action called every time that condition change.
     /// </summary>
-    void On(
+    IDisposable On(
         Func<bool> condition,
         Action<bool> action
     );

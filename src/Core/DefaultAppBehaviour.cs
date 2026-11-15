@@ -96,6 +96,7 @@ public class DefaultAppBehaviour : AppBehaviour
                     var oldNode = box.Open();
                     var newNode = Node.Recreate(args.NewAssembly, oldNode as Node);
                     box.Place(newNode as INode);
+                    oldNode?.Unload();
                 }
             }
         }
@@ -123,12 +124,18 @@ public class DefaultAppBehaviour : AppBehaviour
         ThrowIfHasParameters(parameters);
         var node = Node.New(typeof(T)) as INode;
         if (currentStack.Count > 0)
-            currentStack?.Pop();
+            currentStack?.Pop()?.Open()?.Unload();
         currentStack?.Push(new ValueBox<INode>(node));
     }
 
     public override void Clear()
-        => currentStack?.Clear();
+    {
+        if (currentStack is null)
+            return;
+
+        while (currentStack.Count > 0)
+            currentStack.Pop()?.Open()?.Unload();
+    }
 
     public override void Create(string app)
     {
@@ -146,7 +153,11 @@ public class DefaultAppBehaviour : AppBehaviour
     }
 
     public override INode Pop()
-        => currentStack?.Pop()?.Open();
+    {
+        var node = currentStack?.Pop()?.Open();
+        node?.Unload();
+        return node;
+    }
 
     public override void Push<T>(params object[] parameters)
     {

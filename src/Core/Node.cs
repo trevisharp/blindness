@@ -121,6 +121,8 @@ public abstract class Node
     Binding internalBind = new();
     readonly List<OnEvent> ons = [];
     readonly List<WhenEvent> whens = [];
+    readonly List<IDisposable> registrations = [];
+    bool hasDisposedEvents = false;
     readonly List<OnEvent> pendingOns = [];
     readonly object pendingSync = new();
 
@@ -128,7 +130,7 @@ public abstract class Node
     /// Represents a On event. It runs again only when a box read by the trigger
     /// changes, or on every evaluation when the trigger reads no box.
     /// </summary>
-    class OnEvent
+    class OnEvent : IDisposable
     {
         public OnEvent(Node node, Func<bool> trigger, Action<bool> action)
         {
@@ -145,11 +147,27 @@ public abstract class Node
         public Func<bool> trigger;
         public bool last = false;
         public bool pending = false;
+        public bool disposed = false;
 
         public bool IsPolling => dependencies.Count == 0;
 
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+
+            disposed = true;
+            foreach (var box in dependencies)
+                box.Changed -= MarkPending;
+            dependencies = [];
+            node.hasDisposedEvents = true;
+        }
+
         public void Run()
         {
+            if (disposed)
+                return;
+
             var result = Evaluate();
             if (result == last)
                 return;
@@ -182,21 +200,47 @@ public abstract class Node
         void MarkPending()
             => node.MarkPending(this);
     }
-    class WhenEvent
+    class WhenEvent : IDisposable
     {
-        public WhenEvent(Func<bool> trigger, Action action)
+        public WhenEvent(Node node, Func<bool> trigger, Action action)
         {
+            this.node = node;
             this.action = action;
             this.trigger = trigger;
             if (trigger())
                 action();
         }
+
+        readonly Node node;
         public Action action;
         public Func<bool> trigger;
+        public bool disposed = false;
+
+        public void Dispose()
+        {
+            disposed = true;
+            node.hasDisposedEvents = true;
+        }
     }
 
     public virtual void Run() { }
     public virtual void Load() { }
+
+    /// <summary>
+    /// Unload the node, releasing the events and bindings registered by it.
+    /// </summary>
+    public virtual void Unload()
+    {
+        IDisposable[] all;
+        lock (registrations)
+        {
+            all = [ ..registrations ];
+            registrations.Clear();
+        }
+
+        foreach (var registration in all)
+            registration.Dispose();
+    }
 
     public void EvaluateEvents()
     {
@@ -214,9 +258,16 @@ public abstract class Node
         for (int i = 0; i < whenCount; i++)
         {
             var when = whens[i];
-            if (when.trigger())
+            if (!when.disposed && when.trigger())
                 when.action();
         }
+
+        if (!hasDisposedEvents)
+            return;
+
+        hasDisposedEvents = false;
+        ons.RemoveAll(on => on.disposed);
+        whens.RemoveAll(when => when.disposed);
     }
 
     /// <summary>
@@ -253,7 +304,7 @@ public abstract class Node
         bool first;
         lock (pendingSync)
         {
-            if (on.pending)
+            if (on.pending || on.disposed)
                 return;
 
             on.pending = true;
@@ -268,29 +319,43 @@ public abstract class Node
     /// <summary>
     /// Bind two expressions with Bind(myField == expression).
     /// </summary>
-    public void Bind(Expression<Func<bool>> binding)
-        => Binding.Bind(binding);
+    public IDisposable Bind(Expression<Func<bool>> binding)
+        => Register(Binding.Bind(binding));
 
     /// <summary>
     /// Add a event that already call a action when the trigger is true.
     /// </summary>
-    public void When(Func<bool> trigger, Action action)
+    public IDisposable When(Func<bool> trigger, Action action)
     {
         ArgumentNullException.ThrowIfNull(action, nameof(action));
         ArgumentNullException.ThrowIfNull(trigger, nameof(trigger));
 
-        whens.Add(new(trigger, action));
+        var when = new WhenEvent(this, trigger, action);
+        whens.Add(when);
+        return Register(when);
     }
 
     /// <summary>
     /// Add a event that already call a action when the trigger values change.
     /// The trigger runs again only when a property it reads changes.
     /// </summary>
-    public void On(Func<bool> trigger, Action<bool> action)
+    public IDisposable On(Func<bool> trigger, Action<bool> action)
     {
         ArgumentNullException.ThrowIfNull(action, nameof(action));
         ArgumentNullException.ThrowIfNull(trigger, nameof(trigger));
 
-        ons.Add(new(this, trigger, action));
+        var on = new OnEvent(this, trigger, action);
+        ons.Add(on);
+        return Register(on);
+    }
+
+    /// <summary>
+    /// Keep a registration to be released when the node unloads.
+    /// </summary>
+    IDisposable Register(IDisposable registration)
+    {
+        lock (registrations)
+            registrations.Add(registration);
+        return registration;
     }
 }

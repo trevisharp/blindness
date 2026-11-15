@@ -19,6 +19,7 @@ public class DefaultImplementer : Implementer
             new DefaultUsingsImplementation(),
             new DepsImplementation(),
             new OnLoadImplementation(),
+            new OnUnloadImplementation(),
             new OnRunImplementation(),
             new DefaultPropertyImplementation()
         ];
