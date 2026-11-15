@@ -3,6 +3,7 @@
  */
 using System;
 using System.IO;
+using System.Threading;
 using System.Collections.Generic;
 
 namespace Blindness.Reload;
@@ -12,8 +13,8 @@ namespace Blindness.Reload;
 /// </summary>
 public class FileWatcher
 {
-    DateTime lastTimeUpdate;
-    List<string> filters = [];
+    long lastTimeUpdate = 0;
+    readonly List<string> filters = [];
     FileSystemWatcher watcher = null;
 
     /// <summary>
@@ -49,12 +50,13 @@ public class FileWatcher
     }
 
     /// <summary>
-    /// Reset all FileWatcher metadata.
+    /// Reset the FileWatcher state keeping the filters.
     /// </summary>
     public FileWatcher Reset()
     {
+        watcher?.Dispose();
         watcher = null;
-        filters = [];
+        Interlocked.Exchange(ref lastTimeUpdate, 0);
         return this;
     }
 
@@ -67,15 +69,15 @@ public class FileWatcher
     {
         InitWatcherIfNeeded();
 
-        if (lastTimeUpdate == DateTime.MinValue)
+        var last = Interlocked.Read(ref lastTimeUpdate);
+        if (last == 0)
             return false;
 
-        var timePassed = DateTime.Now - lastTimeUpdate;
+        var timePassed = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - last);
         if (timePassed < TimeFactor)
             return false;
         
-        lastTimeUpdate = DateTime.MinValue;
-        return true;
+        return Interlocked.CompareExchange(ref lastTimeUpdate, 0, last) == last;
     }
 
     protected virtual void InitWatcherIfNeeded()
@@ -95,12 +97,14 @@ public class FileWatcher
         foreach (var filter in filters)
             watcher.Filters.Add(filter);
 
-        lastTimeUpdate = DateTime.MinValue;
+        Interlocked.Exchange(ref lastTimeUpdate, 0);
         void onChange(object sender, FileSystemEventArgs e)
-            => lastTimeUpdate = DateTime.Now;
+            => Interlocked.Exchange(ref lastTimeUpdate, DateTime.UtcNow.Ticks);
 
         watcher.Created += onChange;
         watcher.Changed += onChange;
+        watcher.Renamed += onChange;
+        watcher.Deleted += onChange;
         watcher.EnableRaisingEvents = true;
     }
 }

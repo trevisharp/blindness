@@ -24,21 +24,31 @@ public class HotReload : BaseAsyncElement
     }
 
     readonly Reloader reloader = Reloader.GetDefault();
-    bool running = false;
-    bool paused = false;
+    readonly ManualResetEvent stopSignal = new(false);
+    volatile bool running = false;
+    volatile bool paused = false;
+
+    /// <summary>
+    /// The interval between two checks for file changes.
+    /// </summary>
+    public TimeSpan PollingInterval { get; set; } = TimeSpan.FromMilliseconds(100);
 
     public override void Stop()
-        => running = false;
+    {
+        running = false;
+        stopSignal.Set();
+    }
 
     public override void Run()
     {
         running = true;
+        stopSignal.Reset();
         while (running)
         {
-            while (paused)
-                Thread.Sleep(500);
+            if (!paused)
+                reloader.TryReload();
             
-            reloader.TryReload();
+            stopSignal.WaitOne(paused ? TimeSpan.FromMilliseconds(500) : PollingInterval);
         }
     }
 

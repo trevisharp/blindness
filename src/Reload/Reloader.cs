@@ -33,31 +33,13 @@ public abstract class Reloader
     /// </summary>
     public void TryReload()
     {
-        if (OnReload is null)
-            return;
-        if (Watcher is null)
-            return;
-        if (Compiler is null)
+        if (OnReload is null || Watcher is null || Compiler is null)
             return;
         
-        var verify = Watcher.Verify();
-        if (!verify)
+        if (!Watcher.Verify())
             return;
         
-        foreach (var action in Actions)
-        {
-            if (action is null)
-                continue;
-            
-            action();
-        }
-        
-        var newAssembly = Compiler.Get();
-        if (newAssembly is null)
-            return;
-        
-        if (OnReload is not null)
-            OnReload(newAssembly);
+        Reload();
     }
 
     /// <summary>
@@ -65,6 +47,9 @@ public abstract class Reloader
     /// </summary>
     public void Reload()
     {
+        if (Compiler is null)
+            return;
+
         foreach (var action in Actions)
         {
             if (action is null)
@@ -77,7 +62,6 @@ public abstract class Reloader
         if (newAssembly is null)
             return;
         
-        if (OnReload is not null)
-            OnReload(newAssembly);
+        OnReload?.Invoke(newAssembly);
     }
 }
