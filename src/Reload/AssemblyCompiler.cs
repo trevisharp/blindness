@@ -11,6 +11,8 @@ using System.Runtime.Loader;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
+using Blindness.Generators;
+
 namespace Blindness.Reload;
 
 /// <summary>
@@ -51,6 +53,7 @@ public class AssemblyCompiler
         var codeFiles =
             from file in files
             where !IsBuildOutput(directory, file)
+            where !IsLegacyGeneratedFile(directory, file)
             select file;
 
         foreach (var file in codeFiles.Distinct())
@@ -78,6 +81,14 @@ public class AssemblyCompiler
         return parts.Any(p => p.Equals("bin", StringComparison.OrdinalIgnoreCase)
             || p.Equals("obj", StringComparison.OrdinalIgnoreCase));
     }
+
+    /// <summary>
+    /// Returns true if the file was generated on runtime by versions before the source generator.
+    /// </summary>
+    protected static bool IsLegacyGeneratedFile(string directory, string file)
+        => Path.GetRelativePath(directory, file)
+            .Split([ Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ])
+            .Contains("NonConstantGeneratedFiles", StringComparer.OrdinalIgnoreCase);
 
     protected virtual IEnumerable<MetadataReference> GetReferences(
         IEnumerable<Assembly> extraRefs)
@@ -136,8 +147,12 @@ public class AssemblyCompiler
             options: compilationOptions
         );
 
+        CSharpGeneratorDriver
+            .Create(new ConcreteGenerator())
+            .RunGeneratorsAndUpdateCompilation(compilation, out var generatedCompilation, out _);
+
         using var ms = new MemoryStream();
-        var result = compilation.Emit(ms);
+        var result = generatedCompilation.Emit(ms);
 
         if (!result.Success)
         {

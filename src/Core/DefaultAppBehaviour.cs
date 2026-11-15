@@ -11,7 +11,6 @@ using Bind.Boxes;
 using Bind.Behaviors;
 using Bind.Analyzers;
 
-using Factory;
 using Injection;
 using Concurrency;
 
@@ -23,7 +22,6 @@ using Core.Concurrencies;
 /// </summary>
 public class DefaultAppBehaviour : AppBehaviour
 {
-    public Implementer Implementer { get; set; } = new DefaultImplementer();
     public IAsyncModel Model { get; set; } = new DefaultModel();
 
     readonly Dictionary<string, Stack<IBox<INode>>> apps = [];
@@ -61,11 +59,9 @@ public class DefaultAppBehaviour : AppBehaviour
                     
                     hotreload(args);
                 };
-
-                hotReload.AddAction(implement);
             }
 
-            firstOpen(hotReload);
+            Open<T>();
 
             var runner = new NodeRunner(Model, () => CurrentMainNode as Node);
             Model.Run(runner);
@@ -98,23 +94,6 @@ public class DefaultAppBehaviour : AppBehaviour
                     box.Place(newNode as INode);
                     oldNode?.Unload();
                 }
-            }
-        }
-
-        void implement()
-        {
-            Verbose.Info("Implementing Concrete Nodes...", 1);
-            Implementer.Implement();
-        }
-
-        void firstOpen(HotReload hotReload)
-        {
-            try { Open<T>(); }
-            catch (Exception ex) when (App.Debug && hotReload is not null)
-            {
-                Verbose.Warning(ex.Message, 1);
-                hotReload.Force();
-                Open<T>();
             }
         }
     }
