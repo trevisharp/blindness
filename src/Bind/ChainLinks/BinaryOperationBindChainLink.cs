@@ -9,7 +9,7 @@ namespace Blindness.Bind.ChainLinks;
 using Boxes;
 
 /// <summary>
-/// Represents a bind chain link for a + b expressions.
+/// Represents a bind chain link for binary expressions like a + b or a == b.
 /// </summary>
 public class BinaryOperationBindChainLink : BindChainLink
 {
@@ -18,81 +18,65 @@ public class BinaryOperationBindChainLink : BindChainLink
         var body = args.Body.RemoveTypeCast();
         if (body is not BinaryExpression bin)
             return BindingResult.Unsuccesfull;
-        
-        var subArgs1 = args with { Body = bin.Left };
-        var res1 = args.Chain.Handle(subArgs1);
+
+        var res1 = args.Chain.Handle(args with { Body = bin.Left });
         if (!res1.Success)
             return BindingResult.Unsuccesfull;
 
-        var subArgs2 = args with { Body = bin.Right };
-        var res2 = args.Chain.Handle(subArgs2);
+        var res2 = args.Chain.Handle(args with { Body = bin.Right });
         if (!res2.Success)
             return BindingResult.Unsuccesfull;
-        
-        var opType = Box.GetBoxType(res1.MainBox);
 
-        // Testing especial operations between strings
-        var strType = typeof(string);
-        if (Box.GetBoxType(res1.MainBox) == strType && Box.GetBoxType(res2.MainBox) == strType)
+        var leftType = Box.GetBoxType(res1.MainBox);
+        var rightType = Box.GetBoxType(res2.MainBox);
+
+        var operation = BindExtension.BuildBinaryFunction(leftType, rightType, (a, b) =>
+            Expression.MakeBinary(bin.NodeType, a, b, bin.IsLiftedToNull, bin.Method)
+        );
+
+        var reversible = bin.Method is null
+            && leftType == rightType
+            && bin.Type == leftType;
+        if (!reversible)
+            return BindingResult.Successful(
+                Box.CreateOperation(res1.MainBox, res2.MainBox, operation)
+            );
+
+        Func<Expression, Expression, Expression> computeLeft, computeRight;
+        switch (bin.NodeType)
         {
-            var stringBox = bin.NodeType switch
-            {
-                ExpressionType.Add =>
-                    Box.CreateOperation(
-                        res1.MainBox, res2.MainBox,
-                        opType.BuildBinaryFunction((a, b) => 
-                            Expression.Call(null, strType.GetMethod("Concat", [ strType, strType ]), a, b))),
+            case ExpressionType.Add:
+                computeLeft = Expression.Subtract;
+                computeRight = Expression.Subtract;
+                break;
 
-                _ => throw new NotImplementedException(
-                    $"The operation {bin.NodeType} is not suported between strings in 'BinaryOperationBindChainLink' class."
-                )
-            };
-            return BindingResult.Successful(stringBox);
+            case ExpressionType.Subtract:
+                computeLeft = Expression.Add;
+                computeRight = (res, left) => Expression.Subtract(left, res);
+                break;
+
+            case ExpressionType.Multiply:
+                computeLeft = Expression.Divide;
+                computeRight = Expression.Divide;
+                break;
+
+            case ExpressionType.Divide:
+                computeLeft = Expression.Multiply;
+                computeRight = (res, left) => Expression.Divide(left, res);
+                break;
+
+            default:
+                return BindingResult.Successful(
+                    Box.CreateOperation(res1.MainBox, res2.MainBox, operation)
+                );
         }
 
-        var box = bin.NodeType switch
-        {
-            ExpressionType.Add =>
-                Box.CreateOperation(
-                    res1.MainBox, res2.MainBox,
-                    opType.BuildBinaryFunction(Expression.Add),
-                    opType.BuildBinaryFunction(Expression.Subtract),
-                    opType.BuildBinaryFunction(Expression.Subtract)
-                ),
-                
-            ExpressionType.Subtract =>
-                Box.CreateOperation(
-                    res1.MainBox, res2.MainBox,
-                    opType.BuildBinaryFunction(Expression.Subtract),
-                    opType.BuildBinaryFunction(Expression.Add),
-                    opType.BuildBinaryFunction((res, lef) => Expression.Subtract(lef, res))
-                ),
-            
-            ExpressionType.Multiply =>
-                Box.CreateOperation(
-                    res1.MainBox, res2.MainBox,
-                    opType.BuildBinaryFunction(Expression.Multiply),
-                    opType.BuildBinaryFunction(Expression.Divide),
-                    opType.BuildBinaryFunction(Expression.Divide)
-                ),
-            
-            ExpressionType.Divide =>
-                Box.CreateOperation(
-                    res1.MainBox, res2.MainBox,
-                    opType.BuildBinaryFunction(Expression.Divide),
-                    opType.BuildBinaryFunction(Expression.Multiply),
-                    opType.BuildBinaryFunction((res, lef) => Expression.Divide(lef, res))
-                ),
-            
-            ExpressionType.Equal =>
-                Box.CreateOperation(
-                    res1.MainBox, res2.MainBox,
-                    opType.BuildBinaryFunction(Expression.Equal)),
-
-            _ => throw new NotImplementedException(
-                $"The operation {bin.NodeType} is not suported by 'BinaryOperationBindChainLink' class."
+        return BindingResult.Successful(
+            Box.CreateOperation(
+                res1.MainBox, res2.MainBox, operation,
+                leftType.BuildBinaryFunction(computeLeft),
+                leftType.BuildBinaryFunction(computeRight)
             )
-        };
-        return BindingResult.Successful(box);
+        );
     }
 }

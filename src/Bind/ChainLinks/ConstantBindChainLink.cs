@@ -23,7 +23,7 @@ public class ConstantBindChainLink : BindChainLink
             return BindingResult.Unsuccesfull;
 
         return BindingResult.Successful(
-            Box.CreateConstant(constant.Value)
+            Box.CreateConstant(constant.Value, constant.Type)
         );
     }
 }

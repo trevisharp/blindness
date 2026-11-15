@@ -65,9 +65,19 @@ public static class Box
     /// </summary>
     public static object CreateConstant(object value)
     {
+        ArgumentNullException.ThrowIfNull(value, nameof(value));
+        return CreateConstant(value, value.GetType());
+    }
+
+    /// <summary>
+    /// Create a ConstantBox of a specific type. Allows null values.
+    /// </summary>
+    public static object CreateConstant(object value, Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type, nameof(type));
         var boxType = typeof(ConstantBox<>);
-        var genBoxType = boxType.MakeGenericType(value.GetType());
-        var boxConstructor = genBoxType.GetConstructor([ value.GetType() ]);
+        var genBoxType = boxType.MakeGenericType(type);
+        var boxConstructor = genBoxType.GetConstructor([ type ]);
         var boxObj = boxConstructor.Invoke([ value ]);
         return boxObj;
     }
@@ -82,17 +92,12 @@ public static class Box
         object computeRight = null)
     {
         var boxType = typeof(OperationBox<,,>);
-        var parameters = operation.Method.GetParameters();
 
-        var T1 = parameters[0].ParameterType;
-        var T2 = parameters[1].ParameterType;
-        var R = operation.Method.ReturnType;
+        var funcArgs = operation.GetType().GetGenericArguments();
+        if (funcArgs.Length != 3)
+            throw new ArgumentException("The operation must be a Func<T1, T2, R>.", nameof(operation));
+        var (T1, T2, R) = (funcArgs[0], funcArgs[1], funcArgs[2]);
 
-        // If T1 or T2 is a internal generate function the type has Closure
-        // Use T1 has T2 possibilities some operations like MyProp == 3.
-        if (T1.Name == "Closure") T1 = T2;
-        if (T2.Name == "Closure") T2 = T1;
-        
         var genBoxType = boxType.MakeGenericType(T1, T2, R);
         var boxConstructor = genBoxType.GetConstructor([ 
             typeof(IBox<,>).MakeGenericType(T1, T1),
@@ -122,7 +127,7 @@ public static class Box
     }
 
     /// <summary>
-    /// Test if a object is a Box<T>
+    /// Test if a object is a Box&lt;T&gt;
     /// </summary>
     public static bool IsBox(object value)
         => value.GetType().GetInterfaces().Any(i =>
@@ -150,8 +155,32 @@ public static class Box
         ArgumentNullException.ThrowIfNull(box);
         BoxTypeException.ThrowIfIsNotABox(box);
 
-        var genericParam = box.GetType().GetGenericArguments()[0];
-        return genericParam;
+        var boxInterface = box.GetType().GetInterfaces().First(i =>
+            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IBox<,>)
+        );
+        return boxInterface.GetGenericArguments()[0];
+    }
+
+    /// <summary>
+    /// Create a UnaryBox that transforms the value of another box.
+    /// </summary>
+    public static object CreateUnary(object innerBox, Delegate forward, Delegate backward = null)
+    {
+        ArgumentNullException.ThrowIfNull(innerBox, nameof(innerBox));
+        ArgumentNullException.ThrowIfNull(forward, nameof(forward));
+
+        var funcArgs = forward.GetType().GetGenericArguments();
+        if (funcArgs.Length != 2)
+            throw new ArgumentException("The forward function must be a Func<T, R>.", nameof(forward));
+        var (T, R) = (funcArgs[0], funcArgs[1]);
+
+        var genBoxType = typeof(UnaryBox<,>).MakeGenericType(T, R);
+        var boxConstructor = genBoxType.GetConstructor([
+            typeof(IBox<,>).MakeGenericType(T, T),
+            typeof(Func<,>).MakeGenericType(T, R),
+            typeof(Func<,>).MakeGenericType(R, T)
+        ]);
+        return boxConstructor.Invoke([ innerBox, forward, backward ]);
     }
 
     /// <summary>

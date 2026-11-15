@@ -12,6 +12,7 @@ public class DefaultRightBindAnalyzer : IBindAnalyzer
 {
     public BindChain BuildChain() => 
         BindChain.New()
+        .Add(new UnaryOperationBindChainLink())
         .Add(new BinaryOperationBindChainLink())
         .Add(new ConditionalBindChainLink())
         .Add(new ExpressionBindChainLink())

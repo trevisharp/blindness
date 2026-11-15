@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 namespace Blindness.Core.Binds;
 
 using Bind;
+using Blindness.Exceptions;
 
 /// <summary>
 /// Represents a chainlink that handle a obj.BindProperty with a Deep Binding delcaration.
@@ -26,9 +27,11 @@ public class DeepPropertyBindChainLink : BindChainLink
         var member = mexp.Member;
         var instanciator = Expression.Lambda(mexp.Expression);
         var obj = instanciator.Compile().DynamicInvoke();
+        if (obj is null)
+            throw new ParentNullBindException();
 
         var deepMember = obj.GetType().GetProperty(member.Name);
-        if (deepMember.GetCustomAttribute<BindingAttribute>() is null)
+        if (deepMember?.GetCustomAttribute<BindingAttribute>() is null)
             return BindingResult.Unsuccesfull;
         
         var binding = Binding.Get(obj);

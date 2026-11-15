@@ -27,6 +27,23 @@ public static class BindExtension
     }
 
     /// <summary>
+    /// Build a Func&lt;TLeft, TRight, TResult&gt; from a binary expression builder.
+    /// </summary>
+    public static Delegate BuildBinaryFunction(
+        Type leftType, Type rightType,
+        Func<Expression, Expression, Expression> operation)
+    {
+        ArgumentNullException.ThrowIfNull(leftType, nameof(leftType));
+        ArgumentNullException.ThrowIfNull(rightType, nameof(rightType));
+
+        var leftParam = Expression.Parameter(leftType);
+        var rightParam = Expression.Parameter(rightType);
+        var body = operation(leftParam, rightParam);
+        var funcType = typeof(Func<,,>).MakeGenericType(leftType, rightType, body.Type);
+        return Expression.Lambda(funcType, body, leftParam, rightParam).Compile();
+    }
+
+    /// <summary>
     /// Returns if the member can be setted like a field, property
     /// or a get with set method.
     /// </summary>
@@ -44,9 +61,7 @@ public static class BindExtension
         if (method.Name is not [ 'g' or 'G', 'e', 't', ..])
             return false;
         
-        var setVersionName = method.Name
-            .Replace("get", "set")
-            .Replace("Get", "Set");
+        var setVersionName = ToSetterName(method.Name);
         
         try
         {
@@ -233,12 +248,18 @@ public static class BindExtension
         if (expression is not UnaryExpression op)
             return expression;
         
-        if (op.NodeType is not ExpressionType.Convert or ExpressionType.ConvertChecked)
+        if (op.NodeType is not (ExpressionType.Convert or ExpressionType.ConvertChecked))
             return expression;
         
         return op.Operand;
     }
     
+    /// <summary>
+    /// Get the setter name of a getter name, like GetValue to SetValue.
+    /// </summary>
+    static string ToSetterName(string getterName)
+        => (getterName[0] == 'G' ? "Set" : "set") + getterName[3..];
+
     static object GetProperty(object obj, PropertyInfo prop)
     {
         if (obj is null || prop is null)
@@ -277,9 +298,7 @@ public static class BindExtension
     static void SetMethod(object obj, MethodInfo method, object[] inputs, object value)
     {
         var parentType = method.DeclaringType;
-        var expectedSetName = method.Name
-            .Replace("get", "set")
-            .Replace("Get", "Set");
+        var expectedSetName = ToSetterName(method.Name);
         var setMethod = parentType.GetMethod(expectedSetName);
         GetMethod(obj, setMethod, [ ..inputs, value ]);
     }

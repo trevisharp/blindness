@@ -2,6 +2,7 @@
  * Date:    05/08/2024
  */
 using System;
+using System.Collections.Generic;
 
 namespace Blindness.Bind.Boxes;
 
@@ -14,10 +15,10 @@ public class ValueBox<T> : IBox<T>
 
     public ValueBox(T initialValue = default)
         => value = initialValue;
-    
+
     public ValueBox(ValueBox<T> other)
         => value = other.Open();
-    
+
     public bool IsReadonly => false;
 
     /// <summary>
@@ -28,15 +29,15 @@ public class ValueBox<T> : IBox<T>
 
     public T Open()
         => value;
-    
+
     public void Place(T newValue)
     {
-        if (newValue.Equals(value))
+        if (EqualityComparer<T>.Default.Equals(newValue, value))
             return;
-        
-        if (OnChange is not null)
-            OnChange(new(value, newValue));
+
+        var oldValue = value;
         value = newValue;
+        OnChange?.Invoke(new(oldValue, newValue));
     }
 
     public static implicit operator T(ValueBox<T> pointer)

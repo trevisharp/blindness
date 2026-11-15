@@ -14,7 +14,7 @@ using Bind.Boxes;
 public class BoxValueTypeException(object value, Type type) : Exception
 {
     /// <summary>
-    /// Throws an BoxTypeException if value is not from Box<T> type.
+    /// Throws an BoxTypeException if value is not from Box&lt;T&gt; type.
     /// </summary>
     public static void ThrowIfIsIncorrectType(object value, Type type)
     {
