@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <PackageId>Blindness</PackageId>
-    <PackageVersion>3.1.0</PackageVersion>
+    <PackageVersion>4.0.0</PackageVersion>
     <Authors>Leonardo Trevisan Silio</Authors>
     <Description>A framework to build frameworks: dependency injection, data binding, auto-implemented nodes, concurrency and hot reload.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

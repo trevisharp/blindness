@@ -339,6 +339,36 @@ Verbose.Sinks.Add(Verbose.DebugSink);
 Verbose.Sinks.Add(message => File.AppendAllText("log.txt", $"{message.Kind}: {message.Text}\n"));
 ```
 
+### Build your framework on Blindness nodes
+
+The concrete class of every interface that inherits from `INode` is generated at compile time,
+in the project that declares the interface, so a library can ship nodes too. A framework can
+choose the base class of the generated classes:
+
+```cs
+using Blindness.Core;
+using Blindness.Factory;
+
+// Every node interface that inherits from View gets a concrete class that inherits from ViewNode.
+[Ignore]
+[ConcreteBase(typeof(ViewNode))]
+public interface View : INode
+{
+    void Draw();
+}
+
+public abstract class ViewNode : Node
+{
+    public void Draw() { /* framework code */ }
+}
+
+// User code: LoginScreenConcrete inherits from ViewNode.
+public interface LoginScreen : View
+{
+    string User { get; set; }
+}
+```
+
 ### ...Or use only the resources that you like
 
 ```cs
@@ -950,6 +980,18 @@ public class MyComponent : BaseComponent {
 Some time the code start to display 'Message!!' on screen without reestart app.
 
 # Versions
+
+### Blindness v4.0.0
+
+ - ![](https://img.shields.io/badge/new-green) A source generator implements the node interfaces at compile time, also on libraries. The first run no longer fails and Release builds no longer depend on a previous Debug run.
+ - ![](https://img.shields.io/badge/new-green) ConcreteBase attribute to choose the base class of the generated nodes.
+ - ![](https://img.shields.io/badge/new-green) On events run again only when a property read by the condition changes. When keeps running on every loop.
+ - ![](https://img.shields.io/badge/new-green) When, On and Bind return a IDisposable that removes them. Nodes have Unload and the OnUnload convention, called on Pop, Clear, Open and hot reload.
+ - ![](https://img.shields.io/badge/new-green) Verbose messages go to pluggable sinks, like the console (default) or the IDE output.
+ - ![](https://img.shields.io/badge/update-blue) Boxes notify changes. The box of a property and the Binding of an object never change, so they can be cached.
+ - ![](https://img.shields.io/badge/update-blue) Reading a generated property is about 90x faster and does not allocate.
+ - ![](https://img.shields.io/badge/removed-red) DefaultAppBehaviour no longer generates files on runtime: the NonConstantGeneratedFiles folder is not used anymore and can be deleted.
+ - ![](https://img.shields.io/badge/removed-red) Breaking changes: When, On and Bind return IDisposable, IBindBehavior.MakeBinding returns IDisposable, INode has Unload and DefaultAppBehaviour has no Implementer property.
 
 ### Blindness v3.1.0
 
