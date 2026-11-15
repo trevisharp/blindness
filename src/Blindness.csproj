@@ -13,12 +13,18 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>framework;binding;dependency-injection;hot-reload</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;RS1036</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" />
     <None Include="transitiveTargets\Blindness.targets" Pack="true" PackagePath="build\;buildTransitive\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\gen\Blindness.Generators.csproj" ReferenceOutputAssembly="false" />
+    <None Include="..\gen\bin\$(Configuration)\netstandard2.0\Blindness.Generators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <Compile Include="..\gen\ConcreteGenerator.cs" Link="Reload\ConcreteGenerator.cs" />
   </ItemGroup>
 
   <ItemGroup>
