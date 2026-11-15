@@ -24,13 +24,16 @@ public class DefaultPropertyImplementation : BaseTypeImplementation
         foreach (var prop in properties)
         {
             var typeName = TypeNames.CSharpName(prop.PropertyType);
+            var field = $"__{prop.Name}Box";
+            var box = $"({field} ??= global::Blindness.Bind.Binding.Get(this).Dictionary.GetOrCreate<{typeName}>(nameof({prop.Name})))";
+            builder.AddCodeLine($"global::Blindness.Bind.IBox<{typeName}, {typeName}> {field};");
             builder
                 .CreateProperty()
                     .AddAttribute("global::Blindness.Bind.Binding")
                     .SetType(typeName)
                     .SetName(prop.Name)
-                    .SetGetCode($"global::Blindness.Bind.Binding.Get(this).Open<{typeName}>(nameof({prop.Name}))")
-                    .SetSetCode($"global::Blindness.Bind.Binding.Get(this).Place(nameof({prop.Name}), value)")
+                    .SetGetCode($"{box}.Open()")
+                    .SetSetCode($"{box}.Place(value)")
                 .AppendMember();
         }
         properties.Clear();

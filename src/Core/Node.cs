@@ -19,7 +19,7 @@ using Blindness.Exceptions;
 /// A base class for all concrete nodes.
 /// Used by code generator.
 /// </summary>
-public abstract class Node
+public abstract class Node : IBindable
 {
     readonly static DepFunction depFunction = new DepsDepFunction();
     readonly static BaseTypeFilter filter = new ConcreteFilter();
@@ -119,6 +119,8 @@ public abstract class Node
     public static event Action OnEventsPending;
 
     Binding internalBind = new();
+
+    Binding IBindable.Binding => internalBind;
     readonly List<OnEvent> ons = [];
     readonly List<WhenEvent> whens = [];
     readonly List<IDisposable> registrations = [];

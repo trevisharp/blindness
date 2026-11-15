@@ -81,6 +81,9 @@ public class Binding
     {
         ArgumentNullException.ThrowIfNull(obj, nameof(obj));
 
+        if (obj is IBindable bindable)
+            return bindable.Binding;
+
         var hasBinding = obj.TryGetDataByType<Binding>(out var binding);
 
         if (!hasBinding)
