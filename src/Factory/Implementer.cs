@@ -43,11 +43,15 @@ public abstract class Implementer(Type baseType)
             Directory.CreateDirectory(constDir);
         
         var cache = LoadCache(cachePath);
+        var produced = new HashSet<string>();
 
         var assembly = Assembly.GetEntryAssembly();
         var nodes = FindValidNodes(assembly, baseType);
         foreach (var node in nodes)
+        {
             Implement(nonConstDir, node, cache);
+            produced.Add(GetFilePath(nonConstDir, node));
+        }
             
         foreach (var extraFile in ExtraFiles ?? [])
         {
@@ -58,31 +62,60 @@ public abstract class Implementer(Type baseType)
 
             if (extraFile.Constant && File.Exists(path))
                 continue;
+            
+            produced.Add(path);
             var content = extraFile.Get();
-
-            if (cache.TryGetValue(path, out string value) && value == content.ToHash())
+            var hash = content.ToHash();
+            if (cache.TryGetValue(path, out string value) && value == hash && File.Exists(path))
                 continue;
+            
+            cache[path] = hash;
             File.WriteAllText(path, content);
         }
-        
+
+        RemoveOrphanFiles(nonConstDir, cache, produced);
         SaveCache(cachePath, cache);
+    }
+
+    /// <summary>
+    /// Delete generated files of nodes that no longer exist.
+    /// </summary>
+    protected static void RemoveOrphanFiles(string dirPath, Dictionary<string, string> cache, HashSet<string> produced)
+    {
+        var fullDir = Path.GetFullPath(dirPath);
+        foreach (var path in cache.Keys.ToList())
+        {
+            if (produced.Contains(path))
+                continue;
+            
+            cache.Remove(path);
+            var isGenerated = Path.GetFullPath(path).StartsWith(fullDir, StringComparison.OrdinalIgnoreCase)
+                && path.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase);
+            if (isGenerated && File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    /// <summary>
+    /// Get the path of the generated file of a type.
+    /// </summary>
+    protected virtual string GetFilePath(string dirPath, Type type)
+    {
+        var prefix = string.IsNullOrEmpty(type.Namespace) ? "" : type.Namespace + ".";
+        return Path.Combine(dirPath, $"{prefix}{type.Name}Concrete.g.cs");
     }
 
     /// <summary>
     /// Implement a files based on GetCode behavior.
     /// Use the file content to save .cache file.
-    /// The generated file has name type.Name + 'Concrete.g.cs'.
     /// </summary>
     protected virtual void Implement(string dirPath, Type type, Dictionary<string, string> cache)
     {
-        var filePath = Path.Combine(
-            dirPath, $"{type.Name}Concrete.g.cs"
-        );
+        var filePath = GetFilePath(dirPath, type);
         var nodeCode = GetCode(type, filePath);
 
         var codeHash = nodeCode.ToHash();
-        bool hasKey = cache.ContainsKey(filePath);
-        if (hasKey && cache[filePath] == codeHash)
+        if (cache.TryGetValue(filePath, out var cached) && cached == codeHash && File.Exists(filePath))
             return;
         
         cache[filePath] = codeHash;
@@ -116,7 +149,7 @@ public abstract class Implementer(Type baseType)
     {
         File.WriteAllLines(
             cachePath,
-            cache.Select(x => $"{x.Key} {x.Value}")
+            cache.Select(x => $"{x.Key}\t{x.Value}")
         );
     }
 
@@ -125,14 +158,21 @@ public abstract class Implementer(Type baseType)
     /// </summary>
     protected static Dictionary<string, string> LoadCache(string cachePath)
     {
-        return
-            !File.Exists(cachePath) ? [] :
-            File.ReadAllLines(cachePath)
-                .Select(line => line.Split(' '))
-                .ToDictionary(
-                    data => data[0],
-                    data => data[1]
-                );
+        Dictionary<string, string> cache = [];
+        if (!File.Exists(cachePath))
+            return cache;
+
+        foreach (var line in File.ReadAllLines(cachePath))
+        {
+            var separator = line.LastIndexOf('\t');
+            if (separator < 0)
+                separator = line.LastIndexOf(' ');
+            if (separator <= 0)
+                continue;
+            
+            cache[line[..separator]] = line[(separator + 1)..];
+        }
+        return cache;
     }
 
     /// <summary>
@@ -144,6 +184,7 @@ public abstract class Implementer(Type baseType)
         return types
             .Append(type)
             .SelectMany(t => t.GetMethods())
+            .Distinct()
             .ToList();
     }
 
@@ -154,8 +195,9 @@ public abstract class Implementer(Type baseType)
     {
         var types = GetAllBaseTypes(type);
         return types
-            .Append(type)
+            .Prepend(type)
             .SelectMany(t => t.GetProperties())
+            .DistinctBy(p => p.Name)
             .ToList();
     }
     
@@ -164,14 +206,25 @@ public abstract class Implementer(Type baseType)
     /// </summary>
     protected static List<Type> GetAllBaseTypes(Type type)
     {
-        List<Type> types = [.. type.GetInterfaces()];
-        if (type.BaseType is not null)
-            types.Add(type.BaseType);
-        
-        for (int i = 0; i < types.Count; i++)
-            types.AddRange(
-                GetAllBaseTypes(types[i])
-            );
+        List<Type> types = [];
+        Queue<Type> pending = new();
+        pending.Enqueue(type);
+
+        while (pending.Count > 0)
+        {
+            var current = pending.Dequeue();
+            var bases = current.GetInterfaces().AsEnumerable();
+            if (current.BaseType is not null)
+                bases = bases.Append(current.BaseType);
+
+            foreach (var baseType in bases)
+            {
+                if (types.Contains(baseType))
+                    continue;
+                types.Add(baseType);
+                pending.Enqueue(baseType);
+            }
+        }
         
         return types;
     }
