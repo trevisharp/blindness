@@ -21,19 +21,18 @@ public class DefaultPropertyImplementation : BaseTypeImplementation
         List<MethodInfo> methods
     )
     {
-        for (int i = 0; properties.Count > 0; i++)
+        foreach (var prop in properties)
         {
-            var prop = properties[0];
-            var typeName = ArrangeGenericTypeName(prop.PropertyType);
+            var typeName = TypeNames.CSharpName(prop.PropertyType);
             builder
                 .CreateProperty()
-                    .AddAttribute("Binding")
+                    .AddAttribute("global::Blindness.Bind.Binding")
                     .SetType(typeName)
                     .SetName(prop.Name)
-                    .SetGetCode($"Binding.Get(this).Open<{typeName}>(nameof({prop.Name}))")
-                    .SetSetCode($"Binding.Get(this).Place(nameof({prop.Name}), value)")
+                    .SetGetCode($"global::Blindness.Bind.Binding.Get(this).Open<{typeName}>(nameof({prop.Name}))")
+                    .SetSetCode($"global::Blindness.Bind.Binding.Get(this).Place(nameof({prop.Name}), value)")
                 .AppendMember();
-            properties.Remove(prop);
         }
+        properties.Clear();
     }
 }

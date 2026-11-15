@@ -30,7 +30,7 @@ public class OnLoadImplementation : BaseTypeImplementation
         builder.AddCodeLine(
             $$"""
             public override void Load()
-                => (({{baseInterface.Name}})this).OnLoad();
+                => (({{TypeNames.CSharpName(baseInterface)}})this).OnLoad();
             """
         );
         methods.Remove(onLoad);

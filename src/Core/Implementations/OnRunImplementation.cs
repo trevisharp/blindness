@@ -30,7 +30,7 @@ public class OnRunImplementation : BaseTypeImplementation
         builder.AddCodeLine(
             $$"""
             public override void Run()
-                => (({{baseInterface.Name}})this).OnRun();
+                => (({{TypeNames.CSharpName(baseInterface)}})this).OnRun();
             """
         );
         methods.Remove(onRun);

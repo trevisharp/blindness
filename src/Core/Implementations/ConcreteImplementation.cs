@@ -22,9 +22,10 @@ public class ConcreteImplementation : BaseTypeImplementation
     )
     {
         builder
-            .SetClassName($"{baseInterface}Concrete")
-            .AddBaseType("Node")
-            .AddBaseType(baseInterface.Name)
-            .AddAttribute("Concrete");
+            .SetNamespace(baseInterface.Namespace)
+            .SetClassName($"{baseInterface.Name}Concrete")
+            .AddBaseType("global::Blindness.Core.Node")
+            .AddBaseType(TypeNames.CSharpName(baseInterface))
+            .AddAttribute("global::Blindness.Core.Concrete");
     }
 }

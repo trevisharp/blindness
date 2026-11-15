@@ -36,8 +36,8 @@ public class DepsImplementation : BaseTypeImplementation
             var parameter = parameters[i];
             builder.AddCodeLine(
                 i < parameters.Length - 1 ?
-                $"{parameter.ParameterType.Name} {parameter.Name}," :
-                $"{parameter.ParameterType.Name} {parameter.Name}"
+                $"{TypeNames.CSharpName(parameter.ParameterType)} @{parameter.Name}," :
+                $"{TypeNames.CSharpName(parameter.ParameterType)} @{parameter.Name}"
             );
         }
         builder
@@ -50,7 +50,7 @@ public class DepsImplementation : BaseTypeImplementation
         {
             var parameter = parameters[i];
             builder.AddCodeLine(
-                $"this.{parameter.Name} = {parameter.Name};"
+                $"this.@{parameter.Name} = @{parameter.Name};"
             );
         }
         builder

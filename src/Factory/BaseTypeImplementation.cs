@@ -21,19 +21,9 @@ public abstract class BaseTypeImplementation
         List<MethodInfo> methods
     );
     
+    /// <summary>
+    /// Get a fully qualified C# name for a type, usable in generated code.
+    /// </summary>
     protected static string ArrangeGenericTypeName(Type type)
-    {
-        var genericParams = type.GetGenericArguments();
-        if (genericParams.Length == 0)
-            return type.Name;
-
-        var name = type.GetGenericTypeDefinition().Name;
-
-        // TODO: Update to arrange types with more than 1
-        // generic parameter
-        return type.Name.Replace("`1", "") 
-            + "<" + string.Join(",",
-                genericParams.Select(p => p.Name)
-            ) + ">";
-    }
+        => TypeNames.CSharpName(type);
 }

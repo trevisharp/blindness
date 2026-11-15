@@ -16,6 +16,7 @@ public class ClassBuilder : CodeBuilder
     protected string tabInfo = "\t";
 
     string className = "MyClass";
+    string classNamespace = null;
     readonly List<string> usings = [];
     readonly List<string> baseTypes = [];
     readonly List<string> attributes = [];
@@ -30,11 +31,20 @@ public class ClassBuilder : CodeBuilder
     }
 
     /// <summary>
+    /// Define the namespace of generated class.
+    /// </summary>
+    public ClassBuilder SetNamespace(string classNamespace)
+    {
+        this.classNamespace = classNamespace;
+        return this;
+    }
+
+    /// <summary>
     /// Add a base type that generated class inherits.
     /// </summary>
     public ClassBuilder AddBaseType(string type)
     {
-        ArgumentNullException.ThrowIfNull(nameof(type));
+        ArgumentNullException.ThrowIfNull(type, nameof(type));
         
         if (baseTypes.Contains(type))
             return this;
@@ -48,7 +58,7 @@ public class ClassBuilder : CodeBuilder
     /// </summary>
     public ClassBuilder AddUsing(string reference)
     {
-        ArgumentNullException.ThrowIfNull(nameof(reference));
+        ArgumentNullException.ThrowIfNull(reference, nameof(reference));
         
         if (usings.Contains(reference))
             return this;
@@ -62,7 +72,7 @@ public class ClassBuilder : CodeBuilder
     /// </summary>
     public ClassBuilder AddAttribute(string attribute)
     {
-        ArgumentNullException.ThrowIfNull(nameof(attribute));
+        ArgumentNullException.ThrowIfNull(attribute, nameof(attribute));
         
         if (attributes.Contains(attribute))
             return this;
@@ -121,15 +131,11 @@ public class ClassBuilder : CodeBuilder
         foreach (var reference in usings)
             usingsCode.AppendLine($"using {reference};");
         
-        StringBuilder basesCode = new();
-        if (baseTypes.Count > 0)
-            basesCode.Append(" : ");
-        for (int i = 0; i < baseTypes.Count - 1; i++)
-        {
-            basesCode.Append(baseTypes[i]);
-            basesCode.Append(", ");
-        }
-        basesCode.Append(baseTypes[^1]);
+        var basesCode = baseTypes.Count == 0 ? "" :
+            " : " + string.Join(", ", baseTypes);
+
+        var namespaceCode = string.IsNullOrEmpty(classNamespace) ? "" :
+            $"namespace {classNamespace};\n\n";
 
         StringBuilder attributeCode = new();
         foreach (var attribute in attributes)
@@ -147,7 +153,7 @@ public class ClassBuilder : CodeBuilder
         //------------------------------------------------------------------------------
 
         {{usingsCode}}
-        {{attributeCode}}public partial class {{className}}{{basesCode}}
+        {{namespaceCode}}{{attributeCode}}public partial class {{className}}{{basesCode}}
         {
         {{Builder}}
         }
