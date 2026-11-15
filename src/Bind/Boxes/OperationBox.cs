@@ -15,8 +15,26 @@ public class OperationBox<T1, T2, R>(
     IBox<T2, T2> rightBox,
     Func<T1, T2, R> operation,
     Func<T1, T2, R> computeLeft,
-    Func<T1, T2, R> computeRight) : IBox<R>
+    Func<T1, T2, R> computeRight) : IBox<R>, INotifyBox
 {
+    public event Action Changed
+    {
+        add
+        {
+            if (leftBox is INotifyBox left)
+                left.Changed += value;
+            if (rightBox is INotifyBox right)
+                right.Changed += value;
+        }
+        remove
+        {
+            if (leftBox is INotifyBox left)
+                left.Changed -= value;
+            if (rightBox is INotifyBox right)
+                right.Changed -= value;
+        }
+    }
+
     public bool IsReadonly =>
         (leftBox.IsReadonly || computeLeft is null) &&
         (rightBox.IsReadonly || computeRight is null);

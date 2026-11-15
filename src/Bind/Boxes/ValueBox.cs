@@ -9,7 +9,7 @@ namespace Blindness.Bind.Boxes;
 /// <summary>
 /// Represents a structure to box values.
 /// </summary>
-public class ValueBox<T> : IBox<T>
+public class ValueBox<T> : IBox<T>, INotifyBox
 {
     T value;
 
@@ -27,8 +27,13 @@ public class ValueBox<T> : IBox<T>
     /// </summary>
     public event Action<BoxChangeEventArgs<T>> OnChange;
 
+    public event Action Changed;
+
     public T Open()
-        => value;
+    {
+        BoxTracker.Read(this);
+        return value;
+    }
 
     public void Place(T newValue)
     {
@@ -38,6 +43,7 @@ public class ValueBox<T> : IBox<T>
         var oldValue = value;
         value = newValue;
         OnChange?.Invoke(new(oldValue, newValue));
+        Changed?.Invoke();
     }
 
     public static implicit operator T(ValueBox<T> pointer)
