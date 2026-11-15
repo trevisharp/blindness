@@ -129,7 +129,8 @@ public interface LoginScreen : INode
             () => children = [ Login, Password ]
         );
 
-	// run when condition changes
+	// run when condition changes; the condition is evaluated again
+	// only when a property that it reads changes
         On(
             () => 
                 !registerPage ||
