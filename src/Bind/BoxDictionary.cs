@@ -69,13 +69,28 @@ public class BoxDictionary<K>
     }
 
     /// <summary>
-    /// Set the box object.
+    /// Set the box object. An existing InnerBox is kept and receives the box as its
+    /// inner box, so references to the box of a name never become stale.
     /// </summary>
     public void SetBox(K boxName, object value)
     {
         ArgumentNullException.ThrowIfNull(boxName, nameof(boxName));
         BoxTypeException.ThrowIfIsNotABox(value);
+
+        if (memory.TryGetValue(boxName, out var current) && IsInnerBox(current))
+        {
+            if (!ReferenceEquals(current, value))
+                Box.SetInner(current, value);
+            return;
+        }
+
         memory[boxName] = value;
+    }
+
+    static bool IsInnerBox(object box)
+    {
+        var type = box.GetType();
+        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(InnerBox<>);
     }
 
     /// <summary>

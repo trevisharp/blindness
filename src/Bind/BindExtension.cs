@@ -82,10 +82,18 @@ public static class BindExtension
         => TryGetDataByType(obj, out Binding data) ? data : null;
 
     /// <summary>
-    /// Get internal binding from a object.
+    /// Set the internal binding of a object that has no binding yet.
+    /// Replacing a existing binding is not allowed: its boxes are referenced by bindings and events.
     /// </summary>
     public static bool SetBinding(this object obj, Binding value)
-        => TrySetDataByType(obj, value);
+    {
+        var current = obj is IBindable bindable ? bindable.Binding
+            : TryGetDataByType(obj, out Binding found) ? found : null;
+        if (current is not null && !ReferenceEquals(current, value))
+            throw new InvalidOperationException("The object already has a Binding and it cannot be replaced.");
+
+        return TrySetDataByType(obj, value);
+    }
 
     /// <summary>
     /// Find in properties and fields of a object by a member
