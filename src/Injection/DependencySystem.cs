@@ -28,8 +28,9 @@ public class DependencySystem
     public static void Reset()
         => shared = new();
 
-    readonly List<Assembly> assemblies = [ Assembly.GetEntryAssembly() ];
-    readonly Dictionary<Type, Type> typeCache = [];
+    readonly List<Assembly> assemblies = Assembly.GetEntryAssembly() is Assembly entry ? [ entry ] : [];
+    readonly Dictionary<Type, List<(BaseTypeFilter[] Filters, Type Concrete)>> typeCache = [];
+    readonly object sync = new();
 
     /// <summary>
     /// Find a type on the list of assemblies that has a type with
@@ -38,10 +39,10 @@ public class DependencySystem
     public Type GetCompatibilityType(Type type)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
-        if (assemblies.Contains(type.Assembly))
+        if (Snapshot().Contains(type.Assembly))
             return type;
         
-        var compatibilityType = assemblies
+        var compatibilityType = Snapshot()
             .SelectMany(a => a.GetTypes())
             .FirstOrDefault(t => t.FullName == type.FullName);
         
@@ -54,8 +55,11 @@ public class DependencySystem
     public void AddAssembly(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
-        assemblies.Add(assembly);
-        typeCache.Clear();
+        lock (sync)
+        {
+            assemblies.Add(assembly);
+            typeCache.Clear();
+        }
     }
     
     /// <summary>
@@ -68,8 +72,11 @@ public class DependencySystem
         if (assemblies.Count < 2)
             return;
 
-        assemblies.Remove(assembly);
-        typeCache.Clear();
+        lock (sync)
+        {
+            assemblies.Remove(assembly);
+            typeCache.Clear();
+        }
     }
     
     /// <summary>
@@ -78,10 +85,13 @@ public class DependencySystem
     public void UpdateAssembly(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
-        if (assemblies.Count == 0)
-            assemblies.Add(assembly);
-        else assemblies[0] = assembly;
-        typeCache.Clear();
+        lock (sync)
+        {
+            if (assemblies.Count == 0)
+                assemblies.Add(assembly);
+            else assemblies[0] = assembly;
+            typeCache.Clear();
+        }
     }
 
     /// <summary>
@@ -91,7 +101,7 @@ public class DependencySystem
     {
         ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
 
-        return assemblies
+        return Snapshot()
             .SelectMany(a => a.GetTypes())
             .Where(type => type.IsAssignableTo(baseType));
     }
@@ -117,10 +127,14 @@ public class DependencySystem
             throw new CycleDependencyException(type);
 
         args.DependencyGraph.Push(type);
-        var obj = args.DepFunction.Call(type, this, args);
-        args.DependencyGraph.Pop();
-
-        return obj;
+        try
+        {
+            return args.DepFunction.Call(type, this, args);
+        }
+        finally
+        {
+            args.DependencyGraph.Pop();
+        }
     }
 
     /// <summary>
@@ -183,14 +197,26 @@ public class DependencySystem
     public T Get<T>()
         => (T)Get(typeof(T), InjectionArgs.Default);
     
+    Assembly[] Snapshot()
+    {
+        lock (sync)
+            return [ ..assemblies ];
+    }
+
     Type FindConcreteType(Type dep, InjectionArgs args)
     {
         ArgumentNullException.ThrowIfNull(dep, nameof(dep));
         ArgumentNullException.ThrowIfNull(args, nameof(args));
         ArgumentNullException.ThrowIfNull(args.Filters, nameof(args.Filters));
         
-        if (typeCache.TryGetValue(dep, out Type type))
-            return type;
+        BaseTypeFilter[] filters = [ ..args.Filters ];
+        lock (sync)
+        {
+            if (typeCache.TryGetValue(dep, out var entries))
+                foreach (var (cachedFilters, concrete) in entries)
+                    if (cachedFilters.SequenceEqual(filters))
+                        return concrete;
+        }
 
         var types = GetAllTypesByBaseType(dep)
             .Where(t => !t.IsAbstract)
@@ -205,7 +231,12 @@ public class DependencySystem
             throw new ManyConcreteTypeException(dep);
         
         var finded = types[0];
-        typeCache.Add(dep, finded);
+        lock (sync)
+        {
+            if (!typeCache.TryGetValue(dep, out var entries))
+                typeCache[dep] = entries = [];
+            entries.Add((filters, finded));
+        }
         return finded;
     }
 }

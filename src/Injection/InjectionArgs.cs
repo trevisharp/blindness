@@ -11,8 +11,11 @@ namespace Blindness.Injection;
 /// </summary>
 public class InjectionArgs(DepFunction function)
 {
-    public readonly static InjectionArgs Default
-        = new(DepFunction.Constructor);
+    /// <summary>
+    /// Get new injection arguments using constructor injection.
+    /// </summary>
+    public static InjectionArgs Default
+        => new(DepFunction.Constructor);
     
     public DepFunction DepFunction { get; set; } = function;
     public Stack<Type> DependencyGraph { get; set; } = [];

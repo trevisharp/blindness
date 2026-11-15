@@ -18,10 +18,13 @@ public class ConstructorDepFunction : DepFunction
         try
         {
             var constructors = type.GetConstructors();
+            if (constructors.Length == 0)
+                throw new InvalidOperationException($"The type {type} has no public constructor.");
+
             var defaultConstructor = constructors
                 .FirstOrDefault(c => c.GetParameters().Length == 0);
             if (constructors.Length > 1 && defaultConstructor is null)
-                throw new ManyConcreteTypeException(type);
+                throw new ManyConstructorsException(type);
             
             var constructor = defaultConstructor ?? constructors[0];
             var data = constructor
