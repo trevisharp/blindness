@@ -30,10 +30,11 @@ public class DefaultAppBehaviour : AppBehaviour
     Stack<IBox<INode>> currentStack;
 
     public override INode CurrentMainNode => 
-        currentStack.Count == 0 ? null : currentStack?.Peek()?.Open();
+        currentStack is null || currentStack.Count == 0 ? null : currentStack.Peek()?.Open();
 
     public override void Run<T>(params object[] parameters)
     {
+        ThrowIfHasParameters(parameters);
         try
         {
             Binding.SetBehaviour(
@@ -108,21 +109,18 @@ public class DefaultAppBehaviour : AppBehaviour
         void firstOpen(HotReload hotReload)
         {
             try { Open<T>(); }
-            catch (Exception ex) when (App.Debug)
+            catch (Exception ex) when (App.Debug && hotReload is not null)
             {
                 Verbose.Warning(ex.Message, 1);
                 hotReload.Force();
                 Open<T>();
-            }
-            catch
-            {
-                throw;
             }
         }
     }
 
     public override void Open<T>(params object[] parameters)
     {
+        ThrowIfHasParameters(parameters);
         var node = Node.New(typeof(T)) as INode;
         if (currentStack.Count > 0)
             currentStack?.Pop();
@@ -134,15 +132,16 @@ public class DefaultAppBehaviour : AppBehaviour
 
     public override void Create(string app)
     {
-        if (apps.ContainsKey(app))
-            throw new NotImplementedException();
-        apps.Add(app, []);
+        ArgumentNullException.ThrowIfNull(app, nameof(app));
+        if (!apps.TryAdd(app, []))
+            throw new ArgumentException($"The app '{app}' already exists.", nameof(app));
     }
 
     public override void MoveTo(string app)
     {
+        ArgumentNullException.ThrowIfNull(app, nameof(app));
         if (!apps.TryGetValue(app, out var stack))
-            throw new NotImplementedException();
+            throw new KeyNotFoundException($"The app '{app}' does not exist. Call Create first.");
         currentStack = stack;
     }
 
@@ -151,8 +150,20 @@ public class DefaultAppBehaviour : AppBehaviour
 
     public override void Push<T>(params object[] parameters)
     {
+        ThrowIfHasParameters(parameters);
         var node = Node.New(typeof(T)) as INode;
         currentStack?.Push(new ValueBox<INode>(node));
+    }
+
+    /// <summary>
+    /// Throws a exception if parameters are given, since nodes do not receive parameters yet.
+    /// </summary>
+    static void ThrowIfHasParameters(object[] parameters)
+    {
+        if (parameters is { Length: > 0 })
+            throw new NotSupportedException(
+                "Passing parameters to a node is not supported by DefaultAppBehaviour."
+            );
     }
 
     void InitMain()

@@ -51,15 +51,17 @@ public abstract class Node
         ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
 
         var oldType = oldNode.GetType();
-        var okTypes = 
-            from t in assembly.GetTypes()
-            where t.Name == oldType.Name
-            select t;
+        var okTypes = assembly
+            .GetTypes()
+            .Where(t => t.FullName == oldType.FullName)
+            .ToArray();
         
-        if (okTypes.Count() != 1)
-            throw new Exception("1");
+        if (okTypes.Length != 1)
+            throw new InvalidOperationException(
+                $"Hot reload expected one type named {oldType.FullName} in the new assembly, found {okTypes.Length}."
+            );
         
-        var newType = okTypes.First();
+        var newType = okTypes[0];
         var newNode = New(newType);
         CopyNonNodeValues(oldNode, newNode);
         
@@ -106,8 +108,6 @@ public abstract class Node
             // Ignore readonly boxes copies
             catch (ReadonlyBoxException) { }
             catch (Exception ex) when (ex.InnerException is ReadonlyBoxException) { }
-            // Keep other exceptions
-            catch { throw; }
         }
     }
 
@@ -146,8 +146,10 @@ public abstract class Node
 
     public void EvaluateEvents()
     {
-        foreach (var on in ons)
+        var onCount = ons.Count;
+        for (int i = 0; i < onCount; i++)
         {
+            var on = ons[i];
             var result = on.trigger();
             if (result == on.last)
                 continue;
@@ -156,8 +158,10 @@ public abstract class Node
             on.action(result);
         }
 
-        foreach (var when in whens)
+        var whenCount = whens.Count;
+        for (int i = 0; i < whenCount; i++)
         {
+            var when = whens[i];
             if (when.trigger())
                 when.action();
         }

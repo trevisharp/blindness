@@ -54,7 +54,7 @@ public abstract class AppBehaviour
     {
         Verbose.Error(ex.Message, -1);
 
-        var lines = ex.StackTrace.Split('\n');
+        var lines = (ex.StackTrace ?? "").Split('\n');
         foreach (var line in lines)
         {
             var isInternal = line
