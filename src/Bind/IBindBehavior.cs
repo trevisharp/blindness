@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    07/08/2024
  */
+using System;
+
 namespace Blindness.Bind;
 
 /// <summary>
@@ -11,5 +13,5 @@ public interface IBindBehavior
     /// <summary>
     /// Build a chain to define the bind operation behaviour.
     /// </summary>
-    void MakeBinding(BindingResult left, BindingResult right);
+    IDisposable MakeBinding(BindingResult left, BindingResult right);
 }

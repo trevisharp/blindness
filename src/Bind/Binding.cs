@@ -54,7 +54,7 @@ public class Binding
     /// <summary>
     /// Bind two expressions values.
     /// </summary>
-    public static void Bind(Expression<Func<bool>> expression)
+    public static IDisposable Bind(Expression<Func<bool>> expression)
     {
         ArgumentNullException.ThrowIfNull(expression, nameof(expression));
         var body = expression.Body;
@@ -71,7 +71,7 @@ public class Binding
         if (!leftResult.Success || !rightResult.Success)
             throw new InvalidBindingException();
         
-        behavior.MakeBinding(leftResult, rightResult);
+        return behavior.MakeBinding(leftResult, rightResult);
     }
 
     /// <summary>
