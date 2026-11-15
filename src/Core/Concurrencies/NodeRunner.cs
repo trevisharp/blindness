@@ -13,8 +13,8 @@ using Concurrency;
 /// </summary>
 public class NodeRunner(IAsyncModel model, Func<Node> NodeGetter) : BaseAsyncElement(model)
 {
-    bool running = false;
-    bool paused = false;
+    volatile bool running = false;
+    volatile bool paused = false;
 
     public override void Stop()
         => running = false;

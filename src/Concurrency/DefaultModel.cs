@@ -13,10 +13,10 @@ namespace Blindness.Concurrency;
 /// </summary>
 public class DefaultModel : IAsyncModel
 {
-    bool isRunning = false;
+    volatile bool isRunning = false;
     int activeCount = 0;
-    AutoResetEvent queueSignal;
-    ConcurrentQueue<IAsyncElement> queue = new();
+    readonly AutoResetEvent queueSignal = new(false);
+    readonly ConcurrentQueue<IAsyncElement> queue = new();
 
     public event Action<IAsyncElement, Exception> OnError;
 
@@ -25,64 +25,65 @@ public class DefaultModel : IAsyncModel
     /// </summary>
     public int HighPressureLimit { get; set; } = 4;
 
+    bool IsHighPressure
+        => Volatile.Read(ref activeCount) > HighPressureLimit * Environment.ProcessorCount;
+
     public void Start()
     {
         isRunning = true;
-        queueSignal = new(false);
 
         while (isRunning)
         {
-            var pressureLimit = HighPressureLimit * Environment.ProcessorCount;
-            var highPressure = activeCount > pressureLimit;
             var emptyQueue = queue.IsEmpty;
-            var inactive = activeCount == 0;
+            var inactive = Volatile.Read(ref activeCount) == 0;
 
             if (emptyQueue && inactive)
                 break;
 
-            if (emptyQueue || highPressure)
+            if (emptyQueue || IsHighPressure)
                 queueSignal.WaitOne();
-            
+
             if (!queue.TryDequeue(out IAsyncElement node))
                 continue;
-            
+
             ExecuteAsync(node);
         }
+
+        isRunning = false;
     }
 
+    /// <summary>
+    /// Stop the model loop without interrupt running elements.
+    /// </summary>
     public void Stop()
-        => isRunning = false;
+    {
+        isRunning = false;
+        queueSignal.Set();
+    }
 
     public void Run(IAsyncElement node)
     {
         ArgumentNullException.ThrowIfNull(node, nameof(node));
-        
-        var pressureLimit = HighPressureLimit * Environment.ProcessorCount;
-        var highPressure = activeCount > pressureLimit;
 
-        if (!isRunning || highPressure)
+        if (!isRunning || IsHighPressure)
         {
             queue.Enqueue(node);
+            queueSignal.Set();
             return;
         }
-        
+
         ExecuteAsync(node);
     }
 
     public void SendError(IAsyncElement el, Exception ex)
-    {
-        if (OnError is null)
-            return;
-        
-        OnError(el, ex);
-    }
+        => OnError?.Invoke(el, ex);
 
     void ExecuteAsync(IAsyncElement node)
     {
         if (node is null)
             return;
-        
-        activeCount++;
+
+        Interlocked.Increment(ref activeCount);
         Task.Run(() => {
             try
             {
@@ -94,7 +95,7 @@ public class DefaultModel : IAsyncModel
             }
             finally
             {
-                activeCount--;
+                Interlocked.Decrement(ref activeCount);
                 queueSignal.Set();
             }
         });

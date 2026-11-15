@@ -10,78 +10,113 @@ namespace Blindness.Concurrency;
 /// </summary>
 public abstract class LoopAsyncElement(IAsyncModel model) : BaseAsyncElement(model)
 {
+    readonly object sync = new();
+    readonly AutoResetEvent pauseSignal = new(false);
+    volatile bool isRunning, isPaused, isWaitingToPause, isWaitingToResume, isWaitingToStop;
+
     /// <summary>
     /// Get if the Run method already been called. The IsRunning
     /// property returns true even if the element is paused.
     /// </summary>
-    public bool IsRunning { get; private set; } = false;
+    public bool IsRunning => isRunning;
 
     /// <summary>
     /// Get if the element is paused and is not calling OnRun
     /// method.
     /// </summary>
-    public bool IsPaused { get; private set; } = false;
+    public bool IsPaused => isPaused;
 
     /// <summary>
     /// Get if the pause already is request but the pause
     /// has not yet been applied.
     /// </summary>
-    public bool IsWaitingToPause { get; private set; } = false;
+    public bool IsWaitingToPause => isWaitingToPause;
 
     /// <summary>
     /// Get if the resume already is request but the resume
     /// has not yet been applied.
     /// </summary>
-    public bool IsWaitingToResume { get; private set; } = false;
+    public bool IsWaitingToResume => isWaitingToResume;
 
     /// <summary>
     /// Get if the stop already is request but the stop
     /// has not yet been applied.
     /// </summary>
-    public bool IsWaitingToStop { get; private set; } = false;
-    readonly AutoResetEvent pauseSignal = new(false);
+    public bool IsWaitingToStop => isWaitingToStop;
 
     public override void Pause()
     {
-        if (IsPaused)
-            return;
-        
-        IsWaitingToPause = true;
+        lock (sync)
+        {
+            if (isPaused)
+                return;
+
+            isWaitingToPause = true;
+        }
     }
 
     public override void Resume()
     {
-        if (!IsPaused)
-            return;
+        lock (sync)
+        {
+            if (isWaitingToPause)
+            {
+                isWaitingToPause = false;
+                return;
+            }
 
-        pauseSignal.Set();
-        IsWaitingToResume = true;
+            if (!isPaused)
+                return;
+
+            isWaitingToResume = true;
+            pauseSignal.Set();
+        }
     }
 
     public override void Run()
     {
         OnInit();
-        IsRunning = true;
-        while (!IsWaitingToStop)
+        isRunning = true;
+        while (!isWaitingToStop)
         {
-            if (IsWaitingToPause)
+            bool pauseNow = false;
+            lock (sync)
             {
-                IsPaused = true;
-                IsWaitingToPause = false;
+                if (isWaitingToPause)
+                {
+                    isPaused = true;
+                    isWaitingToPause = false;
+                    pauseNow = true;
+                }
+            }
+
+            if (pauseNow)
+            {
                 pauseSignal.WaitOne();
-                IsWaitingToResume = false;
-                IsPaused = false;
+                lock (sync)
+                {
+                    isWaitingToResume = false;
+                    isPaused = false;
+                }
+                continue;
             }
 
             OnRun();
         }
-        IsRunning = false;
+        isRunning = false;
         OnStop();
     }
 
     public override void Stop()
-        => IsWaitingToStop = true;
-    
+    {
+        lock (sync)
+        {
+            isWaitingToStop = true;
+            if (isPaused)
+                pauseSignal.Set();
+        }
+    }
+
     /// <summary>
     /// Run this method when the Run method is called.
     /// </summary>
@@ -93,7 +128,7 @@ public abstract class LoopAsyncElement(IAsyncModel model) : BaseAsyncElement(mod
     /// the elements is selected by the model to run.
     /// </summary>
     protected abstract void OnStop();
-    
+
     /// <summary>
     /// Run this method in every execution loop.
     /// </summary>

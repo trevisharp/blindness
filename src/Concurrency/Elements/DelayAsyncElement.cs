@@ -3,57 +3,71 @@
  */
 using System;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Blindness.Concurrency.Elements;
 
+/// <summary>
+/// Run a action after a delay. Pausing the element pauses the countdown.
+/// </summary>
 public class DelayAsyncElement(
     IAsyncModel model,
     double seconds,
     Action onFinish
     ) : BaseAsyncElement(model)
 {
-    bool isRunning = false;
-    DateTime start = DateTime.MaxValue;
-    DateTime pauseStart = DateTime.MaxValue;
+    readonly Stopwatch elapsed = new();
+    readonly ManualResetEvent stopSignal = new(false);
+    readonly object sync = new();
+    volatile bool isRunning = false;
 
     public override void Pause()
     {
-        if (pauseStart != DateTime.MaxValue)
-            return;
-
-        pauseStart = DateTime.Now;
+        lock (sync)
+            elapsed.Stop();
     }
 
     public override void Resume()
     {
-        if (pauseStart == DateTime.MaxValue)
-            return;
-        
-        var time = DateTime.Now - pauseStart;
-        pauseStart = DateTime.MaxValue;
-        seconds += time.TotalSeconds;
+        lock (sync)
+        {
+            if (isRunning)
+                elapsed.Start();
+        }
     }
 
     public override void Run()
     {
-        start = DateTime.Now;
-        isRunning = true;
+        lock (sync)
+        {
+            isRunning = true;
+            stopSignal.Reset();
+            elapsed.Restart();
+        }
 
-        while (isRunning) {
-            Thread.Sleep(25);
-            
-            if (pauseStart != DateTime.MaxValue)
-                continue;
+        while (isRunning)
+        {
+            TimeSpan remaining;
+            lock (sync)
+                remaining = TimeSpan.FromSeconds(seconds) - elapsed.Elapsed;
 
-            var time = DateTime.Now - start;
-            if (time.TotalSeconds > seconds)
+            if (remaining <= TimeSpan.Zero)
                 break;
+
+            var wait = remaining < TimeSpan.FromMilliseconds(50) ? remaining : TimeSpan.FromMilliseconds(50);
+            stopSignal.WaitOne(wait);
         }
 
         if (isRunning)
+        {
+            isRunning = false;
             onFinish();
+        }
     }
 
     public override void Stop()
-        => isRunning = false;
+    {
+        isRunning = false;
+        stopSignal.Set();
+    }
 }

@@ -18,7 +18,7 @@ public class ReloadElement(
         IAsyncElement main
     ) : BaseAsyncElement(model)
 {
-    bool paused = false;
+    volatile bool paused = false;
 
     public IAsyncElement Reloader => reloader;
     public IAsyncElement Main => main;
