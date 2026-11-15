@@ -290,6 +290,55 @@ public interface TextBox : INode
 }
 ```
 
+### Release events and react when a node leaves
+
+```cs
+using System;
+
+using Blindness.Core;
+
+App.Start<Clock>();
+
+public interface Clock : INode
+{
+    int Seconds { get; set; }
+    IDisposable Alarm { get; set; }
+
+    void OnLoad()
+    {
+        // When, On and Bind return a IDisposable that removes them
+        Alarm = On(() => Seconds > 10, late => Console.WriteLine(late ? "Late!" : "On time"));
+    }
+
+    void OnRun()
+    {
+        Seconds++;
+        if (Seconds == 20)
+            Alarm.Dispose();
+    }
+
+    // Runs on Pop, on Clear, when Open replaces the node and on the old node of a hot reload.
+    // Every event and binding registered by the node is released after it.
+    void OnUnload()
+        => Console.WriteLine("Clock closed");
+}
+```
+
+### Send the logs anywhere
+
+```cs
+using System.IO;
+
+using Blindness;
+
+// The console is the default sink. Apps without console can write to the IDE output:
+Verbose.Sinks.Clear();
+Verbose.Sinks.Add(Verbose.DebugSink);
+
+// Or handle the messages by yourself
+Verbose.Sinks.Add(message => File.AppendAllText("log.txt", $"{message.Kind}: {message.Text}\n"));
+```
+
 ### ...Or use only the resources that you like
 
 ```cs
